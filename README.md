@@ -74,6 +74,7 @@ Papers are fetched from OpenAlex using curated title-query aliases, sorted towar
 | `data/embedded_papers.json` | 1024-dimensional truncated embeddings plus metadata |
 | `data/bm25_index.pkl` | Local BM25 sparse retrieval index |
 | `data/full_text_sources.json` | Discovered legal open full-text PDF sources |
+| `data/full_text_selected.json` | Topic-balanced full-text subset selected for PDF extraction |
 | Qdrant `research_papers` collection | Dense vector index with 250 points |
 
 ## Structured Metadata
@@ -169,6 +170,27 @@ Available full-text papers by topic:
 
 This is enough to build a 100-150 paper full-text subset while keeping all 250 papers in the abstract-level index.
 
+Selected full-text subset:
+
+```text
+selected full-text papers: 125
+selection strategy: 25 highest-citation available papers per topic
+arXiv sources: 35
+OpenAlex open-access PDF sources: 90
+max citation count: 6583
+min citation count: 33
+```
+
+Selected papers by topic:
+
+| Research Area | Selected Full Text Papers |
+| --- | ---: |
+| Retrieval-Augmented Generation (RAG) | 25 |
+| Transformers / Attention Mechanisms | 25 |
+| LLM Evaluation & Hallucination Detection | 25 |
+| AI Agents & Tool Use | 25 |
+| Fine-tuning (LoRA / PEFT) | 25 |
+
 ## Validation
 
 Current validated numbers:
@@ -181,7 +203,7 @@ Qdrant points: 250
 BM25 documents: 250
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 35 passed
+tests: 41 passed
 ```
 
 The validation counts above are generated from the local artifacts and indexing checks.
@@ -276,6 +298,12 @@ Discover open full-text sources:
 
 ```bash
 python -m full_text.discover_sources --input data/enriched_papers_final.json --output data/full_text_sources.json
+```
+
+Select the full-text subset:
+
+```bash
+python -m full_text.select_sources --input data/full_text_sources.json --output data/full_text_selected.json --per-topic 25
 ```
 
 Run tests:

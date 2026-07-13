@@ -198,3 +198,14 @@ Reasoning:
 - This is enough to select a high-citation, topic-balanced full-text subset without depending on closed-access papers.
 - The next full-text steps should download, extract, chunk, and embed only the available subset, while unavailable papers stay abstract-only.
 
+## 2026-07-13: Select 125 Full-Text Papers With Topic Balance
+
+We will start full-text extraction with 125 selected papers: the top 25 available full-text sources per topic, ranked by citation count.
+
+Reasoning:
+- The user target is 100-150 full-text papers, and 125 lands in the middle of that range.
+- A fixed 25-per-topic selection prevents the full-text index from being dominated by whichever topic has the most open PDFs.
+- Citation count remains a transparent ranking signal for selecting influential papers from the 173 available sources.
+- The selected subset contains 35 arXiv PDFs and 90 OpenAlex open-access PDFs.
+- This subset should be downloaded and extracted first; the remaining available sources can be added later if the extraction quality is good.
+
