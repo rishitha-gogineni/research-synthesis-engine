@@ -176,3 +176,14 @@ Reasoning:
 - The wrapper keeps the LLM out of the first retrieval step; generation will only see selected evidence papers instead of the full 250-paper corpus.
 - This creates a clean foundation for the next phase: local cross-encoder reranking and evidence-backed answer generation.
 
+## 2026-07-13: Add a Tool-Style Retrieval Interface Before API Work
+
+We will wrap hybrid retrieval in `tools.research_retrieval` with Pydantic request and response schemas before building FastAPI or UI endpoints.
+
+Reasoning:
+- The retrieval layer needs a stable contract before it is exposed through an API, agent, or dashboard.
+- Pydantic schemas make the tool output predictable for later synthesis, reranking, and UI rendering.
+- Tests can mock the retrieval function and validate the tool contract without spending OpenAI credits or requiring Qdrant to be running.
+- A JSON CLI gives a simple manual debugging path while the backend and UI are still under construction.
+- Keeping the wrapper separate from `retrieval.hybrid_search` preserves a clean boundary between retrieval mechanics and tool-facing behavior.
+

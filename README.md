@@ -22,7 +22,7 @@ The final product output will be:
 **Phase 1: Ingestion & Indexing — Complete**  
 **Phase 2: Live Hybrid Retrieval — In Progress**
 
-The offline ingestion and indexing pipeline is implemented and validated. The first live retrieval wrapper is also available for free-text user questions.
+The offline ingestion and indexing pipeline is implemented and validated. Live hybrid retrieval is now available as both a Python module and a tool-style JSON interface for free-text user questions.
 
 ```text
 OpenAlex fetch
@@ -118,6 +118,7 @@ The project now has both retrieval indexes needed for hybrid search:
 - **Dense retrieval:** Qdrant collection `research_papers`, 250 vectors, cosine distance, 1024 dimensions
 - **Sparse retrieval:** BM25 index over the same 250-paper corpus
 - **Hybrid retrieval:** `retrieval.hybrid_search` embeds a user question, searches Qdrant and BM25, merges duplicate papers, and returns ranked candidates with dense, sparse, and hybrid scores
+- **Tool interface:** `tools.research_retrieval` validates request/response schemas and returns JSON for downstream API, agent, or UI layers
 
 Hybrid query example:
 
@@ -153,7 +154,7 @@ Qdrant points: 250
 BM25 documents: 250
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 22 passed
+tests: 29 passed
 ```
 
 The validation counts above are generated from the local artifacts and indexing checks.
@@ -238,6 +239,12 @@ Hybrid retrieval query:
 python -m retrieval.hybrid_search "What are the main approaches for reducing hallucinations in LLMs?" --final-top-k 5
 ```
 
+Tool-style JSON retrieval:
+
+```bash
+python -m tools.research_retrieval "What are the main approaches for reducing hallucinations in LLMs?" --top-k 5
+```
+
 Run tests:
 
 ```bash
@@ -254,6 +261,7 @@ user question
 → dense Qdrant search
 → BM25 sparse search
 → result fusion
+→ tool-style JSON response
 → local cross-encoder reranking
 → citation-aware scoring
 → CRAG confidence check

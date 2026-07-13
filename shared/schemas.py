@@ -2,7 +2,7 @@
 
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class Paper(BaseModel):
@@ -39,3 +39,52 @@ class EnrichedPaper(Paper):
         min_length=1,
         description='Limitation stated in the abstract; use "not stated in abstract" when absent.',
     )
+
+
+class RetrievalRequest(BaseModel):
+    """Input schema for a research retrieval tool call."""
+
+    query: str = Field(..., min_length=1)
+    top_k: int = Field(default=10, ge=1, le=50)
+    dense_top_k: int = Field(default=20, ge=1, le=100)
+    sparse_top_k: int = Field(default=20, ge=1, le=100)
+
+    @field_validator("query")
+    @classmethod
+    def query_must_not_be_blank(cls, value: str) -> str:
+        stripped = value.strip()
+        if not stripped:
+            raise ValueError("query must not be empty")
+        return stripped
+
+
+class RetrievedPaper(BaseModel):
+    """A candidate paper returned by the retrieval tool."""
+
+    paper_id: Optional[str] = None
+    title: str = Field(..., min_length=1)
+    topic: str = Field(..., min_length=1)
+    year: Optional[int] = None
+    citation_count: int = Field(default=0, ge=0)
+    authors: list[str] = Field(default_factory=list)
+    abstract: Optional[str] = None
+    arxiv_id: Optional[str] = None
+    url: Optional[str] = None
+    main_contribution: Optional[str] = None
+    methodology: Optional[str] = None
+    dataset_used: Optional[str] = None
+    key_result: Optional[str] = None
+    limitations: Optional[str] = None
+    dense_score: Optional[float] = None
+    sparse_score: Optional[float] = None
+    hybrid_score: float = Field(default=0.0, ge=0.0)
+    matched_by: list[str] = Field(default_factory=list)
+
+
+class RetrievalResponse(BaseModel):
+    """Output schema for a research retrieval tool call."""
+
+    query: str = Field(..., min_length=1)
+    result_count: int = Field(..., ge=0)
+    results: list[RetrievedPaper] = Field(default_factory=list)
+
