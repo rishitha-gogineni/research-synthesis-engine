@@ -86,7 +86,7 @@ We will use `gpt-4o-mini` for Day 3 extraction from abstracts.
 
 Reasoning:
 - The task is structured extraction from short abstracts, so a small model is sufficient and cost-aware.
-- The prompt explicitly requires `"not specified"` for missing datasets, results, or limitations to reduce hallucinated metadata.
+- The prompt explicitly requires `"not stated in abstract"` for missing datasets, results, or limitations to reduce hallucinated metadata.
 - Every output is validated with Pydantic before being saved.
 - Malformed or invalid outputs are retried once, then logged and skipped so one bad paper does not crash the batch.
 - The script saves progress after each paper and skips already enriched records on rerun to avoid accidental duplicate API spend.
@@ -121,3 +121,47 @@ Reasoning:
 - UUIDv5 gives a deterministic ID for each paper, so rerunning the index script updates existing points rather than creating duplicates.
 - The original OpenAlex paper ID is still stored in the payload for traceability.
 - This keeps local indexing replayable without introducing Kafka or another event replay system.
+
+## 2026-07-13: Keep Missing Extraction Values Explicitly Abstract-Scoped
+
+We will use `"not stated in abstract"` for missing `dataset_used`, `key_result`, and `limitations` fields instead of the shorter `"not specified"`.
+
+Reasoning:
+- The extraction source for Day 3 is only the title and abstract, not the full paper.
+- `"not stated in abstract"` is more precise and makes it clear that the system is not claiming the full paper lacks that information.
+- Survey-style papers naturally have more missing experiment fields because their abstracts summarize a research area rather than report one dataset, metric, or limitation.
+- This wording makes the structured metadata easier to defend during demos and interviews.
+- Existing enriched data does not need to be reprocessed just for this label; future extraction runs will use the clearer wording.
+
+## 2026-07-13: Keep Generated Data Local and Keep Git Focused on Reproducible Code
+
+We will keep large or regenerated artifacts such as `data/raw_papers.json`, `data/enriched_papers_final.json`, `data/embedded_papers.json`, `data/bm25_index.pkl`, and local Qdrant storage out of git.
+
+Reasoning:
+- The repository should remain lightweight and easy for reviewers to clone.
+- The code, schemas, tests, documentation, and commands are the durable project assets.
+- Data files can be regenerated from the ingestion pipeline when API keys are available.
+- Keeping secrets and local artifacts out of git avoids accidental exposure of API keys or machine-specific state.
+- The README documents the expected artifact names and current local counts so the pipeline remains understandable without committing generated data.
+
+## 2026-07-13: Present the Public README as a Product-Style Project, Not a Day-by-Day Assignment
+
+We will describe the public project status as phases, such as `Phase 1: Ingestion & Indexing`, instead of framing the README around day numbers.
+
+Reasoning:
+- The day-by-day plan is useful for execution, but a public GitHub README should read like an engineering project.
+- Phase language makes the work easier for recruiters, interviewers, and collaborators to understand quickly.
+- The detailed build plan still lives in `docs/research-synthesis-engine-build-plan.md` for planning traceability.
+- The README should highlight architecture, data flow, validation, and next-phase work rather than internal scheduling.
+
+## 2026-07-13: Expand Toward a Research Intelligence Product After the Core Plan
+
+After the core day-by-day plan is complete, the project should expand from a retrieval pipeline into a research intelligence tool.
+
+Reasoning:
+- A simple RAG chatbot would undersell the work already done in ingestion, extraction, indexing, and evaluation.
+- The stronger product direction is an evidence-grounded research synthesis assistant that can compare methods, surface datasets and limitations, recommend reading paths, and identify research gaps.
+- This expansion builds naturally on the existing schema fields: methodology, dataset, key result, limitation, citation count, topic, and source IDs.
+- The best demo output should be a research analyst brief with citations and evidence tables, not a generic paragraph summary.
+- This path gives the project a clearer internship story across data engineering, LLM extraction, vector search, retrieval evaluation, backend APIs, and user-facing product design.
+
