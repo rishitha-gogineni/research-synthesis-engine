@@ -187,3 +187,14 @@ Reasoning:
 - A JSON CLI gives a simple manual debugging path while the backend and UI are still under construction.
 - Keeping the wrapper separate from `retrieval.hybrid_search` preserves a clean boundary between retrieval mechanics and tool-facing behavior.
 
+## 2026-07-13: Build Full-Text Retrieval From a Legal Open-Access Subset
+
+We will not force full-text coverage for all 250 papers. Instead, we will build a 100-150 paper full-text subset from papers with legal open PDFs.
+
+Reasoning:
+- The existing 250-paper abstract index remains useful for broad discovery across all topics.
+- Full-text retrieval should only use legal open sources such as arXiv and OpenAlex open-access PDF locations.
+- The first source discovery run found 173 available full-text PDF sources: 49 arXiv sources and 124 OpenAlex open-access PDF sources.
+- This is enough to select a high-citation, topic-balanced full-text subset without depending on closed-access papers.
+- The next full-text steps should download, extract, chunk, and embed only the available subset, while unavailable papers stay abstract-only.
+

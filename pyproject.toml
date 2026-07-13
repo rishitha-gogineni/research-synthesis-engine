@@ -25,5 +25,5 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["ingestion*", "retrieval*", "agent*", "tools*", "api*", "ui*", "shared*"]
+include = ["ingestion*", "retrieval*", "full_text*", "agent*", "tools*", "api*", "ui*", "shared*"]
 

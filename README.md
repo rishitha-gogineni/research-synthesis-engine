@@ -73,6 +73,7 @@ Papers are fetched from OpenAlex using curated title-query aliases, sorted towar
 | `data/enriched_papers_final.json` | LLM-extracted structured metadata |
 | `data/embedded_papers.json` | 1024-dimensional truncated embeddings plus metadata |
 | `data/bm25_index.pkl` | Local BM25 sparse retrieval index |
+| `data/full_text_sources.json` | Discovered legal open full-text PDF sources |
 | Qdrant `research_papers` collection | Dense vector index with 250 points |
 
 ## Structured Metadata
@@ -142,6 +143,32 @@ SelfCheckGPT: Zero-Resource Black-Box Hallucination Detection
 HaluEval: A Large-Scale Hallucination Evaluation Benchmark
 ```
 
+## Full-Text Source Discovery
+
+The project includes a source discovery step for legal open PDFs. It checks existing arXiv links first, then queries OpenAlex for open-access PDF locations.
+
+Current local discovery result:
+
+```text
+full-text sources checked: 250
+full-text available: 173
+arXiv sources: 49
+OpenAlex open-access PDF sources: 124
+unavailable: 77
+```
+
+Available full-text papers by topic:
+
+| Research Area | Full Text Available |
+| --- | ---: |
+| Retrieval-Augmented Generation (RAG) | 40 |
+| Transformers / Attention Mechanisms | 26 |
+| LLM Evaluation & Hallucination Detection | 39 |
+| AI Agents & Tool Use | 35 |
+| Fine-tuning (LoRA / PEFT) | 33 |
+
+This is enough to build a 100-150 paper full-text subset while keeping all 250 papers in the abstract-level index.
+
 ## Validation
 
 Current validated numbers:
@@ -154,7 +181,7 @@ Qdrant points: 250
 BM25 documents: 250
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 29 passed
+tests: 35 passed
 ```
 
 The validation counts above are generated from the local artifacts and indexing checks.
@@ -243,6 +270,12 @@ Tool-style JSON retrieval:
 
 ```bash
 python -m tools.research_retrieval "What are the main approaches for reducing hallucinations in LLMs?" --top-k 5
+```
+
+Discover open full-text sources:
+
+```bash
+python -m full_text.discover_sources --input data/enriched_papers_final.json --output data/full_text_sources.json
 ```
 
 Run tests:
