@@ -17,9 +17,11 @@ The final product output will be:
 - Open problems
 - Optional timeline
 
-## Current Status
+## Project Status
 
-Days 1-5 are complete. The offline ingestion and indexing pipeline is implemented and validated.
+**Phase 1: Ingestion & Indexing — Complete**
+
+The offline ingestion and indexing pipeline is implemented and validated.
 
 ```text
 OpenAlex fetch
@@ -91,6 +93,22 @@ limitations
 ```
 
 The extraction prompt explicitly requires `"not specified"` when a dataset, key result, or limitation is not stated in the abstract.
+
+Example enriched record:
+
+```json
+{
+  "title": "Retrieval-Augmented Generation for Large Language Models: A Survey",
+  "topic": "Retrieval-Augmented Generation (RAG)",
+  "citation_count": 670,
+  "year": 2023,
+  "main_contribution": "Comprehensive review of Retrieval-Augmented Generation (RAG) paradigms.",
+  "methodology": "Detailed examination of RAG frameworks and technologies.",
+  "dataset_used": "not specified",
+  "key_result": "not specified",
+  "limitations": "not specified"
+}
+```
 
 ## Retrieval Foundation
 
