@@ -165,3 +165,14 @@ Reasoning:
 - The best demo output should be a research analyst brief with citations and evidence tables, not a generic paragraph summary.
 - This path gives the project a clearer internship story across data engineering, LLM extraction, vector search, retrieval evaluation, backend APIs, and user-facing product design.
 
+## 2026-07-13: Start Live Retrieval With a Hybrid Qdrant + BM25 Wrapper
+
+We will expose Day 6 retrieval through a reusable Python module that accepts any free-text research question, embeds it, searches Qdrant and BM25, and returns merged candidate papers.
+
+Reasoning:
+- User questions should be dynamic; answers should not be hardcoded to sample prompts.
+- Qdrant provides semantic matching, while BM25 preserves exact keyword and phrase matches for terms such as `hallucination`, `LoRA`, or `tool use`.
+- Returning dense, sparse, and hybrid scores makes later debugging, reranking, and evaluation easier.
+- The wrapper keeps the LLM out of the first retrieval step; generation will only see selected evidence papers instead of the full 250-paper corpus.
+- This creates a clean foundation for the next phase: local cross-encoder reranking and evidence-backed answer generation.
+

@@ -19,9 +19,10 @@ The final product output will be:
 
 ## Project Status
 
-**Phase 1: Ingestion & Indexing — Complete**
+**Phase 1: Ingestion & Indexing — Complete**  
+**Phase 2: Live Hybrid Retrieval — In Progress**
 
-The offline ingestion and indexing pipeline is implemented and validated.
+The offline ingestion and indexing pipeline is implemented and validated. The first live retrieval wrapper is also available for free-text user questions.
 
 ```text
 OpenAlex fetch
@@ -116,6 +117,13 @@ The project now has both retrieval indexes needed for hybrid search:
 
 - **Dense retrieval:** Qdrant collection `research_papers`, 250 vectors, cosine distance, 1024 dimensions
 - **Sparse retrieval:** BM25 index over the same 250-paper corpus
+- **Hybrid retrieval:** `retrieval.hybrid_search` embeds a user question, searches Qdrant and BM25, merges duplicate papers, and returns ranked candidates with dense, sparse, and hybrid scores
+
+Hybrid query example:
+
+```bash
+python -m retrieval.hybrid_search "What are the main approaches for reducing hallucinations in LLMs?" --final-top-k 5
+```
 
 Dense sanity query:
 
@@ -145,7 +153,7 @@ Qdrant points: 250
 BM25 documents: 250
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 17 passed
+tests: 22 passed
 ```
 
 The validation counts above are generated from the local artifacts and indexing checks.
@@ -224,6 +232,12 @@ Dense search sanity check:
 python -m retrieval.search_qdrant "hallucination detection in large language models"
 ```
 
+Hybrid retrieval query:
+
+```bash
+python -m retrieval.hybrid_search "What are the main approaches for reducing hallucinations in LLMs?" --final-top-k 5
+```
+
 Run tests:
 
 ```bash
@@ -232,7 +246,7 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest tests
 
 ## Next Phase
 
-The next phase is the live retrieval pipeline:
+The next phase extends the retrieval pipeline:
 
 ```text
 user question
