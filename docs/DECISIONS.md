@@ -1,0 +1,123 @@
+# Decision Log
+
+This file records project decisions while the implementation is still fresh. Every major design choice should be tied to the project scope, data scale, demo goals, and measurable outcomes.
+
+## 2026-07-10: Start With 5 Topics
+
+We will start with a small, curated set of about 5 research topics instead of trying to ingest every possible area.
+
+Reasoning:
+- A focused topic set keeps ingestion, evaluation, and demo review manageable within the 20-25 day build window.
+- Retrieval metrics such as Recall@K and MRR are easier to inspect honestly when the corpus is small enough to manually review.
+- Five topics provide enough variety to demonstrate routing, comparison, and timeline behavior without turning Day 1 into a data collection project.
+- This scope still supports the main technical story: hybrid retrieval, reranking, CRAG confidence checks, and grounded synthesis.
+
+## 2026-07-10: Use Batch Ingestion Instead of Kafka
+
+We will use Python batch ingestion scripts and local persisted records instead of Kafka or any event streaming system.
+
+Reasoning:
+- The initial dataset is small and finite: academic papers fetched per topic from Semantic Scholar.
+- The system does not need continuous real-time event processing to satisfy the core product goal.
+- Batch ingestion is easier to test, rerun, debug, and explain for this project size.
+- Idempotent re-ingestion and upsert behavior provide the practical replayability story this project needs.
+- Avoiding Kafka keeps the architecture honest; Kafka can be reserved for a separate project with a genuinely continuous data source.
+
+## 2026-07-10: Use a Local Cross-Encoder Instead of Cohere Rerank
+
+We will use an open-source local cross-encoder from `sentence-transformers` instead of Cohere Rerank.
+
+Reasoning:
+- A local reranker avoids extra API cost and rate limits.
+- It keeps the project mostly free apart from OpenAI embedding and synthesis usage.
+- It makes the ranking stage reproducible during tests and demos.
+- It demonstrates a real two-stage retrieval architecture: first retrieve broadly with dense and sparse search, then rerank a smaller candidate set with a stronger local model.
+- Cohere can be mentioned as an alternative, but the project does not need another paid external dependency to prove the technical point.
+
+## 2026-07-10: Skip Papers Without Abstracts During Raw Ingestion
+
+We will skip raw paper records that do not have both a title and a reconstructable abstract.
+
+Reasoning:
+- The abstract is the minimum text field needed for embedding, BM25 indexing, extraction, and grounded synthesis.
+- Keeping abstract-free records would create noisy retrieval candidates and force special-case handling immediately in Days 3-5.
+- The ingestion script reports how many records were skipped per topic so this filtering remains visible.
+- This is a raw-ingestion quality filter, not an enrichment step; the saved `data/raw_papers.json` still contains ungenerated paper metadata from OpenAlex.
+
+## 2026-07-10: Use These 5 Initial Topics
+
+The Day 2 ingestion corpus will use these topics:
+- Retrieval-Augmented Generation (RAG)
+- Transformers / Attention Mechanisms
+- LLM Evaluation & Hallucination Detection
+- AI Agents & Tool Use
+- Fine-tuning (LoRA / PEFT)
+
+Reasoning:
+- Together they cover retrieval, model architecture, evaluation, agentic systems, and adaptation techniques.
+- They align tightly with the final demo story for a research synthesis engine.
+- Each topic is broad enough to retrieve around 50 relevant papers while still being specific enough for manual review and evaluation.
+
+## 2026-07-10: Switch Day 2 Ingestion From Semantic Scholar to OpenAlex
+
+We will use OpenAlex for the Day 2 raw paper ingestion source instead of Semantic Scholar.
+
+Reasoning:
+- The first live Semantic Scholar request returned `429 Too Many Requests` before yielding even one paper.
+- OpenAlex returned a valid paper search response immediately for the first RAG topic test.
+- OpenAlex provides the fields this project needs: title, authors, reconstructed abstract, cited-by count, publication year, DOI, arXiv IDs, and source URLs.
+- OpenAlex's abstract format requires a small reconstruction step from `abstract_inverted_index`, but that is simpler than fighting early ingestion rate limits.
+- The script supports `OPENALEX_API_KEY` if we add one later, while still allowing public test calls when OpenAlex permits them.
+
+## 2026-07-10: Use Curated Title Queries and Sort by Citation Count
+
+We will fetch OpenAlex works with curated `title.search` query aliases per topic and `sort=cited_by_count:desc` by default.
+
+Reasoning:
+- The project should start from influential research papers, not just the first relevance-ranked search results.
+- Sorting broad full-text search by citation count can pull in irrelevant but highly cited works, so the script searches titles with topic-specific aliases before ranking by citations.
+- Citation count is an imperfect proxy for quality, but it is transparent, measurable, and already part of the project schema.
+- Later retrieval will still use semantic relevance; this ingestion sort only controls which 50 papers per topic enter the initial corpus.
+- The saved corpus remains auditable because every paper keeps its OpenAlex ID and citation count.
+
+## 2026-07-11: Use gpt-4o-mini for Abstract Extraction
+
+We will use `gpt-4o-mini` for Day 3 extraction from abstracts.
+
+Reasoning:
+- The task is structured extraction from short abstracts, so a small model is sufficient and cost-aware.
+- The prompt explicitly requires `"not specified"` for missing datasets, results, or limitations to reduce hallucinated metadata.
+- Every output is validated with Pydantic before being saved.
+- Malformed or invalid outputs are retried once, then logged and skipped so one bad paper does not crash the batch.
+- The script saves progress after each paper and skips already enriched records on rerun to avoid accidental duplicate API spend.
+
+## 2026-07-11: Truncate OpenAI Embeddings From 3072 to 1024 Dimensions
+
+We will create embeddings with `text-embedding-3-large` and store the first 1024 dimensions.
+
+Reasoning:
+- `text-embedding-3-large` returns high-quality 3072-dimensional embeddings.
+- Matryoshka-style truncation lets us reduce storage and Qdrant memory while preserving a meaningful prefix representation.
+- The 1024-dimensional vector is a practical size for the project corpus and local Qdrant.
+- We will measure the retrieval tradeoff later instead of claiming an unverified accuracy-retention percentage.
+
+## 2026-07-12: Change Final Output to a Research Analyst Brief
+
+We will make the final product output a research analyst brief instead of a generic synthesis/matrix/timeline package.
+
+Reasoning:
+- A generic summary can feel like an ordinary RAG demo, while a research brief feels like a practical decision-support tool.
+- Users should not need to know the exact papers in the corpus; the UI will show available research areas, suggested questions, and a free-text question box.
+- The primary outputs will be a direct answer, research themes, an evidence matrix, a recommended reading path, and open problems.
+- The timeline remains useful, but it becomes a secondary supporting view instead of the main product promise.
+- This change does not require redoing Days 1-4 because the existing metadata fields support the stronger output format.
+
+## 2026-07-12: Use Stable Qdrant Point IDs for Idempotent Upserts
+
+We will derive Qdrant point IDs from each paper's source ID using UUIDv5.
+
+Reasoning:
+- Qdrant point IDs must be valid UUID strings or unsigned integers, while OpenAlex IDs are URLs.
+- UUIDv5 gives a deterministic ID for each paper, so rerunning the index script updates existing points rather than creating duplicates.
+- The original OpenAlex paper ID is still stored in the payload for traceability.
+- This keeps local indexing replayable without introducing Kafka or another event replay system.
