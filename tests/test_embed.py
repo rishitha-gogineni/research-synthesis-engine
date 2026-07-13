@@ -19,7 +19,7 @@ def make_enriched_paper() -> EnrichedPaper:
         methodology="Evaluates retrieval over question answering.",
         dataset_used="QA benchmark",
         key_result="Improves answer grounding.",
-        limitations="not specified",
+        limitations="not stated in abstract",
     )
 
 
@@ -29,7 +29,7 @@ def test_build_embedding_text_contains_core_fields():
     assert "Title: A test paper" in text
     assert "Topic: Retrieval-Augmented Generation (RAG)" in text
     assert "Main contribution: Introduces a retrieval method." in text
-    assert "Limitations: not specified" in text
+    assert "Limitations: not stated in abstract" in text
 
 
 def test_truncate_embedding_keeps_prefix_dimensions():

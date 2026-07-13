@@ -21,8 +21,8 @@ def test_enrich_paper_returns_schema_compliant_output():
             "main_contribution": "Proposes a retrieval method.",
             "methodology": "Evaluates the method on a QA benchmark.",
             "dataset_used": "QA benchmark",
-            "key_result": "not specified",
-            "limitations": "not specified",
+            "key_result": "not stated in abstract",
+            "limitations": "not stated in abstract",
         }
 
     enriched = enrich_paper(make_paper(), extractor=fake_extractor)
@@ -30,7 +30,7 @@ def test_enrich_paper_returns_schema_compliant_output():
     assert isinstance(enriched, EnrichedPaper)
     assert enriched.main_contribution == "Proposes a retrieval method."
     assert enriched.dataset_used == "QA benchmark"
-    assert enriched.limitations == "not specified"
+    assert enriched.limitations == "not stated in abstract"
 
 
 def test_enrich_paper_retries_malformed_json_once():
@@ -43,9 +43,9 @@ def test_enrich_paper_retries_malformed_json_once():
         return {
             "main_contribution": "Introduces a benchmark.",
             "methodology": "Compares model answers against references.",
-            "dataset_used": "not specified",
-            "key_result": "not specified",
-            "limitations": "not specified",
+            "dataset_used": "not stated in abstract",
+            "key_result": "not stated in abstract",
+            "limitations": "not stated in abstract",
         }
 
     enriched = enrich_paper(make_paper(), extractor=flaky_extractor, retries=1)
@@ -58,9 +58,9 @@ def test_enrich_paper_fails_after_retry_when_required_field_missing():
     def invalid_extractor(_paper):
         return {
             "main_contribution": "Something useful.",
-            "methodology": "not specified",
-            "dataset_used": "not specified",
-            "key_result": "not specified",
+            "methodology": "not stated in abstract",
+            "dataset_used": "not stated in abstract",
+            "key_result": "not stated in abstract",
         }
 
     with pytest.raises(ValueError):

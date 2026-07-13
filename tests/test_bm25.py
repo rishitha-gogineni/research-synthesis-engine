@@ -18,10 +18,10 @@ def make_record(title, topic):
             "title": title,
             "abstract": "A paper about hallucination detection.",
             "main_contribution": "Detects hallucinations.",
-            "methodology": "not specified",
-            "dataset_used": "not specified",
-            "key_result": "not specified",
-            "limitations": "not specified",
+            "methodology": "not stated in abstract",
+            "dataset_used": "not stated in abstract",
+            "key_result": "not stated in abstract",
+            "limitations": "not stated in abstract",
         },
     }
 

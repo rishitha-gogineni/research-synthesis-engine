@@ -17,7 +17,7 @@ from shared.schemas import EnrichedPaper, Paper
 
 
 DEFAULT_MODEL = "gpt-4o-mini"
-NOT_SPECIFIED = "not specified"
+MISSING_FIELD_VALUE = "not stated in abstract"
 
 
 class ExtractedFields(BaseModel):
@@ -82,7 +82,7 @@ def build_prompt(paper: Paper) -> list[dict[str, str]]:
     system_prompt = (
         "You extract structured research metadata from academic abstracts. "
         "Use only evidence stated in the title and abstract. Do not guess. "
-        f'If the abstract does not specify a field, write "{NOT_SPECIFIED}". '
+        f'If the abstract does not specify a field, write "{MISSING_FIELD_VALUE}". '
         "Return strict JSON only."
     )
     user_prompt = f"""
@@ -96,9 +96,9 @@ Extract these exact JSON fields from the paper:
 Rules:
 - Use concise phrases or one short sentence per field.
 - Do not infer datasets, results, or limitations that are not stated.
-- If a dataset is not mentioned, use "{NOT_SPECIFIED}".
-- If a key result is not mentioned, use "{NOT_SPECIFIED}".
-- If limitations are not mentioned, use "{NOT_SPECIFIED}".
+- If a dataset is not mentioned, use "{MISSING_FIELD_VALUE}".
+- If a key result is not mentioned, use "{MISSING_FIELD_VALUE}".
+- If limitations are not mentioned, use "{MISSING_FIELD_VALUE}".
 - Return only a JSON object with the five fields.
 
 Title:

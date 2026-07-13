@@ -24,6 +24,18 @@ class EnrichedPaper(Paper):
 
     main_contribution: str = Field(..., min_length=1)
     methodology: str = Field(..., min_length=1)
-    dataset_used: str = Field(..., min_length=1)
-    key_result: str = Field(..., min_length=1)
-    limitations: str = Field(..., min_length=1)
+    dataset_used: str = Field(
+        ...,
+        min_length=1,
+        description='Dataset or benchmark stated in the abstract; use "not stated in abstract" when absent.',
+    )
+    key_result: str = Field(
+        ...,
+        min_length=1,
+        description='Key result stated in the abstract; use "not stated in abstract" when absent.',
+    )
+    limitations: str = Field(
+        ...,
+        min_length=1,
+        description='Limitation stated in the abstract; use "not stated in abstract" when absent.',
+    )

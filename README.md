@@ -92,21 +92,21 @@ key_result
 limitations
 ```
 
-The extraction prompt explicitly requires `"not specified"` when a dataset, key result, or limitation is not stated in the abstract.
+The extraction prompt uses `"not stated in abstract"` when a dataset, key result, or limitation is not stated in the abstract. Survey-style papers naturally contain more of these values because their abstracts summarize a field rather than report one specific experiment.
 
 Example enriched record:
 
 ```json
 {
-  "title": "Retrieval-Augmented Generation for Large Language Models: A Survey",
-  "topic": "Retrieval-Augmented Generation (RAG)",
-  "citation_count": 670,
-  "year": 2023,
-  "main_contribution": "Comprehensive review of Retrieval-Augmented Generation (RAG) paradigms.",
-  "methodology": "Detailed examination of RAG frameworks and technologies.",
-  "dataset_used": "not specified",
-  "key_result": "not specified",
-  "limitations": "not specified"
+  "title": "Attention Is All You Need",
+  "topic": "Transformers / Attention Mechanisms",
+  "citation_count": 6583,
+  "year": 2025,
+  "main_contribution": "Proposing the Transformer architecture based solely on attention mechanisms.",
+  "methodology": "Experiments on machine translation tasks.",
+  "dataset_used": "WMT 2014 English-to-German and English-to-French translation tasks.",
+  "key_result": "Achieving state-of-the-art BLEU scores of 28.4 and 41.8 on respective tasks.",
+  "limitations": "not stated in abstract"
 }
 ```
 
