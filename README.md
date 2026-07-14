@@ -76,8 +76,11 @@ Papers are fetched from OpenAlex using curated title-query aliases, sorted towar
 | `data/full_text_sources.json` | Discovered legal open full-text PDF sources |
 | `data/full_text_selected.json` | Topic-balanced full-text subset selected for PDF extraction |
 | `data/full_text_papers.json` | Download/extraction results for available full-text PDFs |
+| `data/full_text_chunks.json` | Section-hinted chunks from successful full-text extractions |
+| `data/embedded_full_text_chunks.json` | 1024-dimensional full-text chunk embeddings |
 | `data/pdfs/` | Local downloaded PDF files |
 | Qdrant `research_papers` collection | Dense vector index with 250 points |
+| Qdrant `research_paper_chunks` collection | Chunk-level full-text vector index with 4,170 points |
 
 ## Structured Metadata
 
@@ -194,6 +197,19 @@ Successful full-text papers by topic:
 
 Most failures were publisher-side download blocks such as `403 Forbidden`; those papers remain available through the abstract-level index.
 
+Full-text chunk index:
+
+```text
+full-text papers chunked: 131
+full-text chunks: 4170
+chunk embedding model: text-embedding-3-large
+stored chunk embedding dimensions: 1024
+Qdrant chunk collection: research_paper_chunks
+Qdrant chunk points: 4170
+```
+
+Chunk retrieval is used for detailed evidence questions such as datasets, metrics, methods, results, and limitations.
+
 ## Validation
 
 Current validated numbers:
@@ -206,7 +222,7 @@ Qdrant points: 250
 BM25 documents: 250
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 48 passed
+tests: 62 passed
 ```
 
 The validation counts above are generated from the local artifacts and indexing checks.
@@ -315,6 +331,24 @@ Download and extract full-text PDFs:
 python -m full_text.download_extract --input data/full_text_selected_all.json --output data/full_text_papers.json --pdf-dir data/pdfs --append-existing
 ```
 
+Chunk extracted full text:
+
+```bash
+python -m full_text.chunk_papers --input data/full_text_papers.json --output data/full_text_chunks.json --max-words 450 --overlap-words 75
+```
+
+Embed full-text chunks:
+
+```bash
+python -m full_text.embed_chunks --input data/full_text_chunks.json --output data/embedded_full_text_chunks.json --batch-size 64 --dimensions 1024
+```
+
+Index full-text chunks in Qdrant:
+
+```bash
+python -m full_text.index_chunks_qdrant --input data/embedded_full_text_chunks.json --collection research_paper_chunks
+```
+
 Run tests:
 
 ```bash
@@ -332,6 +366,7 @@ user question
 → BM25 sparse search
 → result fusion
 → tool-style JSON response
+→ optional full-text chunk retrieval
 → local cross-encoder reranking
 → citation-aware scoring
 → CRAG confidence check

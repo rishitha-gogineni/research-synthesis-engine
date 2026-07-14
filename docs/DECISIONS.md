@@ -220,3 +220,14 @@ Reasoning:
 - The 42 failures were mostly publisher-side access blocks such as `403 Forbidden`; those papers remain usable in the abstract-level index.
 - The next step should chunk and embed the 131 successful full-text papers into a separate chunk-level retrieval collection.
 
+## 2026-07-13: Store Full-Text Retrieval as a Separate Chunk Collection
+
+We will store full-text evidence in a separate Qdrant collection named `research_paper_chunks` instead of mixing chunks into the paper-level `research_papers` collection.
+
+Reasoning:
+- Paper-level retrieval and chunk-level retrieval answer different kinds of questions.
+- The `research_papers` collection remains one vector per paper for broad discovery across all 250 papers.
+- The `research_paper_chunks` collection stores 4,170 vectors from 131 extracted full-text papers for detailed evidence questions.
+- Chunk payloads keep paper metadata, section hints, chunk text, PDF source, citation count, and embedding metadata for traceability.
+- Keeping collections separate makes routing easier: broad questions use paper retrieval, detailed dataset/method/result/limitation questions use chunk retrieval, and comparison questions can use both.
+
