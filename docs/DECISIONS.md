@@ -231,3 +231,24 @@ Reasoning:
 - Chunk payloads keep paper metadata, section hints, chunk text, PDF source, citation count, and embedding metadata for traceability.
 - Keeping collections separate makes routing easier: broad questions use paper retrieval, detailed dataset/method/result/limitation questions use chunk retrieval, and comparison questions can use both.
 
+## 2026-07-14: Use a Rule-Based Query Router Before Agent Orchestration
+
+We will route user questions with a deterministic rule-based router before adding any LLM-based planning.
+
+Reasoning:
+- The system currently has two real retrieval granularities: paper-level records and full-text chunks.
+- A lightweight router is enough to decide whether a query needs broad paper discovery, detailed full-text evidence, both, or metadata filtering.
+- Rule-based routing is easy to test, inspect, and explain during demos.
+- Ambiguous or low-confidence queries default to `hybrid_both` so the system gathers both broad context and detailed evidence instead of guessing one narrow path.
+- This keeps Day 11 focused on routing without adding new indexes, new retrieval layers, or live web tools.
+
+## 2026-07-14: Keep `hybrid_both` Results as Separate Paper and Chunk Sets
+
+When a query routes to `hybrid_both`, the retrieval service will return paper-level results and chunk-level results as two separate result sets.
+
+Reasoning:
+- Paper records and full-text chunks are different granularities and should not be forced into one ranked list before reranking/context assembly.
+- Paper-level results are best for broad coverage, topic framing, citation context, and candidate paper selection.
+- Chunk-level results are best for specific evidence such as datasets, metrics, methods, results, and limitations.
+- Keeping them separate preserves score interpretability because paper hybrid scores and chunk vector scores are not directly comparable yet.
+- Day 12+ can assemble context by linking chunks back to their parent papers, then Day 13-14 can rerank and blend scores with a clearer candidate contract.

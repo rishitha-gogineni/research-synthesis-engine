@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 25 days  
-Current status: ingestion, paper-level retrieval, tool wrapper, and full-text chunk indexing are complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, and query routing are complete.
 
 ## Final Positioning
 
@@ -357,24 +357,20 @@ chunk-level full-text retrieval works
 live query returned detailed hallucination benchmark/dataset chunks
 ```
 
----
+## Day 11: Query Router - Complete
 
-# Upcoming Work
-
-## Day 11: Query Router
-
-Goal: route each user question to the right retrieval path.
-
-Implement:
-- `retrieval/router.py` or `agent/router.py`
-- Rule-based routing first
-- Route types:
+Implemented:
+- `retrieval/router.py`
+- `QueryRoute` schema in `shared/schemas.py`
+- Four route types:
   - `paper_level`
   - `chunk_level`
   - `hybrid_both`
   - `metadata_filter`
-- Query-type detection for words like dataset, metric, method, limitation, result, compare, trend, survey
-- Tests for representative queries
+- Rule-based query signal scoring
+- Ambiguous-query fallback to `hybrid_both`
+- JSON CLI for route sanity checks
+- Tests for broad, detailed, comparison, metadata, and ambiguous queries
 
 Routing examples:
 
@@ -384,11 +380,22 @@ Routing examples:
 | Which datasets are used for hallucination detection? | chunk_level |
 | Compare RAG and self-verification methods. | hybrid_both |
 | Show recent AI agent papers. | metadata_filter |
+| Tell me about hallucination detection. | hybrid_both fallback |
+
+`hybrid_both` behavior:
+- Return paper-level results and chunk-level results as two separate result sets.
+- Do not merge papers and chunks into one ranked list at the router stage.
+- Day 12 context assembly can use paper results for broad coverage and chunk results for specific evidence.
 
 Checkpoint:
 ```text
-query router chooses paper retrieval, chunk retrieval, or both with explainable reasons
+user question -> route decision with reason, confidence, and matched signals
 ```
+
+
+---
+
+# Upcoming Work
 
 ## Day 12: Unified Retrieval Service
 
@@ -648,16 +655,18 @@ project is stable, explainable, and demo-ready
 
 # Current Immediate Next Step
 
-Build **Day 11: Query Router**.
+Build **Day 12: Unified Retrieval Service**.
 
-This is now the right next step because both retrieval indexes already exist:
+This is now the right next step because the router can already choose among:
 
 ```text
-research_papers         -> broad paper retrieval
-research_paper_chunks  -> detailed full-text evidence retrieval
+paper_level      -> broad paper retrieval
+chunk_level      -> detailed full-text evidence retrieval
+hybrid_both      -> both result sets, returned separately
+metadata_filter  -> citation/year/topic-oriented filtering
 ```
 
-The router decides which one to use for each user question.
+The unified service will execute the selected route and provide the handoff for reranking and citation-aware blended scoring.
 
 # Minimum Viable Final Demo
 

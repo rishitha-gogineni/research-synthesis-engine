@@ -1,6 +1,6 @@
 """Pydantic schemas shared across ingestion, retrieval, and generation."""
 
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -87,4 +87,25 @@ class RetrievalResponse(BaseModel):
     query: str = Field(..., min_length=1)
     result_count: int = Field(..., ge=0)
     results: list[RetrievedPaper] = Field(default_factory=list)
+
+
+QueryRouteName = Literal["paper_level", "chunk_level", "hybrid_both", "metadata_filter"]
+
+
+class QueryRoute(BaseModel):
+    """Routing decision for a user research question."""
+
+    query: str = Field(..., min_length=1)
+    route: QueryRouteName
+    reason: str = Field(..., min_length=1)
+    confidence: float = Field(..., ge=0.0, le=1.0)
+    matched_signals: list[str] = Field(default_factory=list)
+
+    @field_validator("query")
+    @classmethod
+    def query_must_not_be_blank(cls, value: str) -> str:
+        stripped = value.strip()
+        if not stripped:
+            raise ValueError("query must not be empty")
+        return stripped
 
