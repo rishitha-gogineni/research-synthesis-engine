@@ -75,6 +75,8 @@ Papers are fetched from OpenAlex using curated title-query aliases, sorted towar
 | `data/bm25_index.pkl` | Local BM25 sparse retrieval index |
 | `data/full_text_sources.json` | Discovered legal open full-text PDF sources |
 | `data/full_text_selected.json` | Topic-balanced full-text subset selected for PDF extraction |
+| `data/full_text_papers.json` | Download/extraction results for available full-text PDFs |
+| `data/pdfs/` | Local downloaded PDF files |
 | Qdrant `research_papers` collection | Dense vector index with 250 points |
 
 ## Structured Metadata
@@ -170,26 +172,27 @@ Available full-text papers by topic:
 
 This is enough to build a 100-150 paper full-text subset while keeping all 250 papers in the abstract-level index.
 
-Selected full-text subset:
+Full-text extraction result:
 
 ```text
-selected full-text papers: 125
-selection strategy: 25 highest-citation available papers per topic
-arXiv sources: 35
-OpenAlex open-access PDF sources: 90
-max citation count: 6583
-min citation count: 33
+legal PDF sources attempted: 173
+successfully extracted full-text papers: 131
+failed downloads/extractions: 42
+total extracted pages: 2533
+total extracted text characters: 10343086
 ```
 
-Selected papers by topic:
+Successful full-text papers by topic:
 
-| Research Area | Selected Full Text Papers |
+| Research Area | Extracted Full Text Papers |
 | --- | ---: |
-| Retrieval-Augmented Generation (RAG) | 25 |
-| Transformers / Attention Mechanisms | 25 |
-| LLM Evaluation & Hallucination Detection | 25 |
+| Retrieval-Augmented Generation (RAG) | 27 |
+| Transformers / Attention Mechanisms | 20 |
+| LLM Evaluation & Hallucination Detection | 31 |
 | AI Agents & Tool Use | 25 |
-| Fine-tuning (LoRA / PEFT) | 25 |
+| Fine-tuning (LoRA / PEFT) | 28 |
+
+Most failures were publisher-side download blocks such as `403 Forbidden`; those papers remain available through the abstract-level index.
 
 ## Validation
 
@@ -203,7 +206,7 @@ Qdrant points: 250
 BM25 documents: 250
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 41 passed
+tests: 48 passed
 ```
 
 The validation counts above are generated from the local artifacts and indexing checks.
@@ -304,6 +307,12 @@ Select the full-text subset:
 
 ```bash
 python -m full_text.select_sources --input data/full_text_sources.json --output data/full_text_selected.json --per-topic 25
+```
+
+Download and extract full-text PDFs:
+
+```bash
+python -m full_text.download_extract --input data/full_text_selected_all.json --output data/full_text_papers.json --pdf-dir data/pdfs --append-existing
 ```
 
 Run tests:

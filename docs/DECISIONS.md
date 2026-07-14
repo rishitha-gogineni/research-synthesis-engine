@@ -209,3 +209,14 @@ Reasoning:
 - The selected subset contains 35 arXiv PDFs and 90 OpenAlex open-access PDFs.
 - This subset should be downloaded and extracted first; the remaining available sources can be added later if the extraction quality is good.
 
+## 2026-07-13: Extract as Many Legal Full-Text PDFs as Practical
+
+After the initial 125-paper subset yielded 92 successful extractions, we expanded to all 173 discovered legal PDF sources and extracted 131 full-text papers.
+
+Reasoning:
+- The user wanted the strongest possible full-text set, not a fixed 100-150 cap.
+- Attempting all discovered legal PDF sources maximizes evidence coverage while keeping closed or blocked papers out of the full-text index.
+- The final local extraction set contains 131 successful papers, 2533 pages, and about 10.3M text characters.
+- The 42 failures were mostly publisher-side access blocks such as `403 Forbidden`; those papers remain usable in the abstract-level index.
+- The next step should chunk and embed the 131 successful full-text papers into a separate chunk-level retrieval collection.
+
