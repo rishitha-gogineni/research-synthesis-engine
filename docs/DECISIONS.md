@@ -252,3 +252,15 @@ Reasoning:
 - Chunk-level results are best for specific evidence such as datasets, metrics, methods, results, and limitations.
 - Keeping them separate preserves score interpretability because paper hybrid scores and chunk vector scores are not directly comparable yet.
 - Day 12+ can assemble context by linking chunks back to their parent papers, then Day 13-14 can rerank and blend scores with a clearer candidate contract.
+
+## 2026-07-14: Rerank Candidates With a Local Cross-Encoder and Blend Citation Signal Transparently
+
+We will use a local `sentence-transformers` cross-encoder to rerank retrieved candidates, then apply citation-aware blended scoring with a visible score breakdown.
+
+Reasoning:
+- Dense and BM25 retrieval are good first-stage retrieval methods, but a cross-encoder can compare the query and candidate text more directly.
+- The cross-encoder runs locally, avoiding another paid reranking API and keeping tests mockable.
+- Rerank scores are normalized within the candidate set so they can be combined with other signals.
+- Citation count is log-normalized with `log1p(citation_count)` so highly cited papers help ranking without completely dominating relevance.
+- The default score is `0.75 * rerank_score + 0.25 * normalized_citation_score`, and each output keeps `score_breakdown` for debugging and demo transparency.
+- Paper-level and chunk-level candidate sets should be reranked and blended separately until the unified retrieval service defines a common context assembly contract.

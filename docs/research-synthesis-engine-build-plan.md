@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 25 days  
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, and query routing are complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, standalone reranking, and citation-aware scoring are complete.
 
 ## Final Positioning
 
@@ -415,36 +415,43 @@ Checkpoint:
 one query can return paper candidates, chunk evidence, or both
 ```
 
-## Day 13: Local Cross-Encoder Reranking
+## Day 13: Local Cross-Encoder Reranking - Complete As Standalone Component
 
-Goal: improve ranking quality after broad retrieval.
-
-Implement:
+Implemented:
 - `retrieval/rerank.py`
-- Local `sentence-transformers` cross-encoder
-- Rerank top candidates from paper/chunk retrieval
-- Keep original dense/BM25/hybrid scores for debugging
-- Tests with mocked model scoring
+- Lazy-loaded local `sentence-transformers` cross-encoder support
+- Candidate text builder for both paper-level records and full-text chunks
+- Raw rerank score capture
+- Normalized `rerank_score` in the 0..1 range
+- Tests with mocked cross-encoder scoring
+
+Integration note:
+- The reranker is ready to be called by Day 12 unified retrieval.
+- For `hybrid_both`, paper results and chunk results should be reranked within their own result sets first.
 
 Checkpoint:
 ```text
-top retrieved papers/chunks are reranked by query-evidence relevance
+candidate list + query -> reranked candidates with raw and normalized relevance scores
 ```
 
-## Day 14: Citation-Aware Blended Scoring
+## Day 14: Citation-Aware Blended Scoring - Complete As Standalone Component
 
-Goal: combine relevance with citation signal transparently.
-
-Implement:
-- Citation normalization: `log1p(citation_count)`
-- Blended score, for example:
+Implemented:
+- Citation normalization with `log1p(citation_count)`
+- Default blended score:
   `0.75 * rerank_score + 0.25 * normalized_citation_score`
-- Score breakdown in output
-- Tests for deterministic scoring
+- `citation_score` field
+- `blended_score` field
+- `score_breakdown` field with rerank/citation weights
+- Tests for deterministic scoring and bad weight validation
+
+Integration note:
+- The scoring utility is ready for Day 12 unified retrieval output.
+- Scores are interpreted within one candidate set; paper and chunk scores are not forced into one mixed ranking yet.
 
 Checkpoint:
 ```text
-retrieval output includes dense, sparse, rerank, citation, and blended scores
+reranked candidates -> citation-aware blended ranking with transparent score breakdown
 ```
 
 ## Day 15: Retrieval Evaluation Set
@@ -666,7 +673,7 @@ hybrid_both      -> both result sets, returned separately
 metadata_filter  -> citation/year/topic-oriented filtering
 ```
 
-The unified service will execute the selected route and provide the handoff for reranking and citation-aware blended scoring.
+The unified service will execute the selected route and wire the completed reranking and citation-aware scoring utilities into the returned result sets.
 
 # Minimum Viable Final Demo
 
