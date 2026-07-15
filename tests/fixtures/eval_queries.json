@@ -1,0 +1,272 @@
+[
+  {
+    "query": "What are the main approaches for reducing hallucinations in LLMs?",
+    "expected_route": "paper_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection",
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "hallucination",
+      "grounding",
+      "retrieval"
+    ],
+    "expected_relevant_ids": []
+  },
+  {
+    "query": "Which datasets and metrics are used to evaluate hallucination detection?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "TruthfulQA",
+      "HaluEval",
+      "benchmark",
+      "metric"
+    ],
+    "expected_relevant_ids": [
+      "chunk-5e37453ff3c6af81",
+      "chunk-b53616c0b2827a46"
+    ]
+  },
+  {
+    "query": "Compare RAG and self-verification methods for reducing hallucinations.",
+    "expected_route": "hybrid_both",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)",
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "retrieval",
+      "verification",
+      "hallucination"
+    ],
+    "expected_relevant_ids": []
+  },
+  {
+    "query": "Show top-cited LoRA papers after 2020.",
+    "expected_route": "metadata_filter",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "LoRA",
+      "fine-tuning",
+      "PEFT"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4322766882"
+    ]
+  },
+  {
+    "query": "What are common limitations in AI agent tool-use papers?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "AI Agents & Tool Use"
+    ],
+    "expected_keywords": [
+      "tool",
+      "agent",
+      "limitation"
+    ],
+    "expected_relevant_ids": []
+  },
+  {
+    "query": "Which LoRA and PEFT papers should I read first and why?",
+    "expected_route": "paper_level",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "LoRA",
+      "PEFT",
+      "fine-tuning"
+    ],
+    "expected_relevant_ids": []
+  },
+  {
+    "query": "Which benchmarks are used for tool-use agents?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "AI Agents & Tool Use"
+    ],
+    "expected_keywords": [
+      "benchmark",
+      "tool",
+      "agent"
+    ],
+    "expected_relevant_ids": []
+  },
+  {
+    "query": "What are the research themes in Retrieval-Augmented Generation?",
+    "expected_route": "paper_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "retrieval",
+      "generation",
+      "RAG"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W4389984066",
+      "https://openalex.org/W4401857375"
+    ]
+  },
+  {
+    "query": "Which metrics are reported in RAG evaluation papers?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "metric",
+      "evaluation",
+      "retrieval"
+    ],
+    "expected_relevant_ids": []
+  },
+  {
+    "query": "Compare transformers and attention variants for sequence modeling.",
+    "expected_route": "hybrid_both",
+    "expected_topics": [
+      "Transformers / Attention Mechanisms"
+    ],
+    "expected_keywords": [
+      "attention",
+      "transformer",
+      "sequence"
+    ],
+    "expected_relevant_ids": []
+  },
+  {
+    "query": "Show recent transformer attention papers after 2021.",
+    "expected_route": "metadata_filter",
+    "expected_topics": [
+      "Transformers / Attention Mechanisms"
+    ],
+    "expected_keywords": [
+      "attention",
+      "transformer"
+    ],
+    "expected_relevant_ids": []
+  },
+  {
+    "query": "What datasets are used in transformer machine translation papers?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Transformers / Attention Mechanisms"
+    ],
+    "expected_keywords": [
+      "WMT",
+      "translation",
+      "dataset"
+    ],
+    "expected_relevant_ids": []
+  },
+  {
+    "query": "What methods are used for parameter-efficient fine-tuning?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "adapter",
+      "LoRA",
+      "parameter-efficient"
+    ],
+    "expected_relevant_ids": []
+  },
+  {
+    "query": "Compare LoRA and adapters for fine-tuning large language models.",
+    "expected_route": "hybrid_both",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "LoRA",
+      "adapter",
+      "fine-tuning"
+    ],
+    "expected_relevant_ids": []
+  },
+  {
+    "query": "What are the main approaches in AI agents and tool use?",
+    "expected_route": "paper_level",
+    "expected_topics": [
+      "AI Agents & Tool Use"
+    ],
+    "expected_keywords": [
+      "agent",
+      "tool",
+      "planning"
+    ],
+    "expected_relevant_ids": []
+  },
+  {
+    "query": "Which results are reported for hallucination detection benchmarks?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "result",
+      "hallucination",
+      "benchmark"
+    ],
+    "expected_relevant_ids": []
+  },
+  {
+    "query": "List top cited RAG papers before 2024.",
+    "expected_route": "metadata_filter",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "RAG",
+      "retrieval"
+    ],
+    "expected_relevant_ids": []
+  },
+  {
+    "query": "What limitations are discussed in RAG survey papers?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "limitation",
+      "survey",
+      "retrieval"
+    ],
+    "expected_relevant_ids": []
+  },
+  {
+    "query": "Give an overview of hallucination evaluation methods.",
+    "expected_route": "hybrid_both",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "hallucination",
+      "evaluation",
+      "method"
+    ],
+    "expected_relevant_ids": []
+  },
+  {
+    "query": "What are the key results in LoRA papers?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "LoRA",
+      "result",
+      "fine-tuning"
+    ],
+    "expected_relevant_ids": []
+  }
+]

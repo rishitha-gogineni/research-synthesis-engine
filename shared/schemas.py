@@ -171,3 +171,20 @@ class UnifiedSearchResponse(BaseModel):
     paper_results: list[RetrievedPaper] = Field(default_factory=list)
     chunk_results: list[RetrievedChunk] = Field(default_factory=list)
 
+class EvaluationQuery(BaseModel):
+    """One human-readable retrieval evaluation query."""
+
+    query: str = Field(..., min_length=1)
+    expected_route: QueryRouteName
+    expected_topics: list[str] = Field(default_factory=list)
+    expected_keywords: list[str] = Field(default_factory=list)
+    expected_relevant_ids: list[str] = Field(default_factory=list)
+
+    @field_validator("query")
+    @classmethod
+    def query_must_not_be_blank(cls, value: str) -> str:
+        stripped = value.strip()
+        if not stripped:
+            raise ValueError("query must not be empty")
+        return stripped
+

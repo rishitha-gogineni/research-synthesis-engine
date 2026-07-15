@@ -363,6 +363,12 @@ Run tests:
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest tests
 ```
 
+Run retrieval evaluation:
+
+```bash
+python -m retrieval.evaluate --queries tests/fixtures/eval_queries.json
+```
+
 ## Next Phase
 
 The next phase evaluates retrieval quality and adds grounded synthesis:
@@ -373,7 +379,7 @@ user question
 → paper retrieval / chunk retrieval / metadata filter
 → local cross-encoder reranking
 → citation-aware scoring
-→ retrieval evaluation
+→ retrieval evaluation with labeled-subset Recall/MRR
 → CRAG confidence check
 → research brief / evidence matrix / reading path
 ```

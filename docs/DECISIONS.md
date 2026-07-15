@@ -277,3 +277,15 @@ Reasoning:
 - `hybrid_both` executes both retrieval paths but keeps paper and chunk results as separate ranked lists.
 - `metadata_filter` uses local paper metadata from the BM25 artifact, so citation/year/topic style questions do not require OpenAI or Qdrant.
 - Reranking and citation-aware blended scoring are applied within each result set, preserving score interpretability across different granularities.
+
+## 2026-07-15: Treat `expected_relevant_ids` as Optional Partial Labels in Evaluation
+
+We will include `expected_relevant_ids` in the retrieval evaluation schema, but it starts as an optional partial label field that defaults to an empty list.
+
+Reasoning:
+- Exact relevant paper/chunk IDs are the most rigorous retrieval labels, but they require manual inspection to avoid noisy or fake ground truth.
+- The first evaluation set can still measure route accuracy, topic hit rate, and keyword presence across all queries while exact ID labels are filled in gradually.
+- Recall@5, Recall@10, and MRR are computed only over queries with non-empty `expected_relevant_ids`.
+- Queries with empty `expected_relevant_ids` are not counted as retrieval failures, because that would silently distort the rigorous metrics.
+- CLI output reports both `queries_with_relevant_ids` and `queries_topic_keyword_only` so reviewers can see which metrics are strict ID-based scores and which are broader sanity checks.
+- This is intentional incremental rigor: start transparent, label more queries as results are manually inspected, and keep the metric denominator honest.

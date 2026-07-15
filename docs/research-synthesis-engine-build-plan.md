@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 25 days  
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, standalone reranking, and citation-aware scoring are complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, and retrieval evaluation are complete.
 
 ## Final Positioning
 
@@ -456,25 +456,27 @@ Checkpoint:
 reranked candidates -> citation-aware blended ranking with transparent score breakdown
 ```
 
----
+## Day 15: Retrieval Evaluation Set - Complete
 
-# Upcoming Work
-
-## Day 15: Retrieval Evaluation Set
-
-Goal: measure retrieval quality with real, small, human-readable test questions.
-
-Implement:
-- `tests/fixtures/eval_queries.json`
-- 15-25 evaluation queries across all five topics
-- Expected relevant paper titles or source topics
-- Recall@5, Recall@10, MRR
-- Simple evaluation runner
+Implemented:
+- `tests/fixtures/eval_queries.json` with 20 evaluation queries across all five topics
+- `EvaluationQuery` schema
+- Optional `expected_relevant_ids`, defaulting to `[]`
+- `retrieval/evaluate.py` CLI runner
+- Route accuracy over the full query set
+- Topic hit rate and keyword hit rate as full-set sanity checks
+- Recall@5, Recall@10, and MRR over only the labeled subset with non-empty `expected_relevant_ids`
+- Transparent CLI output showing labeled vs. topic/keyword-only query counts
+- Tests with mocked unified retrieval
 
 Checkpoint:
 ```text
-real retrieval metrics exist and can be reported honestly
+retrieval evaluation reports rigorous ID metrics separately from topic/keyword sanity checks
 ```
+
+---
+
+# Upcoming Work
 
 ## Day 16: CRAG Confidence Guardrail
 
@@ -668,15 +670,15 @@ project is stable, explainable, and demo-ready
 
 # Current Immediate Next Step
 
-Build **Day 15: Retrieval Evaluation Set**.
+Build **Day 16: CRAG Confidence Guardrail**.
 
-This is now the right next step because the system can already execute route-aware retrieval and attach reranking/citation-aware scores:
+This is now the right next step because retrieval can be executed and evaluated:
 
 ```text
-query -> router -> paper/chunk/metadata retrieval -> rerank + blended scoring -> structured response
+query -> unified retrieval -> evaluation metrics -> confidence guardrail
 ```
 
-The evaluation set will let us measure retrieval quality honestly before adding CRAG confidence checks and answer generation.
+The CRAG layer will decide whether retrieved evidence is strong enough for synthesis or whether the system should broaden, clarify, or state insufficient evidence.
 
 # Minimum Viable Final Demo
 
