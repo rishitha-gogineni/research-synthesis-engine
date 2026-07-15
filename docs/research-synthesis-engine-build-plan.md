@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 25 days  
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, standalone reranking, and citation-aware scoring are complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, standalone reranking, and citation-aware scoring are complete.
 
 ## Final Positioning
 
@@ -393,26 +393,28 @@ user question -> route decision with reason, confidence, and matched signals
 ```
 
 
----
+## Day 12: Unified Retrieval Service - Complete
 
-# Upcoming Work
-
-## Day 12: Unified Retrieval Service
-
-Goal: combine paper-level and chunk-level retrieval behind one callable interface.
-
-Implement:
+Implemented:
 - `retrieval/unified_search.py`
-- Paper retrieval using existing hybrid search
-- Chunk retrieval using `research_paper_chunks`
-- Optional topic filters
-- Output schema that can return both papers and chunks
-- CLI sanity checks
-- Tests with mocked retrievers
+- `UnifiedSearchRequest` and `UnifiedSearchResponse` schemas
+- `RetrievedChunk` schema for full-text evidence chunks
+- Router-driven execution for all four routes:
+  - `paper_level`
+  - `chunk_level`
+  - `hybrid_both`
+  - `metadata_filter`
+- Paper retrieval through existing Qdrant + BM25 hybrid search
+- Chunk retrieval through `research_paper_chunks`
+- Metadata filtering from the local BM25 artifact paper metadata
+- Separate paper/chunk result sets for `hybrid_both`
+- Reranking and citation-aware scoring handoff
+- JSON CLI sanity path
+- Tests with mocked retrievers and offline CLI coverage
 
 Checkpoint:
 ```text
-one query can return paper candidates, chunk evidence, or both
+one query -> route decision -> paper results, chunk results, or both separately
 ```
 
 ## Day 13: Local Cross-Encoder Reranking - Complete As Standalone Component
@@ -453,6 +455,10 @@ Checkpoint:
 ```text
 reranked candidates -> citation-aware blended ranking with transparent score breakdown
 ```
+
+---
+
+# Upcoming Work
 
 ## Day 15: Retrieval Evaluation Set
 
@@ -662,18 +668,15 @@ project is stable, explainable, and demo-ready
 
 # Current Immediate Next Step
 
-Build **Day 12: Unified Retrieval Service**.
+Build **Day 15: Retrieval Evaluation Set**.
 
-This is now the right next step because the router can already choose among:
+This is now the right next step because the system can already execute route-aware retrieval and attach reranking/citation-aware scores:
 
 ```text
-paper_level      -> broad paper retrieval
-chunk_level      -> detailed full-text evidence retrieval
-hybrid_both      -> both result sets, returned separately
-metadata_filter  -> citation/year/topic-oriented filtering
+query -> router -> paper/chunk/metadata retrieval -> rerank + blended scoring -> structured response
 ```
 
-The unified service will execute the selected route and wire the completed reranking and citation-aware scoring utilities into the returned result sets.
+The evaluation set will let us measure retrieval quality honestly before adding CRAG confidence checks and answer generation.
 
 # Minimum Viable Final Demo
 

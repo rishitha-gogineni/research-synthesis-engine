@@ -264,3 +264,16 @@ Reasoning:
 - Citation count is log-normalized with `log1p(citation_count)` so highly cited papers help ranking without completely dominating relevance.
 - The default score is `0.75 * rerank_score + 0.25 * normalized_citation_score`, and each output keeps `score_breakdown` for debugging and demo transparency.
 - Paper-level and chunk-level candidate sets should be reranked and blended separately until the unified retrieval service defines a common context assembly contract.
+
+## 2026-07-15: Use a Unified Retrieval Service as the Query-Time Entry Point
+
+We will use `retrieval.unified_search` as the main query-time retrieval entry point before answer generation.
+
+Reasoning:
+- The project now has multiple retrieval paths, so callers need one stable interface instead of manually deciding which module to call.
+- The unified service executes the Day 11 router decision and returns a structured response containing the route, route reason, paper results, and chunk results.
+- `paper_level` uses the existing Qdrant + BM25 hybrid paper retriever.
+- `chunk_level` searches the `research_paper_chunks` Qdrant collection for detailed full-text evidence.
+- `hybrid_both` executes both retrieval paths but keeps paper and chunk results as separate ranked lists.
+- `metadata_filter` uses local paper metadata from the BM25 artifact, so citation/year/topic style questions do not require OpenAI or Qdrant.
+- Reranking and citation-aware blended scoring are applied within each result set, preserving score interpretability across different granularities.

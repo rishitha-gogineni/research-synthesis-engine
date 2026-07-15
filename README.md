@@ -20,9 +20,10 @@ The final product output will be:
 ## Project Status
 
 **Phase 1: Ingestion & Indexing — Complete**  
-**Phase 2: Live Hybrid Retrieval — In Progress**
+**Phase 2: Route-Aware Retrieval — Complete**  
+**Phase 3: Evaluation & Grounded Synthesis — In Progress**
 
-The offline ingestion and indexing pipeline is implemented and validated. Live hybrid retrieval is now available as both a Python module and a tool-style JSON interface for free-text user questions.
+The offline ingestion and indexing pipeline is implemented and validated. Route-aware retrieval can now choose paper-level search, full-text chunk search, both result sets, or metadata filtering for free-text user questions.
 
 ```text
 OpenAlex fetch
@@ -126,6 +127,7 @@ The project now has both retrieval indexes needed for hybrid search:
 - **Sparse retrieval:** BM25 index over the same 250-paper corpus
 - **Hybrid retrieval:** `retrieval.hybrid_search` embeds a user question, searches Qdrant and BM25, merges duplicate papers, and returns ranked candidates with dense, sparse, and hybrid scores
 - **Tool interface:** `tools.research_retrieval` validates request/response schemas and returns JSON for downstream API, agent, or UI layers
+- **Unified retrieval:** `retrieval.unified_search` routes each query, returns paper and/or chunk results, and attaches rerank/citation-aware score fields
 
 Hybrid query example:
 
@@ -313,6 +315,12 @@ Tool-style JSON retrieval:
 python -m tools.research_retrieval "What are the main approaches for reducing hallucinations in LLMs?" --top-k 5
 ```
 
+Route-aware unified retrieval:
+
+```bash
+python -m retrieval.unified_search "Which datasets and metrics are used to evaluate hallucination detection?" --top-k 5
+```
+
 Discover open full-text sources:
 
 ```bash
@@ -357,18 +365,15 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest tests
 
 ## Next Phase
 
-The next phase extends the retrieval pipeline:
+The next phase evaluates retrieval quality and adds grounded synthesis:
 
 ```text
 user question
-→ query embedding
-→ dense Qdrant search
-→ BM25 sparse search
-→ result fusion
-→ tool-style JSON response
-→ optional full-text chunk retrieval
+→ query router
+→ paper retrieval / chunk retrieval / metadata filter
 → local cross-encoder reranking
 → citation-aware scoring
+→ retrieval evaluation
 → CRAG confidence check
 → research brief / evidence matrix / reading path
 ```
