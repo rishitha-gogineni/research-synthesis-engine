@@ -1,6 +1,6 @@
 # Research Synthesis Engine
 
-Research Synthesis Engine is a literature intelligence system for academic papers. It ingests top-cited research papers from OpenAlex, extracts structured metadata from abstracts, builds dense and sparse retrieval indexes, and prepares evidence-backed research briefs from user questions.
+Research Synthesis Engine is a literature intelligence system for academic papers. It ingests top-cited research papers from OpenAlex, extracts structured metadata from abstracts, builds dense and sparse retrieval indexes, and generates confidence-gated research briefs with inspectable evidence matrices.
 
 Users can choose a research area, pick a suggested question, or ask a free-text research question such as:
 
@@ -23,7 +23,7 @@ The final product output will be:
 **Phase 2: Route-Aware Retrieval — Complete**  
 **Phase 3: Evaluation & Grounded Synthesis — In Progress**
 
-The offline ingestion and indexing pipeline is implemented and validated. Route-aware retrieval can now choose paper-level search, full-text chunk search, both result sets, or metadata filtering for free-text user questions.
+The offline ingestion and indexing pipeline is implemented and validated. Route-aware retrieval can choose paper-level search, full-text chunk search, both result sets, or metadata filtering for free-text user questions. Grounded synthesis now uses the CRAG confidence check before producing a research brief, and evidence matrices can be rendered as JSON or Markdown.
 
 ```text
 OpenAlex fetch
@@ -128,6 +128,8 @@ The project now has both retrieval indexes needed for hybrid search:
 - **Hybrid retrieval:** `retrieval.hybrid_search` embeds a user question, searches Qdrant and BM25, merges duplicate papers, and returns ranked candidates with dense, sparse, and hybrid scores
 - **Tool interface:** `tools.research_retrieval` validates request/response schemas and returns JSON for downstream API, agent, or UI layers
 - **Unified retrieval:** `retrieval.unified_search` routes each query, returns paper and/or chunk results, and attaches rerank/citation-aware score fields
+- **Confidence-gated synthesis:** `agent.synthesis` generates a grounded brief only when retrieved evidence passes the CRAG confidence check
+- **Evidence matrix:** `agent.evidence_matrix` turns retrieved evidence into inspectable claim/source rows with methodology, dataset, result, limitation, and strength fields
 
 Hybrid query example:
 
@@ -220,14 +222,16 @@ Current validated numbers:
 raw papers: 250
 enriched papers: 250
 embedded papers: 250
-Qdrant points: 250
+paper-level Qdrant points: 250
 BM25 documents: 250
+full-text chunks: 4170
+chunk-level Qdrant points: 4170
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 62 passed
+tests: 128 passed
 ```
 
-The validation counts above are generated from the local artifacts and indexing checks.
+These counts reflect the current local artifacts, index checks, and test suite.
 
 ## Tech Stack
 
@@ -375,9 +379,21 @@ Assess retrieval confidence from a saved unified response:
 python -m retrieval.confidence --input path/to/unified_response.json
 ```
 
+Generate a CRAG-gated research brief from a saved unified response:
+
+```bash
+python -m agent.synthesis --input path/to/unified_response.json
+```
+
+Generate an evidence matrix as Markdown:
+
+```bash
+python -m agent.evidence_matrix --input path/to/unified_response.json --markdown
+```
+
 ## Next Phase
 
-The next phase evaluates retrieval quality and adds grounded synthesis:
+The remaining work extends the analyst-style output and prepares the user-facing app:
 
 ```text
 user question
@@ -385,9 +401,11 @@ user question
 → paper retrieval / chunk retrieval / metadata filter
 → local cross-encoder reranking
 → citation-aware scoring
-→ retrieval evaluation with labeled-subset Recall/MRR
 → CRAG confidence check
-→ research brief / evidence matrix / reading path
+→ research brief
+→ evidence matrix
+→ reading path and open problems
+→ API/UI workflow
 ```
 
 ## Design Principles

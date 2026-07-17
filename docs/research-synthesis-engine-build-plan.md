@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 25 days  
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, and CRAG confidence assessment are complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, and evidence matrix generation are complete.
 
 ## Final Positioning
 
@@ -100,7 +100,9 @@ flowchart TD
     E --> F
     F --> G[Local cross-encoder reranking]
     G --> H[CRAG confidence check]
-    H --> I[Research analyst brief + evidence matrix]
+    H -->|sufficient evidence| I[Grounded research brief]
+    H -->|weak evidence| J[Skip synthesis / recommend next action]
+    I --> K[Evidence matrix]
 ```
 
 ## Expected User Experience
@@ -501,49 +503,38 @@ unified retrieval response -> confidence assessment before synthesis
 
 ---
 
+## Day 17: Research Brief Generator - Complete
+
+Implemented:
+- `agent/synthesis.py`
+- `ResearchBrief`, `BriefTheme`, and `EvidenceSource` schemas
+- CRAG-gated generation: low-confidence retrieval skips the LLM instead of producing unsupported answers
+- Prompt contract that uses only retrieved papers/chunks and requires source IDs
+- JSON-only generation path using `gpt-4o-mini`
+- Mocked unit tests and low-confidence CLI coverage
+
+Checkpoint:
+```text
+unified retrieval response -> confidence check -> grounded research brief or guarded skip
+```
+
+## Day 18: Evidence Matrix Generator - Complete
+
+Implemented:
+- `agent/evidence_matrix.py`
+- `EvidenceMatrix` and `EvidenceMatrixRow` schemas
+- Evidence rows with claim, supporting papers, methodology, dataset, key result, limitation, source IDs, evidence strength, and snippet
+- JSON and Markdown output modes
+- Deterministic tests using fixed retrieved examples
+
+Checkpoint:
+```text
+retrieved evidence -> inspectable structured evidence matrix
+```
+
+---
+
 # Upcoming Work
-
-## Day 17: Research Brief Generator
-
-Goal: generate the main user-facing answer.
-
-Implement:
-- `agent/synthesis.py` or `tools/research_brief.py`
-- Uses retrieved papers/chunks only
-- Includes citations
-- Explicitly avoids unsupported claims
-- Prompt asks for:
-  - direct answer
-  - themes
-  - evidence bullets
-  - limitations/open problems
-
-Checkpoint:
-```text
-user query -> retrieved evidence -> grounded research brief
-```
-
-## Day 18: Evidence Matrix Generator
-
-Goal: make the output stronger than a generic summary.
-
-Implement:
-- Evidence matrix rows:
-  - theme/claim
-  - supporting papers
-  - methodology
-  - dataset
-  - key result
-  - limitation
-  - source chunks
-  - evidence strength
-- JSON + Markdown output
-- Tests using fixed retrieved examples
-
-Checkpoint:
-```text
-answer includes inspectable structured evidence
-```
 
 ## Day 19: Reading Path + Open Problems
 
@@ -678,15 +669,15 @@ project is stable, explainable, and demo-ready
 
 # Current Immediate Next Step
 
-Build **Day 17: Research Brief Generator**.
+Build **Day 19: Reading Path + Open Problems**.
 
-This is now the right next step because retrieval is routed, ranked, evaluated, and confidence-gated:
+This is now the right next step because retrieval is routed, ranked, evaluated, confidence-gated, and can produce both a grounded brief and an evidence matrix:
 
 ```text
-query -> unified retrieval -> confidence assessment -> grounded research brief
+query -> unified retrieval -> confidence assessment -> research brief -> evidence matrix -> reading path
 ```
 
-The research brief generator should only synthesize from retrieved evidence when the confidence decision allows it.
+The reading path should use citation count, year, topic coverage, and retrieved evidence to recommend what to read first and why.
 
 # Minimum Viable Final Demo
 

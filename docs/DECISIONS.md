@@ -300,3 +300,25 @@ Reasoning:
 - The guardrail can allow synthesis, broaden retrieval, ask a clarifying question, or state insufficient evidence.
 - This prevents weak retrieval from flowing directly into generated research briefs.
 - MA-RAG style multi-round refinement and KidnapRAG-style adversarial defenses remain valuable advanced extensions, but they are intentionally deferred until the initial end-to-end research synthesis system is complete.
+
+## 2026-07-17: Gate Research Brief Generation on Retrieval Confidence
+
+We will generate research briefs only after the CRAG confidence assessment returns `sufficient_evidence`.
+
+Reasoning:
+- The brief is user-facing, so weak retrieval should not be converted into confident prose.
+- The generator prompt is restricted to retrieved sources and requires source IDs, keeping claims tied to evidence.
+- Low-confidence responses return a guarded `skipped_low_confidence` brief with the recommended next action instead of calling the LLM.
+- This keeps synthesis cost-aware because failed retrieval does not spend generation tokens.
+- Tests mock the generator so the behavior is validated without live API calls.
+
+## 2026-07-17: Build the Evidence Matrix Deterministically From Retrieved Evidence
+
+We will build the first evidence matrix directly from retrieval outputs rather than asking an LLM to invent the table structure.
+
+Reasoning:
+- Retrieval results already contain the fields needed for matrix rows: title, topic, source IDs, methodology, dataset, key result, limitation, snippets, and scores.
+- Deterministic matrix construction makes the output easier to test and debug.
+- Missing values are labeled as `not stated in retrieved evidence`, which is more precise than implying the field is globally unknown.
+- Evidence strength is derived from retrieval/rerank/blended scores, so reviewers can inspect why a source appears strong or weak.
+- Later UI work can render the same matrix as JSON or Markdown without changing retrieval semantics.

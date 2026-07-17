@@ -96,6 +96,7 @@ class RetrievalResponse(BaseModel):
 
 QueryRouteName = Literal["paper_level", "chunk_level", "hybrid_both", "metadata_filter"]
 ConfidenceDecisionName = Literal["sufficient_evidence", "broaden_search", "ask_clarifying_question", "insufficient_evidence"]
+BriefStatusName = Literal["generated", "skipped_low_confidence"]
 
 
 class QueryRoute(BaseModel):
@@ -204,4 +205,63 @@ class EvaluationQuery(BaseModel):
         if not stripped:
             raise ValueError("query must not be empty")
         return stripped
+
+
+class EvidenceSource(BaseModel):
+    """One retrieved source made available to synthesis and evidence matrix generation."""
+
+    source_id: str = Field(..., min_length=1)
+    title: str = Field(..., min_length=1)
+    topic: str = Field(..., min_length=1)
+    paper_id: Optional[str] = None
+    chunk_id: Optional[str] = None
+    year: Optional[int] = None
+    citation_count: int = Field(default=0, ge=0)
+    evidence_text: str = Field(..., min_length=1)
+    score: Optional[float] = None
+
+
+class BriefTheme(BaseModel):
+    """A theme in a generated research brief."""
+
+    theme: str = Field(..., min_length=1)
+    summary: str = Field(..., min_length=1)
+    supporting_source_ids: list[str] = Field(default_factory=list)
+
+
+class ResearchBrief(BaseModel):
+    """Grounded research brief generated from retrieved evidence."""
+
+    query: str = Field(..., min_length=1)
+    status: BriefStatusName
+    confidence_decision: ConfidenceDecisionName
+    direct_answer: str = Field(default="")
+    themes: list[BriefTheme] = Field(default_factory=list)
+    evidence_bullets: list[str] = Field(default_factory=list)
+    limitations: list[str] = Field(default_factory=list)
+    open_problems: list[str] = Field(default_factory=list)
+    sources: list[EvidenceSource] = Field(default_factory=list)
+    warning: Optional[str] = None
+
+
+class EvidenceMatrixRow(BaseModel):
+    """One claim-to-evidence row for inspecting a synthesized answer."""
+
+    claim: str = Field(..., min_length=1)
+    supporting_papers: list[str] = Field(default_factory=list)
+    source_ids: list[str] = Field(default_factory=list)
+    methodology: str = Field(default="not stated in retrieved evidence")
+    dataset: str = Field(default="not stated in retrieved evidence")
+    key_result: str = Field(default="not stated in retrieved evidence")
+    limitation: str = Field(default="not stated in retrieved evidence")
+    evidence_strength: str = Field(default="medium")
+    evidence_snippet: str = Field(default="")
+
+
+class EvidenceMatrix(BaseModel):
+    """Structured evidence matrix derived from retrieved papers and chunks."""
+
+    query: str = Field(..., min_length=1)
+    rows: list[EvidenceMatrixRow] = Field(default_factory=list)
+    markdown: str = Field(default="")
 
