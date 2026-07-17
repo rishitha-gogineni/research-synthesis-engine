@@ -95,6 +95,7 @@ class RetrievalResponse(BaseModel):
 
 
 QueryRouteName = Literal["paper_level", "chunk_level", "hybrid_both", "metadata_filter"]
+ConfidenceDecisionName = Literal["sufficient_evidence", "broaden_search", "ask_clarifying_question", "insufficient_evidence"]
 
 
 class QueryRoute(BaseModel):
@@ -170,6 +171,22 @@ class UnifiedSearchResponse(BaseModel):
     chunk_result_count: int = Field(..., ge=0)
     paper_results: list[RetrievedPaper] = Field(default_factory=list)
     chunk_results: list[RetrievedChunk] = Field(default_factory=list)
+
+
+class ConfidenceAssessment(BaseModel):
+    """CRAG-style assessment of whether retrieved evidence is strong enough for synthesis."""
+
+    query: str = Field(..., min_length=1)
+    route: QueryRouteName
+    confidence_score: float = Field(..., ge=0.0, le=1.0)
+    decision: ConfidenceDecisionName
+    reason: str = Field(..., min_length=1)
+    recommended_action: str = Field(..., min_length=1)
+    signals: list[str] = Field(default_factory=list)
+    result_count: int = Field(..., ge=0)
+    top_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    route_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
+
 
 class EvaluationQuery(BaseModel):
     """One human-readable retrieval evaluation query."""

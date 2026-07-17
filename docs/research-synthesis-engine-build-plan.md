@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 25 days  
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, and retrieval evaluation are complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, and CRAG confidence assessment are complete.
 
 ## Final Positioning
 
@@ -474,26 +474,34 @@ Checkpoint:
 retrieval evaluation reports rigorous ID metrics separately from topic/keyword sanity checks
 ```
 
----
+## Day 16: CRAG Confidence Guardrail - Complete
 
-# Upcoming Work
-
-## Day 16: CRAG Confidence Guardrail
-
-Goal: prevent weak retrieval from flowing directly into answer generation.
-
-Implement:
-- Confidence score from top retrieval scores and agreement between paper/chunk results
-- Low-confidence behavior:
-  - broaden search
-  - ask clarifying question
-  - or state insufficient evidence
-- Tests for low-confidence and high-confidence cases
+Implemented:
+- `retrieval/confidence.py`
+- `ConfidenceAssessment` schema
+- Confidence score from:
+  - top retrieval score
+  - route confidence
+  - result count
+  - score consistency
+  - topic agreement
+  - paper/chunk agreement for `hybrid_both`
+- Decisions:
+  - `sufficient_evidence`
+  - `broaden_search`
+  - `ask_clarifying_question`
+  - `insufficient_evidence`
+- JSON CLI for saved unified responses or live queries
+- Tests for high-confidence, no-result, low-score, ambiguous-route, and hybrid agreement cases
 
 Checkpoint:
 ```text
-system can say when evidence is weak instead of hallucinating
+unified retrieval response -> confidence assessment before synthesis
 ```
+
+---
+
+# Upcoming Work
 
 ## Day 17: Research Brief Generator
 
@@ -670,15 +678,15 @@ project is stable, explainable, and demo-ready
 
 # Current Immediate Next Step
 
-Build **Day 16: CRAG Confidence Guardrail**.
+Build **Day 17: Research Brief Generator**.
 
-This is now the right next step because retrieval can be executed and evaluated:
+This is now the right next step because retrieval is routed, ranked, evaluated, and confidence-gated:
 
 ```text
-query -> unified retrieval -> evaluation metrics -> confidence guardrail
+query -> unified retrieval -> confidence assessment -> grounded research brief
 ```
 
-The CRAG layer will decide whether retrieved evidence is strong enough for synthesis or whether the system should broaden, clarify, or state insufficient evidence.
+The research brief generator should only synthesize from retrieved evidence when the confidence decision allows it.
 
 # Minimum Viable Final Demo
 

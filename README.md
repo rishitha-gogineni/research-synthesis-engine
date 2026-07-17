@@ -369,6 +369,12 @@ Run retrieval evaluation:
 python -m retrieval.evaluate --queries tests/fixtures/eval_queries.json
 ```
 
+Assess retrieval confidence from a saved unified response:
+
+```bash
+python -m retrieval.confidence --input path/to/unified_response.json
+```
+
 ## Next Phase
 
 The next phase evaluates retrieval quality and adds grounded synthesis:

@@ -289,3 +289,14 @@ Reasoning:
 - Queries with empty `expected_relevant_ids` are not counted as retrieval failures, because that would silently distort the rigorous metrics.
 - CLI output reports both `queries_with_relevant_ids` and `queries_topic_keyword_only` so reviewers can see which metrics are strict ID-based scores and which are broader sanity checks.
 - This is intentional incremental rigor: start transparent, label more queries as results are manually inspected, and keep the metric denominator honest.
+
+## 2026-07-17: Use Basic CRAG Before Synthesis and Defer Advanced Agentic RAG Extensions
+
+We will add a basic CRAG-style confidence assessment before answer generation, using the unified retrieval response as input.
+
+Reasoning:
+- The first synthesis guardrail should be deterministic, inspectable, and testable before adding multi-round agentic loops.
+- Confidence is based on visible retrieval signals: top score, route confidence, result count, score consistency, topic agreement, and paper/chunk agreement for `hybrid_both`.
+- The guardrail can allow synthesis, broaden retrieval, ask a clarifying question, or state insufficient evidence.
+- This prevents weak retrieval from flowing directly into generated research briefs.
+- MA-RAG style multi-round refinement and KidnapRAG-style adversarial defenses remain valuable advanced extensions, but they are intentionally deferred until the initial end-to-end research synthesis system is complete.
