@@ -21,9 +21,10 @@ The final product output will be:
 
 **Phase 1: Ingestion & Indexing — Complete**  
 **Phase 2: Route-Aware Retrieval — Complete**  
-**Phase 3: Evaluation & Grounded Synthesis — In Progress**
+**Phase 3: Evaluation & Grounded Synthesis — Complete**  
+**Phase 4: API & UI — In Progress**
 
-The offline ingestion and indexing pipeline is implemented and validated. Route-aware retrieval can choose paper-level search, full-text chunk search, both result sets, or metadata filtering for free-text user questions. Grounded synthesis now uses the CRAG confidence check before producing a research brief. Evidence matrices, reading paths, and open-problems reports can be generated from the same retrieved evidence without duplicate retrieval calls.
+The offline ingestion and indexing pipeline is implemented and validated. Route-aware retrieval can choose paper-level search, full-text chunk search, both result sets, or metadata filtering for free-text user questions. Grounded synthesis now uses the CRAG confidence check before producing a research brief. Evidence matrices, reading paths, and open-problems reports can be generated from the same retrieved evidence without duplicate retrieval calls. A FastAPI backend now exposes the completed retrieval and synthesis services for the upcoming UI.
 
 ```text
 OpenAlex fetch
@@ -133,6 +134,7 @@ The project now has both retrieval indexes needed for hybrid search:
 - **Reading path:** `agent.reading_path` recommends a grounded 5-10 paper sequence across foundations, methods, evaluation, recent advances, and limitations
 - **Open problems:** `agent.open_problems` derives unresolved problems from retrieved limitations, future-work signals, and evidence gaps
 - **Combined guidance:** `agent.research_guidance` reuses one unified retrieval response and confidence assessment for both Day 19 outputs
+- **FastAPI backend:** `api.main` exposes health, corpus stats, retrieval, confidence, brief, evidence matrix, reading path, open problems, and combined guidance endpoints
 
 Hybrid query example:
 
@@ -231,7 +233,7 @@ full-text chunks: 4170
 chunk-level Qdrant points: 4170
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 151 passed
+tests: 163 passed
 ```
 
 These counts reflect the current local artifacts, index checks, and test suite.
@@ -412,6 +414,34 @@ Generate combined research guidance from one retrieval response:
 python -m agent.research_guidance --query "Compare RAG and self-verification methods."
 ```
 
+Start the FastAPI backend:
+
+```bash
+uvicorn api.main:app --reload
+```
+
+Call the main API endpoint:
+
+```bash
+curl -X POST http://localhost:8000/guidance \
+  -H "Content-Type: application/json" \
+  -d '{"query":"Compare RAG and self-verification methods.","top_k":5}'
+```
+
+API endpoints:
+
+```text
+GET  /health
+GET  /corpus/stats
+POST /retrieve
+POST /confidence
+POST /brief
+POST /evidence-matrix
+POST /reading-path
+POST /open-problems
+POST /guidance
+```
+
 ## Guidance Output
 
 Reading paths use deterministic candidate selection first, then the language model writes grounded explanations for valid retrieved IDs only. The stages are:
@@ -463,7 +493,8 @@ user question
 → research brief
 → evidence matrix
 → reading path and open problems
-→ API/UI workflow
+→ FastAPI backend
+→ UI workflow
 ```
 
 ## Design Principles

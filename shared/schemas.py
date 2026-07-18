@@ -285,6 +285,7 @@ class EvidenceMatrix(BaseModel):
     rows: list[EvidenceMatrixRow] = Field(default_factory=list)
     markdown: str = Field(default="")
 
+
 class ReadingPathItem(BaseModel):
     """One recommended paper in a grounded reading sequence."""
 

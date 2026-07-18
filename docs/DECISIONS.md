@@ -344,3 +344,14 @@ Reasoning:
 - One-paper evidence is never labeled `strong`; it is presented as weak or moderate depending on source support.
 - If retrieval confidence is low, or if retrieved evidence contains no limitation/future-work signals, the report returns a guarded empty result instead of speculating.
 - The combined Day 19 service reuses one `UnifiedSearchResponse` and one `ConfidenceAssessment` for reading paths and open-problems reports, avoiding duplicate retrieval calls.
+
+## 2026-07-18: Keep FastAPI Thin Over Existing Retrieval and Agent Services
+
+We will expose the completed pipeline through `api.main` without moving business logic into API route handlers.
+
+Reasoning:
+- Retrieval, confidence, synthesis, evidence matrix, reading path, and open-problems logic already have tested module boundaries.
+- The API should validate requests, orchestrate existing services, shape responses, and map errors to HTTP responses.
+- `/guidance` runs unified retrieval once and confidence assessment once, then reuses those objects for all downstream outputs to avoid duplicated retrieval and inconsistent evidence.
+- Endpoint tests monkeypatch service calls so they do not call OpenAI, Qdrant, OpenAlex, or the local cross-encoder.
+- This keeps the backend ready for Streamlit while preserving the same service contracts used by CLI tests.

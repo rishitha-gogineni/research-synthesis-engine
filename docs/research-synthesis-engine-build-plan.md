@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 25 days  
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, and open-problems generation are complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, and the FastAPI backend are complete.
 
 ## Final Positioning
 
@@ -105,6 +105,9 @@ flowchart TD
     I --> K[Evidence matrix]
     I --> L[Reading path]
     I --> M[Open problems report]
+    K --> N[FastAPI response]
+    L --> N
+    M --> N
 ```
 
 ## Expected User Experience
@@ -556,29 +559,31 @@ Checkpoint:
 retrieved evidence -> confidence check -> reading path + grounded open problems
 ```
 
-## Day 20: FastAPI Backend
+## Day 20: FastAPI Backend - Complete
 
-Goal: expose the system through API endpoints.
-
-Implement endpoints:
+Implemented:
+- `api/main.py`
+- `ApiQueryRequest` and `ApiGuidanceResponse` API schemas
+- Thin API endpoints over existing retrieval and agent services:
 ```text
-/health
-/query
-/retrieve
-/brief
-/evidence-matrix
-/reading-path
-/corpus/stats
+GET  /health
+GET  /corpus/stats
+POST /retrieve
+POST /confidence
+POST /brief
+POST /evidence-matrix
+POST /reading-path
+POST /open-problems
+POST /guidance
 ```
-
-Tests:
-- Mock OpenAI
-- Mock retrieval where needed
-- Validate response schemas
+- `/guidance` runs retrieval once, assesses confidence once, then reuses those objects for brief, evidence matrix, reading path, and open-problems output
+- Corpus stats from local JSON artifacts
+- HTTP error mapping for retrieval/generation/service failures
+- Mocked FastAPI `TestClient` tests with no OpenAI, Qdrant, OpenAlex, or cross-encoder calls
 
 Checkpoint:
 ```text
-backend can serve retrieval and synthesis results
+backend can serve retrieval, confidence, synthesis, evidence, reading path, and open-problems responses
 ```
 
 ## Day 21: Streamlit Dashboard
@@ -675,15 +680,15 @@ project is stable, explainable, and demo-ready
 
 # Current Immediate Next Step
 
-Build **Day 20: FastAPI Backend**.
+Build **Day 21: Streamlit Dashboard**.
 
-This is now the right next step because retrieval is routed, ranked, evaluated, confidence-gated, and can produce analyst-style outputs:
+This is now the right next step because the backend exposes the completed retrieval and analyst-style outputs through stable API endpoints:
 
 ```text
-query -> unified retrieval -> confidence assessment -> research brief -> evidence matrix -> reading path -> open problems -> API endpoint
+query -> FastAPI /guidance -> unified retrieval -> confidence assessment -> brief/matrix/reading path/open problems -> Streamlit tabs
 ```
 
-The API should expose the completed retrieval, confidence, brief, evidence matrix, reading path, and open-problems services through stable response schemas.
+The dashboard should call the FastAPI backend and render the brief, evidence matrix, reading path, open problems, retrieved sources, and debug scores in a usable workflow.
 
 # Minimum Viable Final Demo
 
