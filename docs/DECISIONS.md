@@ -322,3 +322,25 @@ Reasoning:
 - Missing values are labeled as `not stated in retrieved evidence`, which is more precise than implying the field is globally unknown.
 - Evidence strength is derived from retrieval/rerank/blended scores, so reviewers can inspect why a source appears strong or weak.
 - Later UI work can render the same matrix as JSON or Markdown without changing retrieval semantics.
+
+## 2026-07-18: Build Reading Paths With Deterministic Selection and Grounded Explanations
+
+We will select reading-path candidates deterministically before asking the LLM to explain the sequence.
+
+Reasoning:
+- Paper recommendation should not be delegated entirely to generation because the system must avoid recommending papers outside the retrieved corpus.
+- Candidate selection combines retrieval score, citation count, publication year, evidence coverage, methodology diversity, and paper/chunk support.
+- Citation count is useful for identifying foundational work, but it is not the only ranking signal; recent highly relevant papers are preserved for later stages.
+- The LLM receives only validated candidate IDs and source IDs, then writes reasons, focus points, prerequisites, and transitions.
+- Every generated paper ID and source ID is validated against retrieved evidence before the reading path is accepted.
+
+## 2026-07-18: Derive Open Problems Only From Retrieved Limitation Evidence
+
+We will generate open-problems reports only from retrieved limitations, future-work/discussion chunks, evaluation gaps, conflicts, and corpus limitations.
+
+Reasoning:
+- Open problems can easily become generic, so unsupported problems are rejected during validation.
+- Evidence strength is based on the number of distinct supporting papers and sources, not citation count alone.
+- One-paper evidence is never labeled `strong`; it is presented as weak or moderate depending on source support.
+- If retrieval confidence is low, or if retrieved evidence contains no limitation/future-work signals, the report returns a guarded empty result instead of speculating.
+- The combined Day 19 service reuses one `UnifiedSearchResponse` and one `ConfidenceAssessment` for reading paths and open-problems reports, avoiding duplicate retrieval calls.

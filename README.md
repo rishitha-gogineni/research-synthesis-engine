@@ -1,6 +1,6 @@
 # Research Synthesis Engine
 
-Research Synthesis Engine is a literature intelligence system for academic papers. It ingests top-cited research papers from OpenAlex, extracts structured metadata from abstracts, builds dense and sparse retrieval indexes, and generates confidence-gated research briefs with inspectable evidence matrices.
+Research Synthesis Engine is a literature intelligence system for academic papers. It ingests top-cited research papers from OpenAlex, extracts structured metadata from abstracts, builds dense and sparse retrieval indexes, and generates confidence-gated research briefs, inspectable evidence matrices, reading paths, and grounded open-problems reports.
 
 Users can choose a research area, pick a suggested question, or ask a free-text research question such as:
 
@@ -23,7 +23,7 @@ The final product output will be:
 **Phase 2: Route-Aware Retrieval — Complete**  
 **Phase 3: Evaluation & Grounded Synthesis — In Progress**
 
-The offline ingestion and indexing pipeline is implemented and validated. Route-aware retrieval can choose paper-level search, full-text chunk search, both result sets, or metadata filtering for free-text user questions. Grounded synthesis now uses the CRAG confidence check before producing a research brief, and evidence matrices can be rendered as JSON or Markdown.
+The offline ingestion and indexing pipeline is implemented and validated. Route-aware retrieval can choose paper-level search, full-text chunk search, both result sets, or metadata filtering for free-text user questions. Grounded synthesis now uses the CRAG confidence check before producing a research brief. Evidence matrices, reading paths, and open-problems reports can be generated from the same retrieved evidence without duplicate retrieval calls.
 
 ```text
 OpenAlex fetch
@@ -130,6 +130,9 @@ The project now has both retrieval indexes needed for hybrid search:
 - **Unified retrieval:** `retrieval.unified_search` routes each query, returns paper and/or chunk results, and attaches rerank/citation-aware score fields
 - **Confidence-gated synthesis:** `agent.synthesis` generates a grounded brief only when retrieved evidence passes the CRAG confidence check
 - **Evidence matrix:** `agent.evidence_matrix` turns retrieved evidence into inspectable claim/source rows with methodology, dataset, result, limitation, and strength fields
+- **Reading path:** `agent.reading_path` recommends a grounded 5-10 paper sequence across foundations, methods, evaluation, recent advances, and limitations
+- **Open problems:** `agent.open_problems` derives unresolved problems from retrieved limitations, future-work signals, and evidence gaps
+- **Combined guidance:** `agent.research_guidance` reuses one unified retrieval response and confidence assessment for both Day 19 outputs
 
 Hybrid query example:
 
@@ -228,7 +231,7 @@ full-text chunks: 4170
 chunk-level Qdrant points: 4170
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 128 passed
+tests: 151 passed
 ```
 
 These counts reflect the current local artifacts, index checks, and test suite.
@@ -391,9 +394,64 @@ Generate an evidence matrix as Markdown:
 python -m agent.evidence_matrix --input path/to/unified_response.json --markdown
 ```
 
+Generate a grounded reading path:
+
+```bash
+python -m agent.reading_path --query "Which LoRA and PEFT papers should I read first?"
+```
+
+Generate grounded open problems:
+
+```bash
+python -m agent.open_problems --query "What are unresolved problems in hallucination detection?"
+```
+
+Generate combined research guidance from one retrieval response:
+
+```bash
+python -m agent.research_guidance --query "Compare RAG and self-verification methods."
+```
+
+## Guidance Output
+
+Reading paths use deterministic candidate selection first, then the language model writes grounded explanations for valid retrieved IDs only. The stages are:
+
+```text
+foundational
+core_methods
+evaluation_and_benchmarks
+recent_advances
+limitations_and_open_problems
+```
+
+Open-problems reports are limited to retrieved evidence. They use extracted limitations, limitation/future-work chunks, evaluation gaps, conflicts, and corpus limitations; unsupported problems are rejected during validation.
+
+Example guidance shape:
+
+```json
+{
+  "question": "Which papers should I read first?",
+  "reading_path": {
+    "total_papers": 5,
+    "confidence_decision": "sufficient_evidence"
+  },
+  "open_problems": {
+    "problems": [
+      {
+        "title": "Benchmark coverage remains limited",
+        "evidence_strength": "moderate",
+        "supporting_source_ids": ["paper:..."]
+      }
+    ]
+  }
+}
+```
+
+Known limits: recommendations are limited to the current five-topic corpus, the reading path is not an exhaustive literature survey, and missing full text can reduce limitation/open-problem coverage.
+
 ## Next Phase
 
-The remaining work extends the analyst-style output and prepares the user-facing app:
+The remaining work prepares the user-facing API and app:
 
 ```text
 user question

@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 25 days  
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, and evidence matrix generation are complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, and open-problems generation are complete.
 
 ## Final Positioning
 
@@ -103,6 +103,8 @@ flowchart TD
     H -->|sufficient evidence| I[Grounded research brief]
     H -->|weak evidence| J[Skip synthesis / recommend next action]
     I --> K[Evidence matrix]
+    I --> L[Reading path]
+    I --> M[Open problems report]
 ```
 
 ## Expected User Experience
@@ -536,18 +538,22 @@ retrieved evidence -> inspectable structured evidence matrix
 
 # Upcoming Work
 
-## Day 19: Reading Path + Open Problems
+## Day 19: Reading Path + Open Problems - Complete
 
-Goal: recommend how someone should study the topic.
-
-Implement:
-- Reading path ordered by foundational -> methods -> evaluation -> recent/open problems
-- Use citation count, year, and topic coverage
-- Open problems from limitations and full-text chunks
+Implemented:
+- `agent/guidance_common.py` for shared candidate normalization and source-ID validation
+- `agent/reading_path.py` for staged reading paths
+- `agent/open_problems.py` for grounded open-problems reports
+- `agent/research_guidance.py` for combined Day 19 output from one unified retrieval response
+- `ReadingPathItem`, `ReadingPathStage`, `ReadingPath`, `OpenProblem`, `OpenProblemsReport`, and `ResearchGuidanceResponse` schemas
+- Deterministic candidate selection using retrieval score, citation count, year, evidence coverage, methodology diversity, and chunk support
+- LLM-bounded explanation prompts with retry-once JSON parsing and strict ID validation
+- Confidence-gated behavior for `sufficient_evidence`, `broaden_search`, `ask_clarifying_question`, and `insufficient_evidence`
+- JSON/readable CLIs and mocked tests
 
 Checkpoint:
 ```text
-system recommends what to read first and why
+retrieved evidence -> confidence check -> reading path + grounded open problems
 ```
 
 ## Day 20: FastAPI Backend
@@ -669,15 +675,15 @@ project is stable, explainable, and demo-ready
 
 # Current Immediate Next Step
 
-Build **Day 19: Reading Path + Open Problems**.
+Build **Day 20: FastAPI Backend**.
 
-This is now the right next step because retrieval is routed, ranked, evaluated, confidence-gated, and can produce both a grounded brief and an evidence matrix:
+This is now the right next step because retrieval is routed, ranked, evaluated, confidence-gated, and can produce analyst-style outputs:
 
 ```text
-query -> unified retrieval -> confidence assessment -> research brief -> evidence matrix -> reading path
+query -> unified retrieval -> confidence assessment -> research brief -> evidence matrix -> reading path -> open problems -> API endpoint
 ```
 
-The reading path should use citation count, year, topic coverage, and retrieved evidence to recommend what to read first and why.
+The API should expose the completed retrieval, confidence, brief, evidence matrix, reading path, and open-problems services through stable response schemas.
 
 # Minimum Viable Final Demo
 

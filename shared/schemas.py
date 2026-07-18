@@ -97,6 +97,26 @@ class RetrievalResponse(BaseModel):
 QueryRouteName = Literal["paper_level", "chunk_level", "hybrid_both", "metadata_filter"]
 ConfidenceDecisionName = Literal["sufficient_evidence", "broaden_search", "ask_clarifying_question", "insufficient_evidence"]
 BriefStatusName = Literal["generated", "skipped_low_confidence"]
+ReadingStageName = Literal[
+    "foundational",
+    "core_methods",
+    "evaluation_and_benchmarks",
+    "recent_advances",
+    "limitations_and_open_problems",
+]
+OpenProblemCategoryName = Literal[
+    "data",
+    "evaluation",
+    "methodology",
+    "generalization",
+    "scalability",
+    "efficiency",
+    "safety",
+    "interpretability",
+    "reproducibility",
+    "deployment",
+]
+EvidenceStrengthName = Literal["strong", "moderate", "weak"]
 
 
 class QueryRoute(BaseModel):
@@ -264,4 +284,79 @@ class EvidenceMatrix(BaseModel):
     query: str = Field(..., min_length=1)
     rows: list[EvidenceMatrixRow] = Field(default_factory=list)
     markdown: str = Field(default="")
+
+class ReadingPathItem(BaseModel):
+    """One recommended paper in a grounded reading sequence."""
+
+    order: int = Field(..., ge=1)
+    stage: ReadingStageName
+    paper_id: str = Field(..., min_length=1)
+    title: str = Field(..., min_length=1)
+    authors: list[str] = Field(default_factory=list)
+    publication_year: Optional[int] = None
+    citation_count: Optional[int] = Field(default=None, ge=0)
+    topic: Optional[str] = None
+    reason_to_read: str = Field(..., min_length=1)
+    focus_points: list[str] = Field(default_factory=list)
+    prerequisites: list[str] = Field(default_factory=list)
+    connection_to_next: Optional[str] = None
+    source_ids: list[str] = Field(default_factory=list)
+    evidence_snippet: Optional[str] = None
+    relevance_score: Optional[float] = Field(default=None, ge=0.0, le=1.0)
+
+
+class ReadingPathStage(BaseModel):
+    """A stage in the grounded reading path."""
+
+    stage: ReadingStageName
+    description: str = Field(..., min_length=1)
+    papers: list[ReadingPathItem] = Field(default_factory=list)
+
+
+class ReadingPath(BaseModel):
+    """Grounded reading path built from retrieved papers and chunks."""
+
+    question: str = Field(..., min_length=1)
+    stages: list[ReadingPathStage] = Field(default_factory=list)
+    total_papers: int = Field(..., ge=0)
+    confidence_decision: ConfidenceDecisionName
+    limitations: list[str] = Field(default_factory=list)
+
+
+class OpenProblem(BaseModel):
+    """One unresolved research challenge grounded in retrieved evidence."""
+
+    title: str = Field(..., min_length=1)
+    description: str = Field(..., min_length=1)
+    category: OpenProblemCategoryName
+    why_it_matters: str = Field(..., min_length=1)
+    evidence_summary: str = Field(..., min_length=1)
+    supporting_paper_ids: list[str] = Field(default_factory=list)
+    supporting_source_ids: list[str] = Field(default_factory=list)
+    evidence_snippets: list[str] = Field(default_factory=list)
+    evidence_strength: EvidenceStrengthName
+    suggested_research_directions: list[str] = Field(default_factory=list)
+    confidence: Optional[float] = Field(default=None, ge=0.0, le=1.0)
+
+
+class OpenProblemsReport(BaseModel):
+    """Grounded report of open research problems found in retrieved evidence."""
+
+    question: str = Field(..., min_length=1)
+    problems: list[OpenProblem] = Field(default_factory=list)
+    recurring_limitations: list[str] = Field(default_factory=list)
+    conflicting_findings: list[str] = Field(default_factory=list)
+    evidence_gaps: list[str] = Field(default_factory=list)
+    corpus_limitations: list[str] = Field(default_factory=list)
+    confidence_decision: ConfidenceDecisionName
+
+
+class ResearchGuidanceResponse(BaseModel):
+    """Combined Day 19 guidance output from one unified retrieval response."""
+
+    question: str = Field(..., min_length=1)
+    confidence: ConfidenceAssessment
+    reading_path: Optional[ReadingPath] = None
+    open_problems: Optional[OpenProblemsReport] = None
+    warnings: list[str] = Field(default_factory=list)
 
