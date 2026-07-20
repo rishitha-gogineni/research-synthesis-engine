@@ -400,3 +400,14 @@ Reasoning:
 - The UI now surfaces top supporting evidence near the front of the workflow so users can quickly see why the answer is grounded.
 - Result sections are ordered by query intent: reading-path questions prioritize the reading path, limitation questions prioritize open problems, evaluation questions prioritize the evidence matrix, and overview questions prioritize brief plus top evidence.
 - These changes preserve the existing API schema and keep the visual redesign as a separate pass.
+
+## 2026-07-20: Move the UI Toward an Editorial Research Workspace
+
+We will replace the default Streamlit sidebar layout with a top query console and report-style output.
+
+Reasoning:
+- The sidebar made the app feel like a default backend demo, while the project should read as a research analyst workspace.
+- A beige/black serif theme fits the literature-analysis domain and avoids generic chatbot/dashboard styling.
+- The evidence status band keeps trust signals visible before the user reads the answer.
+- The first two adaptive sections are rendered as report content, while lower-priority material stays in tabs.
+- The reading path now has a Graphviz citation map so the recommended sequence is visual, not just a table.

@@ -205,3 +205,16 @@ def test_ordered_sections_adapts_to_question_intent():
     assert api_client.ordered_sections("Which datasets evaluate hallucination?")[1] == "Evidence"
     assert api_client.ordered_sections("What are attention mechanisms in transformers?")[:2] == ["Brief", "Top Evidence"]
 
+def test_reading_path_map_dot_uses_citation_sized_nodes():
+    payload = sample_guidance_payload()
+    dot = api_client.reading_path_map_dot(payload)
+
+    assert dot.startswith("digraph ReadingPath")
+    assert "Paper One" in dot
+    assert "12 cites" in dot
+    assert "rankdir=LR" in dot
+
+
+def test_reading_path_map_dot_returns_empty_for_missing_path():
+    assert api_client.reading_path_map_dot({}) == ""
+

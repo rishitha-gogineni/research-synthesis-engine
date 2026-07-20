@@ -281,3 +281,53 @@ def ordered_sections(question: str) -> list[str]:
         return ["Brief", "Evidence", "Top Evidence", "Sources", "Reading Path", "Open Problems", "Diagnostics"]
     return ["Brief", "Top Evidence", "Evidence", "Reading Path", "Open Problems", "Sources", "Diagnostics"]
 
+def _dot_escape(value: Any) -> str:
+    return str(value or "").replace("\\", "\\\\").replace('"', '\"').replace("\n", " ")
+
+
+def reading_path_map_dot(payload: dict[str, Any]) -> str:
+    path = payload.get("reading_path") or {}
+    stages = path.get("stages", []) or []
+    colors = {
+        "foundational": "#111111",
+        "core_methods": "#8A5A2B",
+        "evaluation_and_benchmarks": "#2F6F4E",
+        "recent_advances": "#5F5A52",
+        "limitations_and_open_questions": "#A16207",
+    }
+    nodes: list[str] = []
+    edges: list[str] = []
+    previous_node = None
+    index = 0
+    for stage in stages:
+        stage_name = stage.get("stage") or "stage"
+        fill = colors.get(stage_name, "#8A5A2B")
+        for paper in stage.get("papers", []) or []:
+            index += 1
+            node_id = f"n{index}"
+            citations = int(paper.get("citation_count") or 0)
+            width = min(2.1, max(0.85, 0.85 + (len(str(max(citations, 1))) - 1) * 0.18))
+            title = _dot_escape(paper.get("title", "Untitled"))
+            if len(title) > 42:
+                title = title[:39] + "..."
+            label = _dot_escape(f"{index}. {title}\n{paper.get('publication_year') or 'year ?'} | {citations} cites")
+            nodes.append(
+                f'  "{node_id}" [label="{label}", width={width:.2f}, height={width:.2f}, fillcolor="{fill}"];'
+            )
+            if previous_node:
+                edges.append(f'  "{previous_node}" -> "{node_id}";')
+            previous_node = node_id
+    if not nodes:
+        return ""
+    return "\n".join(
+        [
+            "digraph ReadingPath {",
+            '  graph [rankdir=LR, bgcolor="transparent", pad="0.25", nodesep="0.55", ranksep="0.75"];',
+            '  node [shape=circle, style="filled", fontname="Georgia", fontsize=10, fontcolor="#FFFCF7", color="#111111", penwidth=1.4];',
+            '  edge [color="#111111", arrowsize=0.7, penwidth=1.2];',
+            *nodes,
+            *edges,
+            "}",
+        ]
+    )
+
