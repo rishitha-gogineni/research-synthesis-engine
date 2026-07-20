@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 25 days  
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, and the FastAPI backend are complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, and Day 20.5 API polish are complete.
 
 ## Final Positioning
 
@@ -584,6 +584,26 @@ POST /guidance
 Checkpoint:
 ```text
 backend can serve retrieval, confidence, synthesis, evidence, reading path, and open-problems responses
+```
+
+## Day 20.5: API Polish - Complete
+
+Implemented:
+- `POST /route` route preview without retrieval
+- Canonical `question` request field with backward-compatible `query` alias
+- UI-facing filters: `research_areas`, `publication_year_min`, `publication_year_max`, `full_text_only`, and `include_debug`
+- Filter validation and clear warnings for post-retrieval filtering
+- Debug mode for route signals, confidence signals, score breakdowns, and timing metrics
+- Request ID middleware using `X-Request-ID`
+- Structured API error responses with stable error codes
+- Basic timing metrics for retrieval, confidence, brief, evidence matrix, reading path, open problems, and total request time
+- CORS configuration through `RSE_CORS_ORIGINS`
+- Safer health checks with `healthy`/`degraded` dependency status
+- OpenAPI summaries/tags and expanded API tests
+
+Checkpoint:
+```text
+FastAPI backend is stable enough for the Day 21 Streamlit analyst workspace
 ```
 
 ## Day 21: Streamlit Dashboard

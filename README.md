@@ -24,7 +24,7 @@ The final product output will be:
 **Phase 3: Evaluation & Grounded Synthesis — Complete**  
 **Phase 4: API & UI — In Progress**
 
-The offline ingestion and indexing pipeline is implemented and validated. Route-aware retrieval can choose paper-level search, full-text chunk search, both result sets, or metadata filtering for free-text user questions. Grounded synthesis now uses the CRAG confidence check before producing a research brief. Evidence matrices, reading paths, and open-problems reports can be generated from the same retrieved evidence without duplicate retrieval calls. A FastAPI backend now exposes the completed retrieval and synthesis services for the upcoming UI.
+The offline ingestion and indexing pipeline is implemented and validated. Route-aware retrieval can choose paper-level search, full-text chunk search, both result sets, or metadata filtering for free-text user questions. Grounded synthesis now uses the CRAG confidence check before producing a research brief. Evidence matrices, reading paths, and open-problems reports can be generated from the same retrieved evidence without duplicate retrieval calls. A FastAPI backend now exposes the completed retrieval and synthesis services for the upcoming UI, with route preview, request IDs, structured errors, debug mode, filters, CORS configuration, and safe health checks.
 
 ```text
 OpenAlex fetch
@@ -134,7 +134,7 @@ The project now has both retrieval indexes needed for hybrid search:
 - **Reading path:** `agent.reading_path` recommends a grounded 5-10 paper sequence across foundations, methods, evaluation, recent advances, and limitations
 - **Open problems:** `agent.open_problems` derives unresolved problems from retrieved limitations, future-work signals, and evidence gaps
 - **Combined guidance:** `agent.research_guidance` reuses one unified retrieval response and confidence assessment for both Day 19 outputs
-- **FastAPI backend:** `api.main` exposes health, corpus stats, retrieval, confidence, brief, evidence matrix, reading path, open problems, and combined guidance endpoints
+- **FastAPI backend:** `api.main` exposes health, corpus stats, route preview, retrieval, confidence, brief, evidence matrix, reading path, open problems, and combined guidance endpoints
 
 Hybrid query example:
 
@@ -233,7 +233,7 @@ full-text chunks: 4170
 chunk-level Qdrant points: 4170
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 163 passed
+tests: 176 passed
 ```
 
 These counts reflect the current local artifacts, index checks, and test suite.
@@ -266,6 +266,7 @@ OPENAI_API_KEY=
 QDRANT_URL=http://localhost:6333
 OPENALEX_API_KEY=
 OPENALEX_EMAIL=
+RSE_CORS_ORIGINS=http://localhost:8501,http://127.0.0.1:8501
 ```
 
 ## Rebuild Commands
@@ -425,7 +426,8 @@ Call the main API endpoint:
 ```bash
 curl -X POST http://localhost:8000/guidance \
   -H "Content-Type: application/json" \
-  -d '{"query":"Compare RAG and self-verification methods.","top_k":5}'
+  -H "X-Request-ID: demo-request-001" \
+  -d '{"question":"Compare RAG and self-verification methods.","top_k":5,"include_debug":false}'
 ```
 
 API endpoints:
@@ -433,6 +435,7 @@ API endpoints:
 ```text
 GET  /health
 GET  /corpus/stats
+POST /route
 POST /retrieve
 POST /confidence
 POST /brief
@@ -441,6 +444,21 @@ POST /reading-path
 POST /open-problems
 POST /guidance
 ```
+
+API request notes:
+
+```text
+question: canonical public field for user questions
+query: accepted as a backward-compatible alias
+research_areas: optional list of supported corpus topics
+publication_year_min / publication_year_max: optional post-retrieval year filters
+full_text_only: keeps chunk-level evidence and omits abstract-only paper rows
+include_debug: returns route signals, confidence signals, score breakdowns, and timing metrics
+```
+
+Structured API errors include an `error.code`, message, details, and `request_id`. Every response includes an `X-Request-ID` header; callers may provide one or let the API generate a UUID.
+
+CORS is configured by `RSE_CORS_ORIGINS` as a comma-separated origin list. The default supports local Streamlit development on `http://localhost:8501` and `http://127.0.0.1:8501` without using a wildcard.
 
 ## Guidance Output
 

@@ -39,10 +39,11 @@ def make_retrieval(query="What reduces hallucinations?"):
         blended_score=0.95,
         rerank_score=0.95,
         hybrid_score=0.95,
+        score_breakdown={"rerank_score": 0.9, "citation_score": 0.2},
     )
     return UnifiedSearchResponse(
         query=query,
-        route=QueryRoute(query=query, route="paper_level", reason="test route", confidence=0.95),
+        route=QueryRoute(query=query, route="paper_level", reason="test route", confidence=0.95, matched_signals=["main: main ideas question"]),
         paper_result_count=1,
         chunk_result_count=0,
         paper_results=[paper],
@@ -183,7 +184,11 @@ def test_health_endpoint():
     response = client.get("/health")
 
     assert response.status_code == 200
-    assert response.json()["status"] == "ok"
+    payload = response.json()
+    assert payload["status"] in {"healthy", "degraded"}
+    assert payload["service"] == "research-synthesis-engine"
+    assert "dependencies" in payload
+    assert "OPENAI_API_KEY" not in str(payload)
 
 
 def test_corpus_stats_endpoint_has_expected_keys():
@@ -198,10 +203,11 @@ def test_corpus_stats_endpoint_has_expected_keys():
 def test_retrieve_endpoint_uses_unified_search_once(monkeypatch):
     calls = patch_core_services(monkeypatch)
 
-    response = client.post("/retrieve", json={"query": "What reduces hallucinations?", "top_k": 5})
+    response = client.post("/retrieve", json={"question": "What reduces hallucinations?", "top_k": 5})
 
     assert response.status_code == 200
     assert response.json()["paper_result_count"] == 1
+    assert response.json()["question"] == "What reduces hallucinations?"
     assert len(calls) == 1
     assert calls[0][1]["top_k"] == 5
 
@@ -209,7 +215,7 @@ def test_retrieve_endpoint_uses_unified_search_once(monkeypatch):
 def test_confidence_endpoint_returns_assessment(monkeypatch):
     patch_core_services(monkeypatch)
 
-    response = client.post("/confidence", json={"query": "What reduces hallucinations?"})
+    response = client.post("/confidence", json={"question": "What reduces hallucinations?"})
 
     assert response.status_code == 200
     assert response.json()["decision"] == "sufficient_evidence"
@@ -283,6 +289,7 @@ def test_invalid_query_returns_422():
     response = client.post("/retrieve", json={"query": "   "})
 
     assert response.status_code == 422
+    assert response.json()["error"]["code"] == "VALIDATION_ERROR"
 
 
 def test_service_error_maps_to_503(monkeypatch):
@@ -294,4 +301,166 @@ def test_service_error_maps_to_503(monkeypatch):
     response = client.post("/retrieve", json={"query": "What reduces hallucinations?"})
 
     assert response.status_code == 503
-    assert "Qdrant unavailable" in response.json()["detail"]
+    payload = response.json()
+    assert payload["error"]["code"] == "QDRANT_UNAVAILABLE"
+    assert "Qdrant unavailable" in payload["detail"]
+
+
+def test_query_alias_still_works_for_backward_compatibility(monkeypatch):
+    patch_core_services(monkeypatch)
+
+    response = client.post("/retrieve", json={"query": "What reduces hallucinations?"})
+
+    assert response.status_code == 200
+    assert response.json()["question"] == "What reduces hallucinations?"
+
+
+def test_route_preview_does_not_run_retrieval(monkeypatch):
+    def fail_retrieval(*args, **kwargs):
+        raise AssertionError("route preview must not run retrieval")
+
+    monkeypatch.setattr(api_main, "run_unified_search", fail_retrieval)
+
+    response = client.post("/route", json={"question": "Compare RAG and self-verification methods."})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["selected_route"] == "hybrid_both"
+    assert payload["route_confidence"] > 0
+    assert payload["matched_signals"]
+
+
+def test_valid_filters_are_applied_with_warnings(monkeypatch):
+    patch_core_services(monkeypatch)
+
+    response = client.post(
+        "/retrieve",
+        json={
+            "question": "What reduces hallucinations?",
+            "research_areas": ["Retrieval-Augmented Generation (RAG)"],
+            "publication_year_min": 2020,
+            "publication_year_max": 2025,
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["paper_result_count"] == 1
+    assert any("Filters are applied after retrieval" in warning for warning in payload["warnings"])
+
+
+def test_invalid_research_area_returns_structured_validation_error():
+    response = client.post("/retrieve", json={"question": "What?", "research_areas": ["Quantum Baking"]})
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "VALIDATION_ERROR"
+
+
+def test_invalid_year_range_returns_structured_validation_error():
+    response = client.post(
+        "/retrieve",
+        json={"question": "What reduces hallucinations?", "publication_year_min": 2025, "publication_year_max": 2020},
+    )
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "VALIDATION_ERROR"
+
+
+def test_full_text_only_filter_warns_and_omits_paper_results(monkeypatch):
+    patch_core_services(monkeypatch)
+
+    response = client.post("/retrieve", json={"question": "What reduces hallucinations?", "full_text_only": True})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["paper_result_count"] == 0
+    assert any("full_text_only" in warning for warning in payload["warnings"])
+
+
+def test_debug_false_omits_score_breakdowns_and_metrics(monkeypatch):
+    patch_core_services(monkeypatch)
+
+    response = client.post("/retrieve", json={"question": "What reduces hallucinations?", "include_debug": False})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["metrics"] is None
+    assert payload["debug"] is None
+    assert payload["paper_results"][0]["score_breakdown"] is None
+    assert payload["route"]["matched_signals"] == []
+
+
+def test_debug_true_includes_signals_score_breakdowns_and_metrics(monkeypatch):
+    patch_core_services(monkeypatch)
+
+    response = client.post("/guidance", json={"question": "What reduces hallucinations?", "include_debug": True})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["metrics"]["total_ms"] >= 0
+    assert payload["debug"]["matched_signals"] == ["main: main ideas question"]
+    assert payload["debug"]["confidence_signals"] == ["top_score=0.95"]
+    assert payload["debug"]["score_breakdowns"]["p1"]["rerank_score"] == 0.9
+    assert payload["retrieval"]["metrics"]["retrieval_ms"] >= 0
+
+
+def test_request_id_is_returned_for_success_response(monkeypatch):
+    patch_core_services(monkeypatch)
+
+    response = client.post(
+        "/retrieve",
+        json={"question": "What reduces hallucinations?"},
+        headers={"X-Request-ID": "test-request-123"},
+    )
+
+    assert response.status_code == 200
+    assert response.headers["X-Request-ID"] == "test-request-123"
+
+
+def test_request_id_is_returned_for_error_response(monkeypatch):
+    def fail_retrieval(query, **kwargs):
+        raise api_main.UnifiedSearchError("Qdrant unavailable")
+
+    monkeypatch.setattr(api_main, "run_unified_search", fail_retrieval)
+
+    response = client.post(
+        "/retrieve",
+        json={"question": "What reduces hallucinations?"},
+        headers={"X-Request-ID": "error-request-123"},
+    )
+
+    assert response.status_code == 503
+    assert response.headers["X-Request-ID"] == "error-request-123"
+    assert response.json()["error"]["request_id"] == "error-request-123"
+
+
+def test_request_id_is_generated_when_missing(monkeypatch):
+    patch_core_services(monkeypatch)
+
+    response = client.post("/retrieve", json={"question": "What reduces hallucinations?"})
+
+    assert response.status_code == 200
+    assert response.headers.get("X-Request-ID")
+
+
+def test_cors_allows_local_streamlit_origin():
+    response = client.options(
+        "/guidance",
+        headers={
+            "Origin": "http://localhost:8501",
+            "Access-Control-Request-Method": "POST",
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "http://localhost:8501"
+
+
+def test_openapi_includes_route_and_guidance_summaries():
+    response = client.get("/openapi.json")
+
+    assert response.status_code == 200
+    paths = response.json()["paths"]
+    assert "/route" in paths
+    assert paths["/guidance"]["post"]["summary"] == "Generate the complete research analyst response"
+

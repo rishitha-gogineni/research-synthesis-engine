@@ -355,3 +355,15 @@ Reasoning:
 - `/guidance` runs unified retrieval once and confidence assessment once, then reuses those objects for all downstream outputs to avoid duplicated retrieval and inconsistent evidence.
 - Endpoint tests monkeypatch service calls so they do not call OpenAI, Qdrant, OpenAlex, or the local cross-encoder.
 - This keeps the backend ready for Streamlit while preserving the same service contracts used by CLI tests.
+
+## 2026-07-20: Polish the API In Place Before Building the Streamlit UI
+
+We will harden `api.main` without splitting the backend into a larger route/dependency package yet.
+
+Reasoning:
+- The Day 20 backend already works, so Day 20.5 should reduce UI risk without rewriting stable code.
+- `question` is the canonical public request field, while `query` remains accepted as a backward-compatible alias for existing tests and callers.
+- `/route` gives the UI a cheap preview/debug path without running retrieval.
+- Request IDs, structured errors, debug controls, CORS, and health checks make the backend easier to inspect during demos without adding authentication or external infrastructure.
+- Filters are currently applied after retrieval and return an explicit warning; this is honest for the first UI version and avoids pretending retrieval is already filter-aware.
+- Detailed debug signals and timing metrics are returned only when `include_debug=true` so normal UI responses stay focused.
