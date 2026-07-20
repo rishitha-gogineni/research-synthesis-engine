@@ -367,3 +367,14 @@ Reasoning:
 - Request IDs, structured errors, debug controls, CORS, and health checks make the backend easier to inspect during demos without adding authentication or external infrastructure.
 - Filters are currently applied after retrieval and return an explicit warning; this is honest for the first UI version and avoids pretending retrieval is already filter-aware.
 - Detailed debug signals and timing metrics are returned only when `include_debug=true` so normal UI responses stay focused.
+
+## 2026-07-20: Build Streamlit as a Research Analyst Workspace
+
+We will use Streamlit for the first UI, but present it as a compact research analyst workspace rather than a chatbot or marketing dashboard.
+
+Reasoning:
+- The strongest part of the project is inspectable research workflow: route preview, confidence, evidence matrix, reading path, open problems, source lists, and debug metrics.
+- Streamlit is enough for the first interviewer-facing UI because the backend already owns retrieval, filtering, synthesis, validation, request IDs, and error handling.
+- The UI calls the API through a small `ui.api_client` helper instead of duplicating retrieval or agent logic.
+- A sidebar control panel plus tabbed result workspace keeps the layout practical for repeated analysis and avoids hiding the system behind a single chat box.
+- Tests cover UI helper behavior without launching a browser or calling OpenAI, Qdrant, OpenAlex, or the reranker.

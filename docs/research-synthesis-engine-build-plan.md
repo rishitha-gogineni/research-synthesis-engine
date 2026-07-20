@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 25 days  
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, and Day 20.5 API polish are complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, and the Day 21 Streamlit analyst workspace are complete.
 
 ## Final Positioning
 
@@ -606,19 +606,19 @@ Checkpoint:
 FastAPI backend is stable enough for the Day 21 Streamlit analyst workspace
 ```
 
-## Day 21: Streamlit Dashboard
+## Day 21: Streamlit Analyst Workspace - Complete
 
-Goal: create a usable demo UI.
+Goal: create a usable research analyst UI over the FastAPI backend.
 
-UI should include:
-- Topic selector
-- Suggested questions
-- Free-text query box
-- Research brief tab
-- Evidence matrix tab
-- Reading path tab
-- Retrieved papers/chunks tab
-- Debug scores panel
+Implemented:
+- `ui/streamlit_app.py` for the Streamlit workspace
+- `ui/api_client.py` for lightweight API calls and response shaping
+- Suggested-question selector, free-text question box, topic filters, year filters, full-text-only control, top-k control, and diagnostics toggle
+- Cheap route preview through `POST /route`
+- Full research guidance through `POST /guidance`
+- Tabs for brief, evidence matrix, reading path, open problems, sources, and diagnostics
+- Health and corpus-stat status from `GET /health` and `GET /corpus/stats`
+- Helper tests for payload construction, structured error formatting, API response flattening, request IDs, and HTTP error handling
 
 Checkpoint:
 ```text
@@ -700,15 +700,15 @@ project is stable, explainable, and demo-ready
 
 # Current Immediate Next Step
 
-Build **Day 21: Streamlit Dashboard**.
+Build **Day 22: Cleanup + Storage Management**.
 
-This is now the right next step because the backend exposes the completed retrieval and analyst-style outputs through stable API endpoints:
+This is now the right next step because the UI is in place and the remaining local-data work is to make storage, cleanup, and reproducibility clear:
 
 ```text
-query -> FastAPI /guidance -> unified retrieval -> confidence assessment -> brief/matrix/reading path/open problems -> Streamlit tabs
+query -> Streamlit workspace -> FastAPI /guidance -> unified retrieval -> confidence assessment -> brief/matrix/reading path/open problems -> Streamlit tabs
 ```
 
-The dashboard should call the FastAPI backend and render the brief, evidence matrix, reading path, open problems, retrieved sources, and debug scores in a usable workflow.
+Day 22 should verify Qdrant collections and JSON artifacts, then document when local PDFs can safely be deleted after chunk extraction and indexing.
 
 # Minimum Viable Final Demo
 

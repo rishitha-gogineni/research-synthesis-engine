@@ -1,0 +1,164 @@
+import os
+
+import pytest
+
+from ui import api_client
+
+
+def sample_guidance_payload():
+    return {
+        "retrieval": {
+            "route": {"route": "hybrid_both", "reason": "test", "confidence": 0.9, "matched_signals": ["compare"]},
+            "paper_result_count": 1,
+            "chunk_result_count": 1,
+            "paper_results": [
+                {
+                    "paper_id": "p1",
+                    "title": "Paper One",
+                    "topic": "Retrieval-Augmented Generation (RAG)",
+                    "year": 2024,
+                    "citation_count": 12,
+                    "blended_score": 0.91,
+                }
+            ],
+            "chunk_results": [
+                {
+                    "chunk_id": "c1",
+                    "paper_id": "p1",
+                    "title": "Paper One",
+                    "topic": "Retrieval-Augmented Generation (RAG)",
+                    "section_hint": "Evaluation",
+                    "dense_score": 0.82,
+                }
+            ],
+        },
+        "confidence": {"decision": "sufficient_evidence"},
+        "evidence_matrix": {
+            "rows": [
+                {
+                    "claim": "Retrieval grounds answers.",
+                    "source_ids": ["paper:p1"],
+                    "methodology": "Hybrid retrieval.",
+                    "dataset": "HaluEval",
+                    "key_result": "Fewer unsupported claims.",
+                    "limitation": "Limited evaluation.",
+                    "evidence_strength": "high",
+                }
+            ]
+        },
+        "reading_path": {
+            "stages": [
+                {
+                    "stage": "foundational",
+                    "papers": [
+                        {
+                            "order": 1,
+                            "title": "Paper One",
+                            "publication_year": 2024,
+                            "citation_count": 12,
+                            "reason_to_read": "Start here.",
+                            "source_ids": ["paper:p1"],
+                        }
+                    ],
+                }
+            ]
+        },
+        "open_problems": {
+            "problems": [
+                {
+                    "title": "Evaluation coverage",
+                    "category": "evaluation",
+                    "evidence_strength": "weak",
+                    "why_it_matters": "Benchmarks shape conclusions.",
+                    "supporting_source_ids": ["paper:p1"],
+                }
+            ]
+        },
+        "metrics": {"total_ms": 12.3, "retrieval_ms": 3.2},
+    }
+
+
+def test_build_guidance_payload_uses_question_and_optional_filters():
+    payload = api_client.build_guidance_payload(
+        question="  Compare RAG and verification.  ",
+        top_k=5,
+        research_areas=["Retrieval-Augmented Generation (RAG)"],
+        publication_year_min=2020,
+        publication_year_max=2026,
+        full_text_only=True,
+        include_debug=True,
+    )
+
+    assert payload["question"] == "Compare RAG and verification."
+    assert "query" not in payload
+    assert payload["research_areas"] == ["Retrieval-Augmented Generation (RAG)"]
+    assert payload["publication_year_min"] == 2020
+    assert payload["publication_year_max"] == 2026
+    assert payload["full_text_only"] is True
+    assert payload["include_debug"] is True
+
+
+def test_error_message_formats_structured_api_errors():
+    message = api_client.error_message(
+        {"error": {"code": "RETRIEVAL_FAILED", "message": "Unable to retrieve.", "request_id": "abc-123"}}
+    )
+
+    assert message == "RETRIEVAL_FAILED: Unable to retrieve. Request ID: abc-123"
+
+
+def test_table_helpers_flatten_guidance_response():
+    payload = sample_guidance_payload()
+
+    assert api_client.evidence_rows(payload)[0]["Claim"] == "Retrieval grounds answers."
+    assert api_client.reading_path_rows(payload)[0]["Stage"] == "foundational"
+    assert api_client.open_problem_rows(payload)[0]["Problem"] == "Evaluation coverage"
+    papers, chunks = api_client.source_rows(payload)
+    assert papers[0]["Paper ID"] == "p1"
+    assert chunks[0]["Chunk"] == "c1"
+
+
+def test_summary_and_metric_rows_use_api_response_shape():
+    payload = sample_guidance_payload()
+
+    summary = api_client.summary_items(payload, "request-1")
+    metrics = api_client.metric_rows(payload)
+
+    assert summary == {
+        "Route": "hybrid_both",
+        "Confidence": "sufficient_evidence",
+        "Papers": 1,
+        "Chunks": 1,
+        "Request ID": "request-1",
+    }
+    assert {row["Metric"] for row in metrics} == {"total_ms", "retrieval_ms"}
+
+
+def test_api_base_url_uses_env_override(monkeypatch):
+    monkeypatch.setenv("RSE_API_URL", "http://localhost:9999/")
+
+    assert api_client.api_base_url() == "http://localhost:9999"
+
+
+def test_new_request_id_has_ui_prefix():
+    assert api_client.new_request_id().startswith("ui-")
+
+
+def test_post_api_returns_structured_error_for_http_error(monkeypatch):
+    class FakeResponse:
+        status_code = 503
+        headers = {"X-Request-ID": "request-1"}
+        text = ""
+
+        def json(self):
+            return {"error": {"code": "QDRANT_UNAVAILABLE", "message": "Vector store unavailable.", "request_id": "request-1"}}
+
+    def fake_post(*args, **kwargs):
+        return FakeResponse()
+
+    monkeypatch.setattr(api_client.requests, "post", fake_post)
+
+    body, request_id = api_client.post_api("/guidance", {"question": "test"}, request_id="request-1")
+
+    assert request_id == "request-1"
+    assert body["_error_status"] == 503
+    assert api_client.error_message(body).startswith("QDRANT_UNAVAILABLE")

@@ -24,7 +24,7 @@ The final product output will be:
 **Phase 3: Evaluation & Grounded Synthesis — Complete**  
 **Phase 4: API & UI — In Progress**
 
-The offline ingestion and indexing pipeline is implemented and validated. Route-aware retrieval can choose paper-level search, full-text chunk search, both result sets, or metadata filtering for free-text user questions. Grounded synthesis now uses the CRAG confidence check before producing a research brief. Evidence matrices, reading paths, and open-problems reports can be generated from the same retrieved evidence without duplicate retrieval calls. A FastAPI backend now exposes the completed retrieval and synthesis services for the upcoming UI, with route preview, request IDs, structured errors, debug mode, filters, CORS configuration, and safe health checks.
+The offline ingestion and indexing pipeline is implemented and validated. Route-aware retrieval can choose paper-level search, full-text chunk search, both result sets, or metadata filtering for free-text user questions. Grounded synthesis now uses the CRAG confidence check before producing a research brief. Evidence matrices, reading paths, and open-problems reports can be generated from the same retrieved evidence without duplicate retrieval calls. A FastAPI backend exposes the completed retrieval and synthesis services, and a Streamlit analyst workspace renders route previews, research briefs, evidence matrices, reading paths, open problems, source lists, and diagnostics.
 
 ```text
 OpenAlex fetch
@@ -135,6 +135,7 @@ The project now has both retrieval indexes needed for hybrid search:
 - **Open problems:** `agent.open_problems` derives unresolved problems from retrieved limitations, future-work signals, and evidence gaps
 - **Combined guidance:** `agent.research_guidance` reuses one unified retrieval response and confidence assessment for both Day 19 outputs
 - **FastAPI backend:** `api.main` exposes health, corpus stats, route preview, retrieval, confidence, brief, evidence matrix, reading path, open problems, and combined guidance endpoints
+- **Streamlit workspace:** `ui.streamlit_app` provides a compact research analyst interface over the FastAPI backend
 
 Hybrid query example:
 
@@ -233,7 +234,7 @@ full-text chunks: 4170
 chunk-level Qdrant points: 4170
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 176 passed
+tests: 183 passed
 ```
 
 These counts reflect the current local artifacts, index checks, and test suite.
@@ -248,6 +249,8 @@ These counts reflect the current local artifacts, index checks, and test suite.
 - BM25 via `rank-bm25` for sparse search
 - Pydantic for schema validation
 - Docker Compose for local Qdrant
+- FastAPI for the backend service
+- Streamlit for the research analyst workspace
 - Pytest with mocked external API paths
 
 ## Local Setup
@@ -267,6 +270,7 @@ QDRANT_URL=http://localhost:6333
 OPENALEX_API_KEY=
 OPENALEX_EMAIL=
 RSE_CORS_ORIGINS=http://localhost:8501,http://127.0.0.1:8501
+RSE_API_URL=http://localhost:8000
 ```
 
 ## Rebuild Commands
@@ -419,6 +423,12 @@ Start the FastAPI backend:
 
 ```bash
 uvicorn api.main:app --reload
+```
+
+Start the Streamlit analyst workspace:
+
+```bash
+RSE_API_URL=http://localhost:8000 streamlit run ui/streamlit_app.py
 ```
 
 Call the main API endpoint:
