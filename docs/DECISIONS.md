@@ -389,3 +389,14 @@ Reasoning:
 - Explicitly supplied reranker/model errors are still raised in tests, so programming mistakes are not hidden.
 - If the CRAG confidence decision is not `sufficient_evidence`, the system returns a guarded brief explaining that it cannot answer reliably from the indexed corpus.
 - Low-confidence `/guidance` responses skip the evidence matrix, reading path, and open-problems generation so weak evidence is not presented as a normal analyst brief.
+
+## 2026-07-20: Improve Output Quality Before Visual Redesign
+
+We will improve the research answer structure before changing the Streamlit visual theme.
+
+Reasoning:
+- A polished layout is only useful if the first answer is useful, grounded, and readable.
+- The synthesis prompt now asks for a 2-3 paragraph direct answer, 3-5 source-backed themes, specific evidence bullets, and explicit limitations.
+- The UI now surfaces top supporting evidence near the front of the workflow so users can quickly see why the answer is grounded.
+- Result sections are ordered by query intent: reading-path questions prioritize the reading path, limitation questions prioritize open problems, evaluation questions prioritize the evidence matrix, and overview questions prioritize brief plus top evidence.
+- These changes preserve the existing API schema and keep the visual redesign as a separate pass.

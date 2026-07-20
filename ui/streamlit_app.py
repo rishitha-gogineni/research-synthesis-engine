@@ -23,10 +23,13 @@ from ui.api_client import (
     metric_rows,
     new_request_id,
     open_problem_rows,
+    ordered_sections,
     post_api,
     reading_path_rows,
     source_rows,
     summary_items,
+    theme_rows,
+    top_supporting_evidence,
 )
 
 
@@ -131,27 +134,37 @@ def render_brief(payload: dict):
     direct_answer = brief.get("direct_answer")
     if direct_answer:
         st.subheader("Direct Answer")
-        st.write(direct_answer)
-    themes = brief.get("themes") or []
+        for paragraph in [part.strip() for part in direct_answer.split("\n") if part.strip()]:
+            st.write(paragraph)
+    themes = theme_rows(payload)
     if themes:
-        st.subheader("Themes")
-        for theme in themes:
-            with st.expander(theme.get("theme", "Theme"), expanded=True):
-                st.write(theme.get("summary", ""))
-                if theme.get("supporting_source_ids"):
-                    st.markdown("<span class='rse-source-id'>" + ", ".join(theme["supporting_source_ids"]) + "</span>", unsafe_allow_html=True)
+        st.subheader("Research Themes")
+        dataframe(themes)
     bullets = brief.get("evidence_bullets") or []
     if bullets:
-        st.subheader("Evidence Bullets")
+        st.subheader("Evidence Highlights")
         for item in bullets:
             st.write(f"- {item}")
     limitations = brief.get("limitations") or []
     if limitations:
-        st.subheader("Limitations")
+        st.subheader("What The Evidence Does Not Establish")
         for item in limitations:
             st.write(f"- {item}")
     if not any([direct_answer, themes, bullets, limitations]):
         st.info("No brief returned.")
+
+
+def render_top_evidence(payload: dict):
+    rows = top_supporting_evidence(payload)
+    if not rows:
+        st.info("No supporting evidence returned.")
+        return
+    for row in rows:
+        title = row.get("Title") or "Untitled source"
+        detail = f"{row.get('Source', 'source')} | {row.get('Year') or 'unknown year'} | {row.get('Citations') or 0} citations"
+        with st.expander(f"{title} — {detail}", expanded=False):
+            st.write(row.get("Why It Matters") or "No evidence summary returned.")
+            st.markdown(f"<span class='rse-source-id'>{row.get('Source ID')}</span>", unsafe_allow_html=True)
 
 
 def render_evidence(payload: dict):
@@ -285,21 +298,20 @@ def main():
         return
 
     render_summary(result, st.session_state.get("request_id"))
-    brief_tab, evidence_tab, reading_tab, problems_tab, sources_tab, diagnostics_tab = st.tabs(
-        ["Brief", "Evidence", "Reading Path", "Open Problems", "Sources", "Diagnostics"]
-    )
-    with brief_tab:
-        render_brief(result)
-    with evidence_tab:
-        render_evidence(result)
-    with reading_tab:
-        render_reading_path(result)
-    with problems_tab:
-        render_open_problems(result)
-    with sources_tab:
-        render_sources(result)
-    with diagnostics_tab:
-        render_diagnostics(result)
+    section_renderers = {
+        "Brief": render_brief,
+        "Top Evidence": render_top_evidence,
+        "Evidence": render_evidence,
+        "Reading Path": render_reading_path,
+        "Open Problems": render_open_problems,
+        "Sources": render_sources,
+        "Diagnostics": render_diagnostics,
+    }
+    sections = ordered_sections(result.get("question") or payload.get("question") or "")
+    tabs = st.tabs(sections)
+    for tab, section in zip(tabs, sections):
+        with tab:
+            section_renderers[section](result)
 
 
 if __name__ == "__main__":

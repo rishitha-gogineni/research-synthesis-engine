@@ -98,6 +98,8 @@ def test_build_synthesis_prompt_restricts_model_to_retrieved_sources():
     assert "Use only the retrieved sources" in prompt
     assert "chunk:c1" in prompt
     assert "Return only valid JSON" in prompt
+    assert "2-3 concise paragraphs" in prompt
+    assert "3-5 named research themes" in prompt
 
 
 def test_build_research_brief_uses_mocked_generator_and_validates_schema():

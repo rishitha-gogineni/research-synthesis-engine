@@ -134,13 +134,30 @@ Use only the retrieved sources below. Do not add outside facts. If the retrieved
 Retrieved sources:
 {joined_sources}
 
+Write for a student or research analyst who needs a useful synthesis, not just a list of papers.
+
+Direct-answer requirements:
+- Answer the exact user question in 2-3 concise paragraphs.
+- Use plain language and explain the main idea before naming papers.
+- Ground every substantive claim in the retrieved evidence.
+- Do not mention unsupported statistics, datasets, or paper findings.
+- If the evidence is partial, say what is and is not established.
+
+Theme requirements:
+- Return 3-5 named research themes when the evidence supports them.
+- Each theme summary must be one sentence and cite supporting source IDs.
+
+Evidence requirements:
+- Evidence bullets should be specific claim/source statements, not generic summaries.
+- Keep source IDs exactly as provided.
+
 Return only valid JSON with this exact shape:
 {{
-  "direct_answer": "2-4 sentence answer grounded in the sources",
+  "direct_answer": "2-3 paragraph answer grounded in the sources",
   "themes": [
     {{
       "theme": "short theme name",
-      "summary": "what the sources collectively say about this theme",
+      "summary": "one-sentence explanation of what the sources collectively say about this theme",
       "supporting_source_ids": ["source:id"]
     }}
   ],

@@ -162,3 +162,46 @@ def test_post_api_returns_structured_error_for_http_error(monkeypatch):
     assert request_id == "request-1"
     assert body["_error_status"] == 503
     assert api_client.error_message(body).startswith("QDRANT_UNAVAILABLE")
+
+def test_theme_rows_flatten_brief_themes():
+    payload = sample_guidance_payload()
+    payload["brief"] = {
+        "themes": [
+            {
+                "theme": "Evidence grounding",
+                "summary": "Retrieved evidence grounds the answer.",
+                "supporting_source_ids": ["paper:p1", "chunk:c1"],
+            }
+        ]
+    }
+
+    rows = api_client.theme_rows(payload)
+
+    assert rows == [
+        {
+            "Theme": "Evidence grounding",
+            "Description": "Retrieved evidence grounds the answer.",
+            "Sources": "paper:p1, chunk:c1",
+        }
+    ]
+
+
+def test_top_supporting_evidence_merges_papers_and_chunks_by_score():
+    payload = sample_guidance_payload()
+    payload["retrieval"]["paper_results"][0]["main_contribution"] = "Explains retrieval grounding."
+    payload["retrieval"]["chunk_results"][0]["text"] = "Detailed evaluation snippet."
+    payload["retrieval"]["chunk_results"][0]["blended_score"] = 0.99
+
+    rows = api_client.top_supporting_evidence(payload, limit=2)
+
+    assert [row["Source"] for row in rows] == ["full text", "paper"]
+    assert rows[0]["Source ID"] == "chunk:c1"
+    assert rows[1]["Why It Matters"] == "Explains retrieval grounding."
+
+
+def test_ordered_sections_adapts_to_question_intent():
+    assert api_client.ordered_sections("Which LoRA papers should I read first?")[0] == "Reading Path"
+    assert api_client.ordered_sections("What are the open problems in hallucination detection?")[1] == "Open Problems"
+    assert api_client.ordered_sections("Which datasets evaluate hallucination?")[1] == "Evidence"
+    assert api_client.ordered_sections("What are attention mechanisms in transformers?")[:2] == ["Brief", "Top Evidence"]
+

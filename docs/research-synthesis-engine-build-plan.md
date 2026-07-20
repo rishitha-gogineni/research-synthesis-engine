@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 25 days  
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, and Day 21.5 Pass 1 trust/stability polish are complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, and Day 21.5 Passes 1-2 trust/output polish are complete.
 
 ## Final Positioning
 
@@ -635,8 +635,13 @@ Pass 1 - Trust + Stability: Complete
 - Low-confidence guidance skips evidence matrix, reading path, and open-problems generation.
 - Full test suite passes with the stability changes.
 
-Remaining passes:
-- Pass 2: Output quality and adaptive result ordering.
+Pass 2 - Output Quality: Complete
+- The synthesis prompt now asks for a 2-3 paragraph direct answer, 3-5 source-backed themes, specific evidence bullets, and explicit limitations.
+- The UI now includes a top supporting evidence section.
+- Result sections are ordered by query intent: overview, comparison, evaluation, reading path, or limitations/open problems.
+- Helper tests cover theme rows, top evidence ranking, and adaptive ordering.
+
+Remaining pass:
 - Pass 3: Beige/black editorial UI redesign, top query console, and reading path citation map.
 
 ## Day 22: Cleanup + Storage Management
@@ -714,15 +719,15 @@ project is stable, explainable, and demo-ready
 
 # Current Immediate Next Step
 
-Continue **Day 21.5: Evidence-Gated Editorial Research Workspace** with Pass 2 output quality.
+Continue **Day 21.5: Evidence-Gated Editorial Research Workspace** with Pass 3 visual/UI redesign.
 
-This is now the right next step because the trust/stability pass is complete and the answer content should be improved before the visual redesign:
+This is now the right next step because trust/stability and output quality are complete, so the remaining work is visual polish and the reading path map:
 
 ```text
 query -> Streamlit workspace -> FastAPI /guidance -> unified retrieval -> confidence assessment -> brief/matrix/reading path/open problems -> Streamlit tabs
 ```
 
-Pass 2 should improve direct answers, research themes, top supporting evidence, evidence snippets, and adaptive ordering before the beige/black editorial UI redesign.
+Pass 3 should remove the default sidebar, add the top query console, apply the beige/black serif editorial theme, and add the reading path citation map.
 
 # Minimum Viable Final Demo
 

@@ -190,3 +190,94 @@ def summary_items(payload: dict[str, Any], request_id: str | None = None) -> dic
 def metric_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
     metrics = payload.get("metrics") or payload.get("retrieval", {}).get("metrics") or {}
     return [{"Metric": key, "Milliseconds": value} for key, value in metrics.items() if value is not None]
+
+def theme_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    brief = payload.get("brief") or {}
+    return [
+        {
+            "Theme": theme.get("theme"),
+            "Description": theme.get("summary"),
+            "Sources": ", ".join(theme.get("supporting_source_ids", [])),
+        }
+        for theme in brief.get("themes", []) or []
+    ]
+
+
+def _source_score(item: dict[str, Any]) -> float:
+    for key in ("blended_score", "rerank_score", "hybrid_score", "dense_score", "sparse_score", "score"):
+        value = item.get(key)
+        if isinstance(value, int | float):
+            return float(value)
+    return 0.0
+
+
+def top_supporting_evidence(payload: dict[str, Any], *, limit: int = 6) -> list[dict[str, Any]]:
+    retrieval = payload.get("retrieval") or {}
+    candidates: list[dict[str, Any]] = []
+    for paper in retrieval.get("paper_results", []) or []:
+        candidates.append(
+            {
+                "Source": "paper",
+                "Title": paper.get("title"),
+                "Year": paper.get("year"),
+                "Citations": paper.get("citation_count"),
+                "Topic": paper.get("topic"),
+                "Why It Matters": paper.get("main_contribution") or paper.get("key_result") or paper.get("abstract"),
+                "Source ID": f"paper:{paper.get('paper_id')}",
+                "Score": _source_score(paper),
+            }
+        )
+    for chunk in retrieval.get("chunk_results", []) or []:
+        text = chunk.get("text") or ""
+        candidates.append(
+            {
+                "Source": "full text",
+                "Title": chunk.get("title"),
+                "Year": chunk.get("year"),
+                "Citations": chunk.get("citation_count"),
+                "Topic": chunk.get("topic"),
+                "Why It Matters": text[:360],
+                "Source ID": f"chunk:{chunk.get('chunk_id')}",
+                "Score": _source_score(chunk),
+            }
+        )
+
+    seen: set[str] = set()
+    rows = []
+    for item in sorted(candidates, key=lambda row: (row["Score"], row.get("Citations") or 0), reverse=True):
+        source_id = item["Source ID"]
+        if source_id in seen:
+            continue
+        seen.add(source_id)
+        item["Why It Matters"] = (item.get("Why It Matters") or "No evidence summary returned.").strip()
+        rows.append(item)
+        if len(rows) >= limit:
+            break
+    return rows
+
+
+def query_intent(question: str) -> str:
+    lowered = question.lower()
+    if any(token in lowered for token in ("read", "reading", "start", "first", "path", "papers should")):
+        return "reading"
+    if any(token in lowered for token in ("limitation", "limitations", "open problem", "future work", "unsolved", "challenge")):
+        return "limitations"
+    if any(token in lowered for token in ("dataset", "benchmark", "metric", "evaluate", "evaluation")):
+        return "evaluation"
+    if any(token in lowered for token in ("compare", "versus", " vs ", "difference", "tradeoff")):
+        return "comparison"
+    return "overview"
+
+
+def ordered_sections(question: str) -> list[str]:
+    intent = query_intent(question)
+    if intent == "reading":
+        return ["Reading Path", "Brief", "Top Evidence", "Sources", "Evidence", "Open Problems", "Diagnostics"]
+    if intent == "limitations":
+        return ["Brief", "Open Problems", "Top Evidence", "Evidence", "Sources", "Reading Path", "Diagnostics"]
+    if intent == "evaluation":
+        return ["Brief", "Evidence", "Top Evidence", "Sources", "Reading Path", "Open Problems", "Diagnostics"]
+    if intent == "comparison":
+        return ["Brief", "Evidence", "Top Evidence", "Sources", "Reading Path", "Open Problems", "Diagnostics"]
+    return ["Brief", "Top Evidence", "Evidence", "Reading Path", "Open Problems", "Sources", "Diagnostics"]
+
