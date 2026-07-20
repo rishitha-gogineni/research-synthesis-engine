@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 25 days  
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, and the Day 21 Streamlit analyst workspace are complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, and Day 21.5 Pass 1 trust/stability polish are complete.
 
 ## Final Positioning
 
@@ -625,6 +625,20 @@ Checkpoint:
 non-technical user can ask a research question and inspect evidence
 ```
 
+## Day 21.5: Evidence-Gated Editorial Research Workspace
+
+Goal: improve trust, answer quality, speed, and visual polish before storage cleanup.
+
+Pass 1 - Trust + Stability: Complete
+- Cross-encoder reranking falls back to retrieval scores when the optional local reranker cannot load.
+- Low-confidence guidance returns a guarded non-answer instead of synthesizing unsupported claims.
+- Low-confidence guidance skips evidence matrix, reading path, and open-problems generation.
+- Full test suite passes with the stability changes.
+
+Remaining passes:
+- Pass 2: Output quality and adaptive result ordering.
+- Pass 3: Beige/black editorial UI redesign, top query console, and reading path citation map.
+
 ## Day 22: Cleanup + Storage Management
 
 Goal: make the local project manageable and reproducible.
@@ -700,15 +714,15 @@ project is stable, explainable, and demo-ready
 
 # Current Immediate Next Step
 
-Build **Day 22: Cleanup + Storage Management**.
+Continue **Day 21.5: Evidence-Gated Editorial Research Workspace** with Pass 2 output quality.
 
-This is now the right next step because the UI is in place and the remaining local-data work is to make storage, cleanup, and reproducibility clear:
+This is now the right next step because the trust/stability pass is complete and the answer content should be improved before the visual redesign:
 
 ```text
 query -> Streamlit workspace -> FastAPI /guidance -> unified retrieval -> confidence assessment -> brief/matrix/reading path/open problems -> Streamlit tabs
 ```
 
-Day 22 should verify Qdrant collections and JSON artifacts, then document when local PDFs can safely be deleted after chunk extraction and indexing.
+Pass 2 should improve direct answers, research themes, top supporting evidence, evidence snippets, and adaptive ordering before the beige/black editorial UI redesign.
 
 # Minimum Viable Final Demo
 

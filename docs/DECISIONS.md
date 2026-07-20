@@ -378,3 +378,14 @@ Reasoning:
 - The UI calls the API through a small `ui.api_client` helper instead of duplicating retrieval or agent logic.
 - A sidebar control panel plus tabbed result workspace keeps the layout practical for repeated analysis and avoids hiding the system behind a single chat box.
 - Tests cover UI helper behavior without launching a browser or calling OpenAI, Qdrant, OpenAlex, or the reranker.
+
+## 2026-07-20: Gate Synthesis and Fall Back When the Local Reranker Is Unavailable
+
+We will treat reranking as an optional quality layer and synthesis as a threshold-gated action.
+
+Reasoning:
+- The local cross-encoder depends on the user's PyTorch install, so a binary mismatch should not make retrieval unusable during demos.
+- If the cross-encoder cannot load, retrieval falls back to existing dense/hybrid scores and annotates candidates with `rerank_fallback=cross_encoder_unavailable`.
+- Explicitly supplied reranker/model errors are still raised in tests, so programming mistakes are not hidden.
+- If the CRAG confidence decision is not `sufficient_evidence`, the system returns a guarded brief explaining that it cannot answer reliably from the indexed corpus.
+- Low-confidence `/guidance` responses skip the evidence matrix, reading path, and open-problems generation so weak evidence is not presented as a normal analyst brief.

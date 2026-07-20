@@ -656,12 +656,14 @@ def guidance(request: ApiQueryRequest, fastapi_request: Request) -> ApiGuidanceR
         brief_result = build_research_brief(retrieval, confidence=confidence_result)
         timer.record("brief_ms", started)
 
-        started = time.perf_counter()
-        matrix_result = build_evidence_matrix(retrieval, brief=brief_result, max_rows=request.top_k)
-        timer.record("evidence_matrix_ms", started)
         warnings: list[str] = list(filter_warnings)
+        matrix_result = None
 
         if confidence_result.decision == "sufficient_evidence":
+            started = time.perf_counter()
+            matrix_result = build_evidence_matrix(retrieval, brief=brief_result, max_rows=request.top_k)
+            timer.record("evidence_matrix_ms", started)
+
             started = time.perf_counter()
             reading_path_result = build_reading_path(retrieval, confidence=confidence_result, max_papers=request.max_papers)
             timer.record("reading_path_ms", started)

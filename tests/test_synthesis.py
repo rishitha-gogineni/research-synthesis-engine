@@ -140,6 +140,8 @@ def test_low_confidence_skips_generation():
 
     assert brief.status == "skipped_low_confidence"
     assert brief.warning
+    assert "cannot answer" in brief.direct_answer.lower()
+    assert "does not invent claims" in brief.direct_answer
     assert brief.open_problems == ["test action"]
 
 

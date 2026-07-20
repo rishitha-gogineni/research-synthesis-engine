@@ -14,6 +14,7 @@ DEFAULT_CROSS_ENCODER_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 DEFAULT_RERANK_WEIGHT = 0.75
 DEFAULT_CITATION_WEIGHT = 0.25
 DEFAULT_TEXT_CHAR_LIMIT = 2500
+FALLBACK_SCORE_KEYS = ("hybrid_score", "dense_score", "sparse_score", "blended_score", "rerank_score")
 
 
 class CrossEncoderLike(Protocol):
@@ -85,6 +86,33 @@ def score_with_cross_encoder(
     reranker = model or load_cross_encoder(model_name)
     pairs = [(query, candidate_to_text(candidate)) for candidate in candidates]
     return [float(score) for score in reranker.predict(pairs)]
+
+
+def fallback_retrieval_scores(candidates: list[dict[str, Any]]) -> list[float]:
+    """Use existing retrieval scores when the optional local reranker is unavailable."""
+
+    scores: list[float] = []
+    total = len(candidates)
+    for index, candidate in enumerate(candidates):
+        available_scores = []
+        for key in FALLBACK_SCORE_KEYS:
+            value = candidate.get(key)
+            if isinstance(value, int | float):
+                available_scores.append(float(value))
+        scores.append(max(available_scores) if available_scores else float(total - index))
+    return scores
+
+
+def mark_rerank_fallback(candidates: list[dict[str, Any]], reason: str) -> list[dict[str, Any]]:
+    """Annotate fallback-ranked candidates without exposing provider internals."""
+
+    return [
+        {
+            **candidate,
+            "rerank_fallback": reason,
+        }
+        for candidate in candidates
+    ]
 
 
 def attach_rerank_scores(
@@ -171,8 +199,18 @@ def rerank_and_blend(
     if top_k is not None and top_k <= 0:
         raise ValueError("top_k must be greater than 0")
 
-    raw_scores = score_with_cross_encoder(query, candidates, model=model, model_name=model_name)
+    fallback_reason = None
+    try:
+        raw_scores = score_with_cross_encoder(query, candidates, model=model, model_name=model_name)
+    except Exception:
+        if model is not None:
+            raise
+        fallback_reason = "cross_encoder_unavailable"
+        raw_scores = fallback_retrieval_scores(candidates)
+
     reranked = attach_rerank_scores(candidates, raw_scores)
+    if fallback_reason:
+        reranked = mark_rerank_fallback(reranked, fallback_reason)
     blended = apply_citation_blended_scores(
         reranked,
         rerank_weight=rerank_weight,

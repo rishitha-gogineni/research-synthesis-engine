@@ -234,7 +234,7 @@ full-text chunks: 4170
 chunk-level Qdrant points: 4170
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 183 passed
+tests: 186 passed
 ```
 
 These counts reflect the current local artifacts, index checks, and test suite.

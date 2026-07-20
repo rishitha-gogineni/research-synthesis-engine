@@ -176,17 +176,22 @@ def build_guarded_brief(
     confidence: ConfidenceAssessment,
     sources: list[EvidenceSource],
 ) -> ResearchBrief:
+    direct_answer = (
+        "I cannot answer this question reliably from the indexed research corpus yet. "
+        f"The evidence gate returned `{confidence.decision}` because {confidence.reason.lower()} "
+        "No synthesis was generated, so the response does not invent claims beyond the retrieved evidence."
+    )
     return ResearchBrief(
         query=query,
         status="skipped_low_confidence",
         confidence_decision=confidence.decision,
-        direct_answer="",
+        direct_answer=direct_answer,
         themes=[],
         evidence_bullets=[],
         limitations=[confidence.reason],
         open_problems=[confidence.recommended_action],
         sources=sources,
-        warning="Research brief generation skipped because retrieval confidence was below the synthesis threshold.",
+        warning="Answer generation skipped because retrieved evidence did not pass the synthesis confidence threshold.",
     )
 
 

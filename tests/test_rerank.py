@@ -8,6 +8,7 @@ from retrieval.rerank import (
     candidate_to_text,
     normalize_scores,
     normalized_citation_scores,
+    fallback_retrieval_scores,
     rerank_and_blend,
     score_with_cross_encoder,
 )
@@ -145,3 +146,39 @@ def test_rerank_and_blend_runs_end_to_end_with_mocked_model():
 def test_rerank_and_blend_rejects_bad_top_k():
     with pytest.raises(ValueError, match="top_k"):
         rerank_and_blend("query", make_candidates(), model=FakeCrossEncoder([]), top_k=0)
+
+def test_fallback_retrieval_scores_use_existing_scores_before_position():
+    candidates = [
+        {"paper_id": "a", "dense_score": 0.4},
+        {"paper_id": "b", "hybrid_score": 0.9},
+        {"paper_id": "c"},
+    ]
+
+    assert fallback_retrieval_scores(candidates) == [0.4, 0.9, 1.0]
+
+
+def test_rerank_and_blend_falls_back_when_default_cross_encoder_unavailable(monkeypatch):
+    def fail_to_load(*args, **kwargs):
+        raise ImportError("torch binary mismatch")
+
+    monkeypatch.setattr("retrieval.rerank.load_cross_encoder", fail_to_load)
+    candidates = [
+        {"paper_id": "lower", "title": "Lower", "dense_score": 0.2, "citation_count": 1},
+        {"paper_id": "higher", "title": "Higher", "dense_score": 0.9, "citation_count": 1},
+    ]
+
+    results = rerank_and_blend("attention mechanisms", candidates, top_k=2)
+
+    assert results[0]["paper_id"] == "higher"
+    assert results[0]["rerank_fallback"] == "cross_encoder_unavailable"
+    assert "blended_score" in results[0]
+
+
+def test_rerank_and_blend_does_not_hide_explicit_model_errors():
+    class BrokenModel:
+        def predict(self, pairs):
+            raise RuntimeError("explicit model failed")
+
+    with pytest.raises(RuntimeError, match="explicit model failed"):
+        rerank_and_blend("attention mechanisms", make_candidates(), model=BrokenModel())
+

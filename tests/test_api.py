@@ -167,9 +167,13 @@ def patch_core_services(monkeypatch, retrieval_calls=None, confidence_decision="
         retrieval_calls.append((query, kwargs))
         return make_retrieval(query)
 
+    def fake_brief(response, confidence=None):
+        status = "generated" if confidence is None or confidence.decision == "sufficient_evidence" else "skipped_low_confidence"
+        return make_brief(response.query, status=status)
+
     monkeypatch.setattr(api_main, "run_unified_search", fake_retrieval)
     monkeypatch.setattr(api_main, "assess_confidence", lambda response: make_confidence(response.query, confidence_decision))
-    monkeypatch.setattr(api_main, "build_research_brief", lambda response, confidence=None: make_brief(response.query))
+    monkeypatch.setattr(api_main, "build_research_brief", fake_brief)
     monkeypatch.setattr(api_main, "build_evidence_matrix", lambda response, brief=None, max_rows=10: make_matrix(response.query))
     monkeypatch.setattr(api_main, "build_reading_path", lambda response, confidence=None, max_papers=8: make_reading_path(response.query))
     monkeypatch.setattr(
@@ -280,6 +284,8 @@ def test_guidance_endpoint_skips_day19_when_confidence_is_low(monkeypatch):
 
     assert response.status_code == 200
     payload = response.json()
+    assert payload["brief"]["status"] == "skipped_low_confidence"
+    assert payload["evidence_matrix"] is None
     assert payload["reading_path"] is None
     assert payload["open_problems"] is None
     assert payload["warnings"]
