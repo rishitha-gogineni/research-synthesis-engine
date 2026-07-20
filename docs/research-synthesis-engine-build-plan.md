@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 25 days  
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, and Day 21.5 trust/output/UI polish are complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, and Day 21.5 Passes 1-2 trust/output polish are complete.
 
 ## Final Positioning
 
@@ -641,12 +641,8 @@ Pass 2 - Output Quality: Complete
 - Result sections are ordered by query intent: overview, comparison, evaluation, reading path, or limitations/open problems.
 - Helper tests cover theme rows, top evidence ranking, and adaptive ordering.
 
-Pass 3 - UI Layout Polish: Complete
-- Removed the default sidebar in favor of a top query console.
-- Applied a beige/black serif editorial research-workspace style.
-- Added an evidence status band above results.
-- Rendered the first two adaptive sections as report content before lower tabs.
-- Added a Graphviz reading path citation map.
+Remaining pass:
+- Pass 3: Beige/black editorial UI redesign, top query console, and reading path citation map.
 
 ## Day 22: Cleanup + Storage Management
 
@@ -723,15 +719,15 @@ project is stable, explainable, and demo-ready
 
 # Current Immediate Next Step
 
-Build **Day 22: Cleanup + Storage Management**.
+Continue **Day 21.5: Evidence-Gated Editorial Research Workspace** with Pass 3 visual/UI redesign.
 
-This is now the right next step because the UI polish pass is complete and the remaining local-data work is to make storage, cleanup, and reproducibility clear:
+This is now the right next step because trust/stability and output quality are complete, so the remaining work is visual polish and the reading path map:
 
 ```text
 query -> Streamlit workspace -> FastAPI /guidance -> unified retrieval -> confidence assessment -> brief/matrix/reading path/open problems -> Streamlit tabs
 ```
 
-Day 22 should verify Qdrant collections and JSON artifacts, then document when local PDFs can safely be deleted after chunk extraction and indexing.
+Pass 3 should remove the default sidebar, add the top query console, apply the beige/black serif editorial theme, and add the reading path citation map.
 
 # Minimum Viable Final Demo
 

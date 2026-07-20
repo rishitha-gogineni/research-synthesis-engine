@@ -135,7 +135,7 @@ The project now has both retrieval indexes needed for hybrid search:
 - **Open problems:** `agent.open_problems` derives unresolved problems from retrieved limitations, future-work signals, and evidence gaps
 - **Combined guidance:** `agent.research_guidance` reuses one unified retrieval response and confidence assessment for both Day 19 outputs
 - **FastAPI backend:** `api.main` exposes health, corpus stats, route preview, retrieval, confidence, brief, evidence matrix, reading path, open problems, and combined guidance endpoints
-- **Streamlit workspace:** `ui.streamlit_app` provides an editorial beige/black research workspace with a top query console, adaptive result ordering, top supporting evidence, and a reading path citation map
+- **Streamlit workspace:** `ui.streamlit_app` provides a compact research analyst interface with adaptive result ordering, top supporting evidence, and readable brief/theme sections
 
 Hybrid query example:
 
@@ -234,7 +234,7 @@ full-text chunks: 4170
 chunk-level Qdrant points: 4170
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 191 passed
+tests: 189 passed
 ```
 
 These counts reflect the current local artifacts, index checks, and test suite.
