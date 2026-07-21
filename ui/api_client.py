@@ -272,6 +272,46 @@ def confidence_style(decision: str | None) -> tuple[str, str]:
     return ("route", (decision or "unknown").replace("_", " "))
 
 
+def confidence_decision(payload: dict[str, Any]) -> str | None:
+    confidence = payload.get("confidence") or {}
+    return confidence.get("decision")
+
+
+def is_answerable(payload: dict[str, Any]) -> bool:
+    return confidence_decision(payload) == "sufficient_evidence"
+
+
+def trust_summary(payload: dict[str, Any]) -> dict[str, Any]:
+    retrieval = payload.get("retrieval") or {}
+    route = retrieval.get("route") or {}
+    decision = confidence_decision(payload)
+    kind, label = confidence_style(decision)
+    return {
+        "decision": decision or "unknown",
+        "kind": kind,
+        "label": label,
+        "route": route.get("route") or "unknown",
+        "reason": route.get("reason") or "No routing reason returned.",
+        "paper_count": retrieval.get("paper_result_count", 0),
+        "chunk_count": retrieval.get("chunk_result_count", 0),
+        "matched_signals": route.get("matched_signals", []) or [],
+    }
+
+
+def weak_evidence_guidance(payload: dict[str, Any]) -> list[str]:
+    summary = trust_summary(payload)
+    suggestions = []
+    if summary["paper_count"] == 0 and summary["chunk_count"] == 0:
+        suggestions.append("No matching papers or full-text chunks were retrieved for this question.")
+    else:
+        suggestions.append(
+            f"Retrieved {summary['paper_count']} papers and {summary['chunk_count']} chunks, but the evidence gate did not mark them as sufficient."
+        )
+    suggestions.append("Try broadening the research area or year range, or ask a more specific question about one method, dataset, or paper family.")
+    suggestions.append("You can still inspect the Sources tab to see what the system found before deciding not to answer.")
+    return suggestions
+
+
 def route_label(route: str | None) -> str:
     return (route or "unknown").replace("_", " ")
 

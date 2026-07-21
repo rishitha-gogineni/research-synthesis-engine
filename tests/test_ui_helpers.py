@@ -223,3 +223,38 @@ def test_section_counts_summarize_result_sections():
     assert counts["Open Problems"] == "1 found"
     assert counts["Sources"] == "1 papers / 1 chunks"
 
+def test_trust_summary_and_answerable_gate_use_confidence_decision():
+    payload = sample_guidance_payload()
+
+    summary = api_client.trust_summary(payload)
+
+    assert api_client.is_answerable(payload) is True
+    assert summary["decision"] == "sufficient_evidence"
+    assert summary["kind"] == "success"
+    assert summary["label"] == "High confidence"
+    assert summary["route"] == "hybrid_both"
+    assert summary["paper_count"] == 1
+    assert summary["chunk_count"] == 1
+
+
+def test_weak_evidence_guidance_does_not_treat_empty_labels_as_failure():
+    payload = sample_guidance_payload()
+    payload["confidence"] = {"decision": "insufficient_evidence"}
+
+    guidance = api_client.weak_evidence_guidance(payload)
+
+    assert api_client.is_answerable(payload) is False
+    assert any("did not mark them as sufficient" in item for item in guidance)
+    assert any("Sources tab" in item for item in guidance)
+
+
+def test_weak_evidence_guidance_handles_no_retrieved_sources():
+    payload = sample_guidance_payload()
+    payload["confidence"] = {"decision": "insufficient_evidence"}
+    payload["retrieval"]["paper_result_count"] = 0
+    payload["retrieval"]["chunk_result_count"] = 0
+
+    guidance = api_client.weak_evidence_guidance(payload)
+
+    assert guidance[0] == "No matching papers or full-text chunks were retrieved for this question."
+

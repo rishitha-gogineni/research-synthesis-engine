@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 25 days  
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, and Day 21.5 Passes 1-2 trust/output polish are complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, and Day 21.5 UI/trust/output polish through Pass 8 is complete.
 
 ## Final Positioning
 
@@ -641,8 +641,13 @@ Pass 2 - Output Quality: Complete
 - Result sections are ordered by query intent: overview, comparison, evaluation, reading path, or limitations/open problems.
 - Helper tests cover theme rows, top evidence ranking, and adaptive ordering.
 
-Remaining pass:
-- Pass 3: Beige/black editorial UI redesign, top query console, and reading path citation map.
+Completed UI polish passes:
+- Pass 3: Stable sidebar-controls layout with clean black/white visual theme.
+- Pass 4: Results-page readability with answer cards, source cards, and scannable reading/open-problem sections.
+- Pass 5: Evidence-gate display and guarded weak-evidence UI state.
+- Pass 6: Loading/status workflow for route preview and full analysis calls.
+- Pass 7: Demo script with strong questions and interview walkthrough.
+- Pass 8: README updated to match the current API/UI workflow.
 
 ## Day 22: Cleanup + Storage Management
 

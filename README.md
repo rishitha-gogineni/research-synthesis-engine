@@ -8,23 +8,23 @@ Users can choose a research area, pick a suggested question, or ask a free-text 
 What are the main approaches for reducing hallucinations in LLMs?
 ```
 
-The final product output will be:
+The Streamlit workspace returns an analyst-style brief with:
 
-- Direct answer
+- A confidence-gated direct answer
 - Research themes
 - Evidence matrix
 - Recommended reading path
 - Open problems
-- Optional timeline
+- Source snippets and diagnostics
 
 ## Project Status
 
 **Phase 1: Ingestion & Indexing — Complete**  
 **Phase 2: Route-Aware Retrieval — Complete**  
 **Phase 3: Evaluation & Grounded Synthesis — Complete**  
-**Phase 4: API & UI — In Progress**
+**Phase 4: API & UI — Complete**
 
-The offline ingestion and indexing pipeline is implemented and validated. Route-aware retrieval can choose paper-level search, full-text chunk search, both result sets, or metadata filtering for free-text user questions. Grounded synthesis now uses the CRAG confidence check before producing a research brief. Evidence matrices, reading paths, and open-problems reports can be generated from the same retrieved evidence without duplicate retrieval calls. A FastAPI backend exposes the completed retrieval and synthesis services, and a Streamlit analyst workspace renders route previews, research briefs, evidence matrices, reading paths, open problems, source lists, and diagnostics.
+The offline ingestion and indexing pipeline is implemented and validated. Route-aware retrieval can choose paper-level search, full-text chunk search, both result sets, or metadata filtering for free-text user questions. Grounded synthesis uses a CRAG-style confidence check before presenting a direct answer. Evidence matrices, reading paths, and open-problems reports are generated from the same retrieved evidence without duplicate retrieval calls. A FastAPI backend exposes the retrieval and synthesis services, and a Streamlit analyst workspace provides sidebar filters, route previews, loading status, confidence-gated answers, evidence matrices, reading paths, open problems, source lists, and diagnostics.
 
 ```text
 OpenAlex fetch
@@ -133,9 +133,9 @@ The project now has both retrieval indexes needed for hybrid search:
 - **Evidence matrix:** `agent.evidence_matrix` turns retrieved evidence into inspectable claim/source rows with methodology, dataset, result, limitation, and strength fields
 - **Reading path:** `agent.reading_path` recommends a grounded 5-10 paper sequence across foundations, methods, evaluation, recent advances, and limitations
 - **Open problems:** `agent.open_problems` derives unresolved problems from retrieved limitations, future-work signals, and evidence gaps
-- **Combined guidance:** `agent.research_guidance` reuses one unified retrieval response and confidence assessment for both Day 19 outputs
+- **Combined guidance:** `agent.research_guidance` reuses one unified retrieval response and confidence assessment for the brief, evidence matrix, reading path, and open-problems output
 - **FastAPI backend:** `api.main` exposes health, corpus stats, route preview, retrieval, confidence, brief, evidence matrix, reading path, open problems, and combined guidance endpoints
-- **Streamlit workspace:** `ui.streamlit_app` provides a compact research analyst interface with adaptive result ordering, top supporting evidence, and readable brief/theme sections
+- **Streamlit workspace:** `ui.streamlit_app` provides a compact research analyst interface with sidebar filters, route preview, loading status, evidence-gate display, answer cards, top supporting evidence, and tabbed source inspection
 
 Hybrid query example:
 
@@ -431,6 +431,9 @@ Start the Streamlit analyst workspace:
 RSE_API_URL=http://localhost:8000 streamlit run ui/streamlit_app.py
 ```
 
+The workspace keeps controls in the sidebar: research area, publication year range, top K, full-text-only mode, and diagnostics. The main page focuses on the suggested question, the free-text question box, route preview, and analysis run. During analysis, the UI shows route-preview and retrieval/synthesis status before navigating to the results page.
+
+
 Call the main API endpoint:
 
 ```bash
@@ -507,23 +510,24 @@ Example guidance shape:
 
 Known limits: recommendations are limited to the current five-topic corpus, the reading path is not an exhaustive literature survey, and missing full text can reduce limitation/open-problem coverage.
 
-## Next Phase
+## Demo Flow
 
-The remaining work prepares the user-facing API and app:
+The current end-to-end workflow is:
 
 ```text
 user question
-→ query router
+→ Streamlit workspace
+→ route preview
+→ FastAPI /guidance
 → paper retrieval / chunk retrieval / metadata filter
 → local cross-encoder reranking
 → citation-aware scoring
 → CRAG confidence check
-→ research brief
-→ evidence matrix
-→ reading path and open problems
-→ FastAPI backend
-→ UI workflow
+→ confidence-gated answer
+→ evidence matrix, reading path, open problems, and source inspection
 ```
+
+A short demo script with recommended questions is available in `docs/DEMO_SCRIPT.md`.
 
 ## Design Principles
 
