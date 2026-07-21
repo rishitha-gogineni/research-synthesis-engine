@@ -191,6 +191,7 @@ def metric_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
     metrics = payload.get("metrics") or payload.get("retrieval", {}).get("metrics") or {}
     return [{"Metric": key, "Milliseconds": value} for key, value in metrics.items() if value is not None]
 
+
 def theme_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
     brief = payload.get("brief") or {}
     return [
@@ -256,6 +257,39 @@ def top_supporting_evidence(payload: dict[str, Any], *, limit: int = 6) -> list[
     return rows
 
 
+CONFIDENCE_STYLES = {
+    "sufficient_evidence": ("success", "High confidence"),
+    "broaden_search": ("warning", "Broaden search"),
+    "ask_clarifying_question": ("warning", "Needs clarification"),
+    "insufficient_evidence": ("danger", "Insufficient evidence"),
+}
+
+
+def confidence_style(decision: str | None) -> tuple[str, str]:
+    """Map a CRAG confidence decision to a (css-kind, display-label) pair."""
+    if decision in CONFIDENCE_STYLES:
+        return CONFIDENCE_STYLES[decision]
+    return ("route", (decision or "unknown").replace("_", " "))
+
+
+def route_label(route: str | None) -> str:
+    return (route or "unknown").replace("_", " ")
+
+
+def section_counts(payload: dict[str, Any]) -> dict[str, str]:
+    """Short count strings shown next to each expander label, e.g. '5 claims'."""
+    retrieval = payload.get("retrieval") or {}
+    reading_path = payload.get("reading_path") or {}
+    open_problems = payload.get("open_problems") or {}
+    return {
+        "Evidence": f"{len(evidence_rows(payload))} claims",
+        "Top Evidence": f"{len(top_supporting_evidence(payload))} sources",
+        "Reading Path": f"{len(reading_path.get('stages', []) or [])} stages",
+        "Open Problems": f"{len(open_problems.get('problems', []) or [])} found",
+        "Sources": f"{retrieval.get('paper_result_count', 0)} papers / {retrieval.get('chunk_result_count', 0)} chunks",
+    }
+
+
 def query_intent(question: str) -> str:
     lowered = question.lower()
     if any(token in lowered for token in ("read", "reading", "start", "first", "path", "papers should")):
@@ -280,4 +314,3 @@ def ordered_sections(question: str) -> list[str]:
     if intent == "comparison":
         return ["Brief", "Evidence", "Top Evidence", "Sources", "Reading Path", "Open Problems", "Diagnostics"]
     return ["Brief", "Top Evidence", "Evidence", "Reading Path", "Open Problems", "Sources", "Diagnostics"]
-

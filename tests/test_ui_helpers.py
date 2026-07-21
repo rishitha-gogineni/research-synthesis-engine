@@ -205,3 +205,21 @@ def test_ordered_sections_adapts_to_question_intent():
     assert api_client.ordered_sections("Which datasets evaluate hallucination?")[1] == "Evidence"
     assert api_client.ordered_sections("What are attention mechanisms in transformers?")[:2] == ["Brief", "Top Evidence"]
 
+def test_confidence_style_and_route_label_are_display_ready():
+    assert api_client.confidence_style("sufficient_evidence") == ("success", "High confidence")
+    assert api_client.confidence_style("insufficient_evidence") == ("danger", "Insufficient evidence")
+    assert api_client.confidence_style("unexpected_decision") == ("route", "unexpected decision")
+    assert api_client.route_label("hybrid_both") == "hybrid both"
+
+
+def test_section_counts_summarize_result_sections():
+    payload = sample_guidance_payload()
+
+    counts = api_client.section_counts(payload)
+
+    assert counts["Evidence"] == "1 claims"
+    assert counts["Top Evidence"] == "2 sources"
+    assert counts["Reading Path"] == "1 stages"
+    assert counts["Open Problems"] == "1 found"
+    assert counts["Sources"] == "1 papers / 1 chunks"
+
