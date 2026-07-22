@@ -19,6 +19,7 @@ from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator
 
 from agent.evidence_matrix import EvidenceMatrixError, build_evidence_matrix
 from agent.open_problems import OpenProblemsError, build_open_problems_report
+from agent.query_rewriter import ChatTurn, QueryRewriteResult, rewrite_query
 from agent.reading_path import ReadingPathError, build_reading_path
 from agent.research_guidance import ResearchGuidanceError
 from agent.synthesis import SynthesisError, build_research_brief
@@ -107,6 +108,7 @@ class ApiQueryRequest(BaseModel):
     publication_year_max: int | None = Field(default=None, ge=1900, le=2100)
     full_text_only: bool = False
     include_debug: bool = False
+    chat_history: list[ChatTurn] = Field(default_factory=list, max_length=12)
 
     @property
     def query(self) -> str:
@@ -166,6 +168,10 @@ class ApiGuidanceResponse(BaseModel):
     """Combined API response for the main user-facing guidance endpoint."""
 
     question: str
+    standalone_query: str
+    rewrite_used: bool = False
+    rewrite_method: str = "none"
+    rewrite_reason: str = "No rewrite needed."
     retrieval: ApiRetrievalResponse
     confidence: ConfidenceAssessment
     brief: ResearchBrief | None = None
@@ -309,6 +315,10 @@ def service_error(exc: Exception, request: Request | None = None) -> HTTPExcepti
     )
 
 
+def optional_generation_warning(section: str, exc: Exception) -> str:
+    return f"{section} could not be generated for this request; the core answer still uses retrieved evidence."
+
+
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
     request_id = request_id_from_request(request)
@@ -346,9 +356,9 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
     return JSONResponse(status_code=500, content=payload, headers={"X-Request-ID": request_id or ""})
 
 
-def retrieve_for_request(request: ApiQueryRequest) -> UnifiedSearchResponse:
+def retrieve_for_request(request: ApiQueryRequest, *, query_override: str | None = None) -> UnifiedSearchResponse:
     return run_unified_search(
-        request.question,
+        query_override or request.question,
         top_k=request.top_k,
         paper_top_k=request.paper_top_k,
         chunk_top_k=request.chunk_top_k,
@@ -576,8 +586,10 @@ def route_preview(request: ApiQueryRequest) -> ApiRoutePreviewResponse:
 def retrieve(request: ApiQueryRequest, fastapi_request: Request) -> ApiRetrievalResponse:
     timer = Timer()
     try:
+        rewrite_result = rewrite_query(request.question, request.chat_history)
+
         started = time.perf_counter()
-        retrieval = retrieve_for_request(request)
+        retrieval = retrieve_for_request(request, query_override=rewrite_result.standalone_query)
         timer.record("retrieval_ms", started)
         retrieval, warnings = apply_request_filters(retrieval, request)
         metrics = timer.metrics()
@@ -643,8 +655,10 @@ def open_problems(request: ApiQueryRequest, fastapi_request: Request) -> OpenPro
 def guidance(request: ApiQueryRequest, fastapi_request: Request) -> ApiGuidanceResponse:
     timer = Timer()
     try:
+        rewrite_result = rewrite_query(request.question, request.chat_history)
+
         started = time.perf_counter()
-        retrieval = retrieve_for_request(request)
+        retrieval = retrieve_for_request(request, query_override=rewrite_result.standalone_query)
         timer.record("retrieval_ms", started)
         retrieval, filter_warnings = apply_request_filters(retrieval, request)
 
@@ -658,29 +672,48 @@ def guidance(request: ApiQueryRequest, fastapi_request: Request) -> ApiGuidanceR
 
         warnings: list[str] = list(filter_warnings)
         matrix_result = None
+        reading_path_result = None
+        open_problems_result = None
 
         if confidence_result.decision == "sufficient_evidence":
             started = time.perf_counter()
-            matrix_result = build_evidence_matrix(retrieval, brief=brief_result, max_rows=request.top_k)
-            timer.record("evidence_matrix_ms", started)
+            try:
+                matrix_result = build_evidence_matrix(retrieval, brief=brief_result, max_rows=request.top_k)
+            except EvidenceMatrixError as exc:
+                LOGGER.warning("guidance_optional_generation_failed", extra={"section": "evidence_matrix"})
+                warnings.append(optional_generation_warning("Evidence matrix", exc))
+            finally:
+                timer.record("evidence_matrix_ms", started)
 
             started = time.perf_counter()
-            reading_path_result = build_reading_path(retrieval, confidence=confidence_result, max_papers=request.max_papers)
-            timer.record("reading_path_ms", started)
+            try:
+                reading_path_result = build_reading_path(
+                    retrieval,
+                    confidence=confidence_result,
+                    max_papers=request.max_papers,
+                )
+                warnings.extend(reading_path_result.limitations)
+            except ReadingPathError as exc:
+                LOGGER.warning("guidance_optional_generation_failed", extra={"section": "reading_path"})
+                warnings.append(optional_generation_warning("Reading path", exc))
+            finally:
+                timer.record("reading_path_ms", started)
 
             started = time.perf_counter()
-            open_problems_result = build_open_problems_report(
-                retrieval,
-                confidence=confidence_result,
-                max_problems=request.max_problems,
-            )
-            timer.record("open_problems_ms", started)
-            warnings.extend(reading_path_result.limitations)
-            warnings.extend(open_problems_result.corpus_limitations)
-            warnings.extend(open_problems_result.evidence_gaps)
+            try:
+                open_problems_result = build_open_problems_report(
+                    retrieval,
+                    confidence=confidence_result,
+                    max_problems=request.max_problems,
+                )
+                warnings.extend(open_problems_result.corpus_limitations)
+                warnings.extend(open_problems_result.evidence_gaps)
+            except OpenProblemsError as exc:
+                LOGGER.warning("guidance_optional_generation_failed", extra={"section": "open_problems"})
+                warnings.append(optional_generation_warning("Open problems", exc))
+            finally:
+                timer.record("open_problems_ms", started)
         else:
-            reading_path_result = None
-            open_problems_result = None
             warnings.extend([confidence_result.reason, confidence_result.recommended_action])
 
         if brief_result.warning:
@@ -696,6 +729,10 @@ def guidance(request: ApiQueryRequest, fastapi_request: Request) -> ApiGuidanceR
         )
         return ApiGuidanceResponse(
             question=request.question,
+            standalone_query=rewrite_result.standalone_query,
+            rewrite_used=rewrite_result.rewrite_used,
+            rewrite_method=rewrite_result.method,
+            rewrite_reason=rewrite_result.reason,
             retrieval=retrieval_response,
             confidence=confidence_result,
             brief=brief_result,

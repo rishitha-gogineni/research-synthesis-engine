@@ -277,6 +277,25 @@ def test_guidance_endpoint_reuses_one_retrieval_response(monkeypatch):
     assert len(calls) == 1
 
 
+def test_guidance_endpoint_keeps_brief_when_optional_section_fails(monkeypatch):
+    patch_core_services(monkeypatch)
+
+    def fail_matrix(response, brief=None, max_rows=10):
+        raise api_main.EvidenceMatrixError("matrix JSON was malformed")
+
+    monkeypatch.setattr(api_main, "build_evidence_matrix", fail_matrix)
+
+    response = client.post("/guidance", json={"query": "Compare agents and RAG.", "top_k": 4})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["brief"]["status"] == "generated"
+    assert payload["evidence_matrix"] is None
+    assert payload["reading_path"]["total_papers"] == 1
+    assert payload["open_problems"]["problems"]
+    assert any("Evidence matrix could not be generated" in warning for warning in payload["warnings"])
+
+
 def test_guidance_endpoint_skips_day19_when_confidence_is_low(monkeypatch):
     patch_core_services(monkeypatch, confidence_decision="broaden_search")
 
@@ -320,6 +339,41 @@ def test_query_alias_still_works_for_backward_compatibility(monkeypatch):
     assert response.status_code == 200
     assert response.json()["question"] == "What reduces hallucinations?"
 
+
+
+def test_guidance_uses_rewritten_query_for_contextual_followup(monkeypatch):
+    calls = patch_core_services(monkeypatch)
+
+    def fake_rewrite(question, chat_history):
+        assert question == "What are its limitations?"
+        assert chat_history[0].content == "Explain LoRA fine-tuning."
+        return api_main.QueryRewriteResult(
+            original_query=question,
+            standalone_query="What are the limitations of LoRA fine-tuning?",
+            rewrite_used=True,
+            method="llm",
+            reason="Resolved its to LoRA fine-tuning.",
+        )
+
+    monkeypatch.setattr(api_main, "rewrite_query", fake_rewrite)
+
+    response = client.post(
+        "/guidance",
+        json={
+            "question": "What are its limitations?",
+            "chat_history": [{"role": "user", "content": "Explain LoRA fine-tuning."}],
+            "top_k": 5,
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert calls[0][0] == "What are the limitations of LoRA fine-tuning?"
+    assert payload["question"] == "What are its limitations?"
+    assert payload["standalone_query"] == "What are the limitations of LoRA fine-tuning?"
+    assert payload["rewrite_used"] is True
+    assert payload["rewrite_method"] == "llm"
+    assert payload["retrieval"]["question"] == "What are the limitations of LoRA fine-tuning?"
 
 def test_route_preview_does_not_run_retrieval(monkeypatch):
     def fail_retrieval(*args, **kwargs):

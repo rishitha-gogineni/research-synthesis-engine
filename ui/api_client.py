@@ -43,6 +43,7 @@ def build_guidance_payload(
     publication_year_max: int | None = None,
     full_text_only: bool = False,
     include_debug: bool = False,
+    chat_history: list[dict[str, str]] | None = None,
 ) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "question": question.strip(),
@@ -56,6 +57,8 @@ def build_guidance_payload(
         payload["publication_year_min"] = publication_year_min
     if publication_year_max is not None:
         payload["publication_year_max"] = publication_year_max
+    if chat_history:
+        payload["chat_history"] = chat_history
     return payload
 
 
@@ -190,6 +193,16 @@ def summary_items(payload: dict[str, Any], request_id: str | None = None) -> dic
 def metric_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
     metrics = payload.get("metrics") or payload.get("retrieval", {}).get("metrics") or {}
     return [{"Metric": key, "Milliseconds": value} for key, value in metrics.items() if value is not None]
+
+
+def rewrite_summary(payload: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "Original Question": payload.get("question") or "-",
+        "Standalone Query": payload.get("standalone_query") or payload.get("question") or "-",
+        "Rewrite Used": "yes" if payload.get("rewrite_used") else "no",
+        "Method": payload.get("rewrite_method") or "none",
+        "Reason": payload.get("rewrite_reason") or "No rewrite needed.",
+    }
 
 
 def theme_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:

@@ -22,9 +22,10 @@ The Streamlit workspace returns an analyst-style brief with:
 **Phase 1: Ingestion & Indexing — Complete**  
 **Phase 2: Route-Aware Retrieval — Complete**  
 **Phase 3: Evaluation & Grounded Synthesis — Complete**  
-**Phase 4: API & UI — Complete**
+**Phase 4: API & UI — Complete**  
+**Phase 5: Multi-Turn UX & Quality Polish — Complete**
 
-The offline ingestion and indexing pipeline is implemented and validated. Route-aware retrieval can choose paper-level search, full-text chunk search, both result sets, or metadata filtering for free-text user questions. Grounded synthesis uses a CRAG-style confidence check before presenting a direct answer. Evidence matrices, reading paths, and open-problems reports are generated from the same retrieved evidence without duplicate retrieval calls. A FastAPI backend exposes the retrieval and synthesis services, and a Streamlit analyst workspace provides sidebar filters, route previews, loading status, confidence-gated answers, evidence matrices, reading paths, open problems, source lists, and diagnostics.
+The offline ingestion and indexing pipeline is implemented and validated. Route-aware retrieval can choose paper-level search, full-text chunk search, both result sets, or metadata filtering for free-text user questions. Grounded synthesis uses a CRAG-style confidence check before presenting a direct answer. Evidence matrices, reading paths, and open-problems reports are generated from the same retrieved evidence without duplicate retrieval calls. A FastAPI backend exposes the retrieval and synthesis services, and a Streamlit analyst workspace provides sidebar filters, route previews, loading status, confidence-gated answers, evidence matrices, reading paths, open problems, source lists, follow-up query handling, and diagnostics.
 
 ```text
 OpenAlex fetch
@@ -129,13 +130,16 @@ The project now has both retrieval indexes needed for hybrid search:
 - **Hybrid retrieval:** `retrieval.hybrid_search` embeds a user question, searches Qdrant and BM25, merges duplicate papers, and returns ranked candidates with dense, sparse, and hybrid scores
 - **Tool interface:** `tools.research_retrieval` validates request/response schemas and returns JSON for downstream API, agent, or UI layers
 - **Unified retrieval:** `retrieval.unified_search` routes each query, returns paper and/or chunk results, and attaches rerank/citation-aware score fields
-- **Confidence-gated synthesis:** `agent.synthesis` generates a grounded brief only when retrieved evidence passes the CRAG confidence check
+- **Context-aware rewriting:** `agent.query_rewriter` rewrites follow-up questions into standalone retrieval queries using chat history, with deterministic fallback
+- **Intent-aware reranking:** `retrieval.rerank` adds a narrow, explainable boost for agent/tool-use task questions so tool/API/workflow evidence is prioritized over less direct examples
+- **Confidence-gated synthesis:** `agent.synthesis` generates a grounded brief only when retrieved evidence passes the CRAG confidence check and enforces visible source citations in direct answers
 - **Evidence matrix:** `agent.evidence_matrix` turns retrieved evidence into inspectable claim/source rows with methodology, dataset, result, limitation, and strength fields
 - **Reading path:** `agent.reading_path` recommends a grounded 5-10 paper sequence across foundations, methods, evaluation, recent advances, and limitations
 - **Open problems:** `agent.open_problems` derives unresolved problems from retrieved limitations, future-work signals, and evidence gaps
 - **Combined guidance:** `agent.research_guidance` reuses one unified retrieval response and confidence assessment for the brief, evidence matrix, reading path, and open-problems output
+- **Fail-soft optional sections:** `/guidance` keeps the core answer available when optional evidence matrix, reading path, or open-problems generation fails, while surfacing quiet notes for diagnostics
 - **FastAPI backend:** `api.main` exposes health, corpus stats, route preview, retrieval, confidence, brief, evidence matrix, reading path, open problems, and combined guidance endpoints
-- **Streamlit workspace:** `ui.streamlit_app` provides a compact research analyst interface with sidebar filters, route preview, loading status, evidence-gate display, answer cards, top supporting evidence, and tabbed source inspection
+- **Streamlit workspace:** `ui.streamlit_app` provides a compact research analyst interface with sidebar filters, route preview, loading status, chat memory, rewritten follow-up queries, evidence-gate display, answer cards, top supporting evidence, capped source snippets, and tabbed source inspection
 
 Hybrid query example:
 
@@ -234,7 +238,7 @@ full-text chunks: 4170
 chunk-level Qdrant points: 4170
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 189 passed
+tests: 210 passed
 ```
 
 These counts reflect the current local artifacts, index checks, and test suite.
@@ -431,7 +435,7 @@ Start the Streamlit analyst workspace:
 RSE_API_URL=http://localhost:8000 streamlit run ui/streamlit_app.py
 ```
 
-The workspace keeps controls in the sidebar: research area, publication year range, top K, full-text-only mode, and diagnostics. The main page focuses on the suggested question, the free-text question box, route preview, and analysis run. During analysis, the UI shows route-preview and retrieval/synthesis status before navigating to the results page.
+The workspace keeps controls in the sidebar: research area, publication year range, evidence depth, full-text evidence mode, diagnostics, and conversation memory. The main page focuses on the suggested question, the free-text question box, route preview, and analysis run. During analysis, the UI shows a concise retrieval/synthesis status before navigating to the results page.
 
 
 Call the main API endpoint:
@@ -467,6 +471,7 @@ research_areas: optional list of supported corpus topics
 publication_year_min / publication_year_max: optional post-retrieval year filters
 full_text_only: keeps chunk-level evidence and omits abstract-only paper rows
 include_debug: returns route signals, confidence signals, score breakdowns, and timing metrics
+chat_history: optional prior user/assistant turns used to rewrite contextual follow-up questions into standalone retrieval queries
 ```
 
 Structured API errors include an `error.code`, message, details, and `request_id`. Every response includes an `X-Request-ID` header; callers may provide one or let the API generate a UUID.
@@ -515,9 +520,10 @@ Known limits: recommendations are limited to the current five-topic corpus, the 
 The current end-to-end workflow is:
 
 ```text
-user question
+user question + optional chat history
 → Streamlit workspace
-→ route preview
+→ standalone query rewrite
+→ optional route preview
 → FastAPI /guidance
 → paper retrieval / chunk retrieval / metadata filter
 → local cross-encoder reranking

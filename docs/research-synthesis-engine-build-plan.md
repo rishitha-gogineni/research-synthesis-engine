@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 25 days  
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, and Day 21.5 UI/trust/output polish through Pass 8 is complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, Day 21.5 UI/trust/output polish, Day 22 context-aware query rewriting, and Day 22.5 answer-quality/retrieval/UI cleanup are complete.
 
 ## Final Positioning
 
@@ -613,7 +613,7 @@ Goal: create a usable research analyst UI over the FastAPI backend.
 Implemented:
 - `ui/streamlit_app.py` for the Streamlit workspace
 - `ui/api_client.py` for lightweight API calls and response shaping
-- Suggested-question selector, free-text question box, topic filters, year filters, full-text-only control, top-k control, and diagnostics toggle
+- Suggested-question selector, free-text question box, topic filters, year filters, full-text evidence control, evidence-depth control, and diagnostics toggle
 - Cheap route preview through `POST /route`
 - Full research guidance through `POST /guidance`
 - Tabs for brief, evidence matrix, reading path, open problems, sources, and diagnostics
@@ -649,90 +649,106 @@ Completed UI polish passes:
 - Pass 7: Demo script with strong questions and interview walkthrough.
 - Pass 8: README updated to match the current API/UI workflow.
 
-## Day 22: Cleanup + Storage Management
+## Day 22: Context-Aware Query Rewriting
 
-Goal: make the local project manageable and reproducible.
+Goal: support follow-up research questions without rebuilding the corpus indexes.
 
-Tasks:
-- Confirm Qdrant paper and chunk collections exist
-- Confirm JSON artifacts exist
-- Optional deletion of `data/pdfs/` after verifying extracted text/chunks/embeddings
-- Add cleanup command docs
-- Add corpus stats command
-
-Checkpoint:
-```text
-PDFs can be safely deleted after extraction and indexing are verified
-```
-
-## Day 23: README + Architecture Polish
-
-Goal: make GitHub/interview view excellent.
-
-Tasks:
-- Update architecture diagrams
-- Add current corpus stats
-- Add example query/output
-- Add exact rebuild commands
-- Add decision summary
-- Remove day-number framing from top-level README where appropriate
+Completed:
+- Added `agent/query_rewriter.py` with LLM-first standalone query rewriting and heuristic fallback.
+- Added optional `chat_history` to the main `/guidance` request path.
+- `/guidance` preserves the original user question while retrieving with `standalone_query`.
+- Streamlit keeps lightweight session chat memory and displays the rewritten retrieval query when used.
+- Tests cover LLM rewrite, heuristic fallback, API retrieval with rewritten query, and UI payload formatting.
 
 Checkpoint:
 ```text
-README reads like a professional engineering project, not a course assignment
+contextual follow-up -> standalone query -> existing Qdrant/BM25 indexes -> confidence-gated answer
 ```
 
-## Day 24: Demo Script + Resume Bullets
+## Day 22.5: UI, Answer Quality, and Retrieval Polish - Complete
 
-Goal: prepare project presentation.
+Goal: make the current system easier to use and more reliable before adding a larger agent loop.
 
-Deliverables:
-- 3-minute demo flow
-- Interview talking points
-- Resume bullets
-- Tradeoff explanations:
-  - why OpenAlex
-  - why batch not Kafka
-  - why Qdrant + BM25
-  - why local cross-encoder
-  - why abstract + full-text indexes
-  - why 1024-dimensional truncation
+Completed:
+- Optional guidance sections fail softly: if evidence matrix, reading path, or open-problems generation fails, the core answer can still return with a quiet diagnostic note.
+- Streamlit result warnings were reduced: normal corpus/filter/source notes move into Diagnostics instead of appearing as large warning boxes.
+- Result tabs now use plain labels: Evidence Matrix, Reading Path, Open Problems, Sources, and Diagnostics.
+- Sidebar controls were renamed for clarity: `Evidence depth` and `Full-text evidence only`.
+- Sources tab now caps paper/chunk detail expanders and gives chunks meaningful paper-title/section/score labels.
+- Synthesis prompt now answers concept-first, then evidence, with safer chatbot wording and explicit comparison-question guidance.
+- Direct-answer citation guard ensures generated answers show source IDs when retrieved evidence supports the answer.
+- Agent/tool-use task questions receive a narrow intent-aware ranking boost for survey/tool/API/planning/workflow evidence.
+- Full suite passed with 210 tests.
 
 Checkpoint:
 ```text
-project story is clear and internship-ready
+question -> readable answer -> quiet notes -> inspectable evidence tabs -> cited sources
 ```
 
-## Day 25: Buffer + Final Validation
+## Day 23: Documentation + Commit Checkpoint - Complete
 
-Goal: final hardening.
+Goal: lock in the stable multi-turn UI and answer-quality work with accurate project documentation.
 
-Tasks:
-- Run full tests
-- Run representative queries
-- Check cost and token usage notes
-- Check generated artifacts
-- Check GitHub state
-- Optional deployment if time allows
+Completed:
+- README updated with current phase status, validation count, API/UI behavior, follow-up support, fail-soft guidance, intent-aware reranking, and citation guard.
+- Day-by-day plan updated to include Day 22.5 polish and the next agent-loop scope.
+- Decision log updated for quiet diagnostics, fail-soft optional sections, narrow agent-ranking boosts, and direct-answer citation guarding.
+- Current full test suite status: 210 tests passing.
 
 Checkpoint:
 ```text
-project is stable, explainable, and demo-ready
+current code + docs accurately describe the working project state
 ```
 
----
+## Day 24: Research Agent Loop Layer - Next
+
+Goal: formalize the current pipeline as an agent-style state loop without rewriting working retrieval or synthesis modules.
+
+Planned scope:
+- Add `agent/research_graph.py`.
+- Define a lightweight `ResearchAgentState` with original query, chat history, standalone query, retrieved papers, retrieved chunks, confidence decision, retry count, and final guidance fields.
+- Wire existing modules as graph-style nodes:
+  - Context rewrite
+  - Unified search
+  - CRAG confidence check
+  - Synthesis/guidance
+- Add a low-confidence reflection/rewrite node that can broaden or restate the query up to a small retry limit.
+- Start with synchronous Python functions and mocked tests before adding a new API endpoint or UI trace.
+
+Checkpoint:
+```text
+query + chat history -> rewrite -> search -> confidence -> answer or bounded retry
+```
+
+## Day 25: Evaluation + Demo Hardening
+
+Goal: prove quality and prepare the project for GitHub/interview use.
+
+Planned scope:
+- Add multi-turn contextual evaluation queries.
+- Add out-of-corpus queries to verify confidence gating refuses weak evidence.
+- Report route accuracy, topic hit rate, Recall@K/MRR on labeled queries, and CRAG fallback behavior.
+- Update README with a small evaluation summary after metrics are stable.
+- Finalize demo questions and interview talking points.
+
+Checkpoint:
+```text
+project is stable, explainable, evaluated, and demo-ready
+```
 
 # Current Immediate Next Step
 
-Continue **Day 21.5: Evidence-Gated Editorial Research Workspace** with Pass 3 visual/UI redesign.
+Start **Day 24: Research Agent Loop Layer** after this documentation/commit checkpoint.
 
-This is now the right next step because trust/stability and output quality are complete, so the remaining work is visual polish and the reading path map:
+Recommended scope:
+- Add `agent/research_graph.py` with a lightweight state object.
+- Wire existing components as graph-style nodes: context rewrite -> unified search -> confidence check -> synthesis.
+- Add a low-confidence reflection/retry path with a small retry limit.
+- Keep the first version synchronous and testable with mocked components before exposing a new API endpoint or UI trace.
 
 ```text
-query -> Streamlit workspace -> FastAPI /guidance -> unified retrieval -> confidence assessment -> brief/matrix/reading path/open problems -> Streamlit tabs
+query + chat history -> context rewrite -> unified search -> confidence check -> answer or retry/reflection
 ```
-
-Pass 3 should remove the default sidebar, add the top query console, apply the beige/black serif editorial theme, and add the reading path citation map.
 
 # Minimum Viable Final Demo
 

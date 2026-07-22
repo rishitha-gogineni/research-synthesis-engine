@@ -9,6 +9,7 @@ from agent.synthesis import (
     build_research_brief,
     build_synthesis_prompt,
     collect_evidence_sources,
+    ensure_direct_answer_citations,
     parse_brief_payload,
 )
 from shared.schemas import ConfidenceAssessment, QueryRoute, RetrievedChunk, RetrievedPaper, UnifiedSearchResponse
@@ -102,6 +103,40 @@ def test_build_synthesis_prompt_restricts_model_to_retrieved_sources():
     assert "3-5 named research themes" in prompt
 
 
+def test_synthesis_prompt_guides_agent_vs_chatbot_contrast_answers():
+    sources = collect_evidence_sources(
+        make_response(
+            papers=[make_paper(paper_id="agent-survey", score=0.82)],
+            chunks=[
+                RetrievedChunk(
+                    chunk_id="agent-tools",
+                    paper_id="agent-survey",
+                    title="A Survey on Large Language Model based Autonomous Agents",
+                    topic="AI Agents & Tool Use",
+                    year=2024,
+                    citation_count=1205,
+                    text="Agents use planning, tool APIs, observation feedback, and execution loops to complete tasks.",
+                    section_hint="Tool use",
+                    blended_score=0.96,
+                    rerank_score=0.96,
+                    dense_score=0.96,
+                )
+            ],
+        )
+    )
+
+    prompt = build_synthesis_prompt(
+        "How does an agent perform tasks while a normal chatbot just gives answers?",
+        sources,
+    )
+
+    assert "First paragraph: give the plain-language conceptual answer" in prompt
+    assert "For comparison or contrast questions, define both sides" in prompt
+    assert "planning, tool/API use, action execution, observation/feedback" in prompt
+    assert "a plain chatbot without tool access mainly generates responses" in prompt
+    assert "Prefer broad survey evidence and high-citation sources" in prompt
+
+
 def test_build_research_brief_uses_mocked_generator_and_validates_schema():
     response = make_response(papers=[make_paper()], chunks=[make_chunk()])
     captured = {}
@@ -130,6 +165,23 @@ def test_build_research_brief_uses_mocked_generator_and_validates_schema():
     assert brief.confidence_decision == "sufficient_evidence"
     assert brief.themes[0].supporting_source_ids == ["chunk:c1", "paper:p1"]
     assert "SOURCE_ID: chunk:c1" in captured["prompt"]
+
+
+def test_direct_answer_citation_guard_adds_source_ids_when_missing():
+    sources = collect_evidence_sources(make_response(papers=[make_paper()], chunks=[make_chunk()]))
+
+    answer = ensure_direct_answer_citations("RAG grounds answers using retrieved evidence.", sources)
+
+    assert "chunk:c1" in answer
+    assert "paper:p1" in answer
+
+
+def test_direct_answer_citation_guard_preserves_existing_citations():
+    sources = collect_evidence_sources(make_response(papers=[make_paper()], chunks=[make_chunk()]))
+
+    answer = ensure_direct_answer_citations("RAG grounds answers using retrieved evidence (SOURCE_ID: chunk:c1).", sources)
+
+    assert answer == "RAG grounds answers using retrieved evidence (SOURCE_ID: chunk:c1)."
 
 
 def test_low_confidence_skips_generation():

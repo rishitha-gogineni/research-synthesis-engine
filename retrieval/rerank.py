@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, Protocol
@@ -15,6 +16,10 @@ DEFAULT_RERANK_WEIGHT = 0.75
 DEFAULT_CITATION_WEIGHT = 0.25
 DEFAULT_TEXT_CHAR_LIMIT = 2500
 FALLBACK_SCORE_KEYS = ("hybrid_score", "dense_score", "sparse_score", "blended_score", "rerank_score")
+AGENT_QUERY_TERMS = {"agent", "agents", "autonomous", "task", "tasks", "tool", "tools", "api", "apis", "execute", "execution", "perform", "workflow", "workflows"}
+AGENT_EVIDENCE_TERMS = {"autonomous", "agent", "agents", "planning", "planner", "tool", "tools", "api", "apis", "execution", "execute", "action", "actions", "environment", "feedback", "workflow", "workflows", "taskmatrix", "restgpt"}
+AGENT_WEAK_EXAMPLE_TERMS = {"role-playing", "role playing", "debate"}
+
 
 
 class CrossEncoderLike(Protocol):
@@ -47,6 +52,72 @@ def candidate_to_text(candidate: dict[str, Any], *, max_chars: int = DEFAULT_TEX
     ]
     text = "\n".join(str(field).strip() for field in fields if field and str(field).strip())
     return text[:max_chars]
+
+
+def normalized_terms(value: str) -> set[str]:
+    return set(re.findall(r"[a-z0-9]+", value.lower()))
+
+
+def is_agent_task_query(query: str) -> bool:
+    terms = normalized_terms(query)
+    return bool({"agent", "agents", "autonomous"} & terms and AGENT_QUERY_TERMS & terms)
+
+
+def agent_task_intent_boost(query: str, candidate: dict[str, Any]) -> float:
+    if not is_agent_task_query(query):
+        return 0.0
+
+    fields = [
+        candidate.get("title"),
+        candidate.get("section_hint"),
+        candidate.get("text"),
+        candidate.get("abstract"),
+        candidate.get("main_contribution"),
+        candidate.get("methodology"),
+        candidate.get("key_result"),
+    ]
+    evidence_text = "\n".join(str(field).strip() for field in fields if field and str(field).strip()).lower()[:4000]
+    topic = str(candidate.get("topic") or "").lower()
+    bonus = 0.0
+    if "ai agents" in topic or "tool use" in topic:
+        bonus += 0.03
+    if "survey" in evidence_text or "autonomous agent" in evidence_text or "autonomous agents" in evidence_text:
+        bonus += 0.04
+    if any(term in evidence_text for term in ("tool", "tools", "api", "apis", "taskmatrix", "restgpt")):
+        bonus += 0.05
+    if any(term in evidence_text for term in ("planning", "planner", "execution", "execute", "actions", "environment", "feedback", "workflow")):
+        bonus += 0.04
+    if any(term in evidence_text for term in AGENT_WEAK_EXAMPLE_TERMS):
+        bonus -= 0.03
+    return round(max(0.0, min(0.12, bonus)), 6)
+
+
+def apply_query_intent_boosts(query: str, candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    boosted = []
+    for candidate in candidates:
+        bonus = agent_task_intent_boost(query, candidate)
+        if bonus <= 0:
+            boosted.append(candidate)
+            continue
+        base_score = float(candidate.get("blended_score") or 0.0)
+        score_breakdown = dict(candidate.get("score_breakdown") or {})
+        score_breakdown["intent_boost"] = bonus
+        boosted.append(
+            {
+                **candidate,
+                "blended_score": round(min(1.0, base_score + bonus), 6),
+                "score_breakdown": score_breakdown,
+            }
+        )
+    return sorted(
+        boosted,
+        key=lambda candidate: (
+            candidate.get("blended_score") or 0.0,
+            candidate.get("rerank_score") or 0.0,
+            candidate.get("citation_count") or 0,
+        ),
+        reverse=True,
+    )
 
 
 def normalize_scores(values: Sequence[float]) -> list[float]:
@@ -216,7 +287,8 @@ def rerank_and_blend(
         rerank_weight=rerank_weight,
         citation_weight=citation_weight,
     )
-    return blended[:top_k] if top_k is not None else blended
+    boosted = apply_query_intent_boosts(query, blended)
+    return boosted[:top_k] if top_k is not None else boosted
 
 
 def parse_args() -> argparse.Namespace:

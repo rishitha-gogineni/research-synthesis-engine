@@ -247,6 +247,7 @@ def validate_reading_path_payload(
     candidate_map = candidate_by_id(candidates)
     valid_source_ids = all_source_ids(candidates)
     seen_papers: set[str] = set()
+    repaired_source_ids: list[str] = []
     stages: list[ReadingPathStage] = []
     order = 1
 
@@ -267,7 +268,8 @@ def validate_reading_path_payload(
             source_ids = item_payload.get("source_ids") or candidate.source_ids
             invalid_sources = [source_id for source_id in source_ids if source_id not in valid_source_ids]
             if invalid_sources:
-                raise ReadingPathError(f"reading path referenced unknown source_ids: {invalid_sources}")
+                repaired_source_ids.extend(str(source_id) for source_id in invalid_sources)
+                source_ids = candidate.source_ids
             seen_papers.add(paper_id)
             papers.append(
                 ReadingPathItem(
@@ -301,6 +303,8 @@ def validate_reading_path_payload(
             break
 
     limitations = list(payload.get("limitations") or [])
+    if repaired_source_ids:
+        limitations.append("Some generated source IDs were not in the retrieved evidence and were replaced with validated retrieved source IDs.")
     if len(seen_papers) < sum(len(items) for items in selected.values()):
         limitations.append("Some retrieved candidates were omitted to respect the maximum reading-path length.")
     if not stages:

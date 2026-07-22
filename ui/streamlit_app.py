@@ -30,6 +30,7 @@ from ui.api_client import (
     post_api,
     reading_path_rows,
     route_label,
+    rewrite_summary,
     section_counts,
     source_rows,
     summary_items,
@@ -214,9 +215,12 @@ def render_filter_sidebar(health: dict, stats: dict):
         st.markdown("### Filters")
         st.multiselect("Research area", SUPPORTED_RESEARCH_TOPICS, key="research_areas")
         st.slider("Publication years", min_value=2017, max_value=2026, key="year_range", step=1)
-        st.slider("Top K", min_value=3, max_value=20, key="top_k", step=1)
-        st.checkbox("Full text only", key="full_text_only")
+        st.slider("Evidence depth", min_value=3, max_value=20, key="top_k", step=1)
+        st.checkbox("Full-text evidence only", key="full_text_only")
         st.checkbox("Diagnostics", key="include_debug")
+        st.caption(f"Conversation memory: {len(st.session_state.get('chat_history', []))} turns")
+        if st.button("Clear memory", use_container_width=True):
+            st.session_state["chat_history"] = []
 
 
 def render_badge_row(payload: dict):
@@ -236,15 +240,22 @@ def render_badge_row(payload: dict):
     )
 
 
+def result_notes(payload: dict) -> list[str]:
+    return list(dict.fromkeys(payload.get("warnings") or payload.get("retrieval", {}).get("warnings") or []))
+
+
 def render_summary(payload: dict, request_id: str | None):
     render_badge_row(payload)
     items = {k: v for k, v in summary_items(payload, request_id).items() if k not in ("Route", "Confidence")}
     cols = st.columns(len(items))
     for col, (label, value) in zip(cols, items.items()):
         col.metric(label, value)
-    warnings = payload.get("warnings") or payload.get("retrieval", {}).get("warnings") or []
-    for warning in warnings:
-        st.markdown(f"<div class='rse-warning'>{html.escape(str(warning))}</div>", unsafe_allow_html=True)
+    notes = result_notes(payload)
+    if notes:
+        if st.session_state.get("show_diagnostics"):
+            st.caption(f"{len(notes)} notes available in Diagnostics.")
+        else:
+            st.caption(f"{len(notes)} notes hidden from the main view. Enable Diagnostics to review them.")
 
 
 def render_question_context(payload: dict):
@@ -300,7 +311,7 @@ def render_answer_card(payload: dict):
     st.markdown(
         f"""
         <div class='rse-answer-card'>
-            <div class='rse-kicker'>⊙ Direct Answer</div>
+            <div class='rse-kicker'>Direct Answer</div>
             {body}
         </div>
         """,
@@ -372,8 +383,10 @@ def render_reading_path(payload: dict):
                 st.markdown(f"**{order}. {title}**")
                 st.caption(f"{year} · {citations} citations")
                 st.write(reason)
-    for limitation in path.get("limitations", []) or []:
-        st.markdown(f"<div class='rse-warning'>{html.escape(str(limitation))}</div>", unsafe_allow_html=True)
+    if path.get("limitations"):
+        with st.expander("Reading path limitations", expanded=False):
+            for limitation in path.get("limitations", []) or []:
+                st.write(f"- {limitation}")
 
 
 def render_open_problems(payload: dict):
@@ -399,20 +412,36 @@ def render_open_problems(payload: dict):
             st.write(f"- {item}")
 
 
+def chunk_display_label(chunk: dict, index: int) -> str:
+    title = chunk.get("title") or "Untitled paper"
+    section = chunk.get("section_hint") or "full-text chunk"
+    score = chunk.get("blended_score") or chunk.get("rerank_score") or chunk.get("dense_score")
+    title = " ".join(str(title).split())
+    if len(title) > 86:
+        title = f"{title[:83]}..."
+    score_text = f" · score {float(score):.2f}" if isinstance(score, (int, float)) else ""
+    return f"{index}. {title} · {section}{score_text}"
+
+
 def render_sources(payload: dict):
     paper_rows, chunk_rows = source_rows(payload)
     paper_tab, chunk_tab = st.tabs(["Papers", "Chunks"])
     with paper_tab:
         dataframe(paper_rows)
-        for paper in (payload.get("retrieval") or {}).get("paper_results", []) or []:
+        papers = (payload.get("retrieval") or {}).get("paper_results", []) or []
+        for paper in papers[:5]:
             with st.expander(paper.get("title", "Paper")):
                 st.write(paper.get("abstract") or paper.get("main_contribution") or "No abstract returned.")
                 st.markdown(f"<span class='rse-source-id'>paper:{html.escape(str(paper.get('paper_id')))}</span>", unsafe_allow_html=True)
+        if len(papers) > 5:
+            st.caption(f"Showing 5 of {len(papers)} paper details. Use the table above for the full list.")
     with chunk_tab:
         dataframe(chunk_rows)
-        for chunk in (payload.get("retrieval") or {}).get("chunk_results", []) or []:
-            label = chunk.get("section_hint") or chunk.get("title") or "Chunk"
-            with st.expander(label):
+        chunks = (payload.get("retrieval") or {}).get("chunk_results", []) or []
+        if chunks:
+            st.caption(f"Showing top {min(5, len(chunks))} chunk snippets. Use the table above for the full retrieved chunk list.")
+        for index, chunk in enumerate(chunks[:5], start=1):
+            with st.expander(chunk_display_label(chunk, index)):
                 st.write(chunk.get("text", ""))
                 st.markdown(f"<span class='rse-source-id'>chunk:{html.escape(str(chunk.get('chunk_id')))}</span>", unsafe_allow_html=True)
 
@@ -421,6 +450,11 @@ def render_diagnostics(payload: dict):
     retrieval = payload.get("retrieval") or {}
     route = retrieval.get("route") or {}
     confidence = payload.get("confidence") or {}
+    notes = result_notes(payload)
+    if notes:
+        st.subheader("Notes")
+        for note in notes:
+            st.write(f"- {note}")
     st.subheader("Route")
     st.json(route, expanded=False)
     st.subheader("Confidence")
@@ -454,23 +488,89 @@ def initialize_state():
     st.session_state.setdefault("top_k", 8)
     st.session_state.setdefault("full_text_only", False)
     st.session_state.setdefault("include_debug", False)
+    st.session_state.setdefault("chat_history", [])
+    st.session_state.setdefault("followup_question", "")
 
 
-def build_payload_from_state() -> dict:
+def build_payload_from_state(question: str | None = None) -> dict:
     year_min, year_max = st.session_state.get("year_range", (2017, 2026))
     return build_guidance_payload(
-        question=st.session_state.get("question", ""),
+        question=question if question is not None else st.session_state.get("question", ""),
         top_k=st.session_state.get("top_k", 8),
         research_areas=st.session_state.get("research_areas") or [],
         publication_year_min=year_min,
         publication_year_max=year_max,
         full_text_only=st.session_state.get("full_text_only", False),
         include_debug=st.session_state.get("include_debug", False),
+        chat_history=st.session_state.get("chat_history", []),
     )
 
 
 def sync_question_from_suggestion():
     st.session_state["question"] = st.session_state.get("suggested_question", SUGGESTED_QUESTIONS[0])
+
+
+def clear_followup_question():
+    st.session_state["followup_question"] = ""
+
+
+def _short_assistant_memory(result: dict) -> str:
+    brief = result.get("brief") or {}
+    answer = brief.get("direct_answer") or ""
+    if not answer:
+        confidence = result.get("confidence") or {}
+        answer = f"Evidence decision: {confidence.get('decision', 'unknown')}. {confidence.get('reason', '')}"
+    return " ".join(answer.split())[:900]
+
+
+def remember_turn(result: dict):
+    history = list(st.session_state.get("chat_history", []))
+    question = result.get("question") or st.session_state.get("question", "")
+    if question:
+        history.append({"role": "user", "content": question})
+    assistant_memory = _short_assistant_memory(result)
+    if assistant_memory:
+        history.append({"role": "assistant", "content": assistant_memory})
+    st.session_state["chat_history"] = history[-8:]
+
+
+def render_rewrite_context(payload: dict):
+    summary = rewrite_summary(payload)
+    if summary["Rewrite Used"] != "yes":
+        return
+    with st.expander("Standalone query used for retrieval", expanded=False):
+        st.write(summary["Standalone Query"])
+        st.caption(f"Method: {summary['Method']} · {summary['Reason']}")
+
+
+def submit_question(question: str) -> bool:
+    cleaned = " ".join(question.split())
+    if not cleaned:
+        st.error("VALIDATION_ERROR: question is required.")
+        return False
+    request_id = new_request_id()
+    payload = build_payload_from_state(cleaned)
+    started_at = time.perf_counter()
+    with st.status("Running research analysis", expanded=True) as status:
+        status.write("Searching the corpus, checking evidence, and preparing the research brief.")
+        try:
+            result, response_id = run_guidance(payload, request_id)
+        except requests.RequestException as exc:
+            status.update(label="Analysis failed", state="error", expanded=True)
+            st.error(f"CONNECTION_ERROR: {exc}")
+            return False
+        elapsed = time.perf_counter() - started_at
+        status.update(label=f"Analysis complete in {elapsed:.1f}s", state="complete", expanded=False)
+    msg = error_message(result)
+    if msg:
+        st.error(msg)
+        return False
+    st.session_state["guidance_result"] = result
+    st.session_state["request_id"] = response_id or request_id
+    st.session_state["show_diagnostics"] = st.session_state.get("include_debug", False)
+    remember_turn(result)
+    st.session_state["view"] = "results"
+    return True
 
 
 def render_query_page(health: dict, stats: dict):
@@ -499,39 +599,7 @@ def render_query_page(health: dict, stats: dict):
             st.markdown("<div class='rse-symbol-label'>? Route preview</div>", unsafe_allow_html=True)
             st.json(route, expanded=False)
 
-    if run_button:
-        if not st.session_state.get("question", "").strip():
-            st.error("VALIDATION_ERROR: question is required.")
-            return
-        request_id = new_request_id()
-        payload = build_payload_from_state()
-        started_at = time.perf_counter()
-        with st.status("Preparing analysis", expanded=True) as status:
-            status.write("Routing the question to choose the retrieval path.")
-            route_preview = preview_route({"question": payload["question"]})
-            route_error = error_message(route_preview)
-            if route_error:
-                status.write("Route preview was unavailable; continuing with full guidance.")
-            else:
-                route = route_preview.get("selected_route") or "unknown"
-                status.write(f"Selected route: {route_label(route)}.")
-            status.write("Running retrieval, confidence check, and synthesis from the indexed corpus.")
-            try:
-                result, response_id = run_guidance(payload, request_id)
-            except requests.RequestException as exc:
-                status.update(label="Analysis failed", state="error", expanded=True)
-                st.error(f"CONNECTION_ERROR: {exc}")
-                return
-            elapsed = time.perf_counter() - started_at
-            status.update(label=f"Analysis complete in {elapsed:.1f}s", state="complete", expanded=False)
-        msg = error_message(result)
-        if msg:
-            st.error(msg)
-            return
-        st.session_state["guidance_result"] = result
-        st.session_state["request_id"] = response_id or request_id
-        st.session_state["show_diagnostics"] = st.session_state.get("include_debug", False)
-        st.session_state["view"] = "results"
+    if run_button and submit_question(st.session_state.get("question", "")):
         st.rerun()
 
 
@@ -549,6 +617,7 @@ def render_results_page(health: dict, stats: dict):
             st.session_state["view"] = "query"
             st.rerun()
     render_question_context(result)
+    render_rewrite_context(result)
     render_evidence_gate(result)
     render_summary(result, st.session_state.get("request_id"))
     render_brief(result)
@@ -558,17 +627,36 @@ def render_results_page(health: dict, stats: dict):
 
     counts = section_counts(result)
     tab_specs = [
-        (f"▦ Evidence Matrix · {counts.get('Evidence', '0 claims')}", render_evidence),
-        (f"→ Reading Path · {counts.get('Reading Path', '0 stages')}", render_reading_path),
-        (f"◇ Open Problems · {counts.get('Open Problems', '0 found')}", render_open_problems),
-        (f"§ Sources · {counts.get('Sources', '0 papers / 0 chunks')}", render_sources),
+        (f"Evidence Matrix · {counts.get('Evidence', '0 claims')}", render_evidence),
+        (f"Reading Path · {counts.get('Reading Path', '0 stages')}", render_reading_path),
+        (f"Open Problems · {counts.get('Open Problems', '0 found')}", render_open_problems),
+        (f"Sources · {counts.get('Sources', '0 papers / 0 chunks')}", render_sources),
     ]
     if st.session_state.get("show_diagnostics"):
-        tab_specs.append(("⌁ Diagnostics", render_diagnostics))
+        tab_specs.append(("Diagnostics", render_diagnostics))
     tabs = st.tabs([label for label, _ in tab_specs])
     for tab, (_, renderer) in zip(tabs, tab_specs):
         with tab:
             renderer(result)
+
+    st.subheader("Ask a follow-up")
+    st.text_area(
+        "Follow-up question",
+        key="followup_question",
+        height=76,
+        placeholder="Ask a contextual follow-up, e.g. What are its limitations?",
+        label_visibility="collapsed",
+    )
+    f1, f2, _ = st.columns([1.25, 1.1, 4])
+    with f1:
+        run_followup = st.button("Run follow-up", type="primary", use_container_width=True)
+    with f2:
+        st.button("Clear follow-up", use_container_width=True, on_click=clear_followup_question)
+    if run_followup:
+        followup = st.session_state.get("followup_question", "")
+        if submit_question(followup):
+            st.session_state["question"] = followup
+            st.rerun()
 
 
 def main():

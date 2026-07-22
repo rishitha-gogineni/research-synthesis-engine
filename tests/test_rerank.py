@@ -3,7 +3,9 @@ import math
 import pytest
 
 from retrieval.rerank import (
+    agent_task_intent_boost,
     apply_citation_blended_scores,
+    apply_query_intent_boosts,
     attach_rerank_scores,
     candidate_to_text,
     normalize_scores,
@@ -129,6 +131,50 @@ def test_apply_citation_blended_scores_rejects_bad_weights():
         apply_citation_blended_scores([], rerank_weight=-1)
     with pytest.raises(ValueError, match="positive"):
         apply_citation_blended_scores([], rerank_weight=0, citation_weight=0)
+
+
+def test_agent_task_intent_boost_favors_tool_execution_evidence():
+    query = "How does an agent perform tasks compared with a normal chatbot?"
+    candidate = {
+        "title": "A Survey on Large Language Model based Autonomous Agents",
+        "topic": "AI Agents & Tool Use",
+        "text": "Autonomous agents use planning, tool APIs, execution actions, environment feedback, and workflows.",
+    }
+
+    assert agent_task_intent_boost(query, candidate) > 0.08
+    assert agent_task_intent_boost("What are hallucination benchmarks?", candidate) == 0.0
+
+
+def test_query_intent_boost_reranks_agent_tool_sources_above_debate_only_examples():
+    query = "How does an agent perform tasks while a plain chatbot mainly answers?"
+    candidates = [
+        {
+            "paper_id": "debate",
+            "title": "Encouraging Divergent Thinking through Multi-Agent Debate",
+            "topic": "AI Agents & Tool Use",
+            "text": "Agents express arguments in a debate setting.",
+            "citation_count": 204,
+            "rerank_score": 0.9,
+            "blended_score": 0.72,
+            "score_breakdown": {"rerank_score": 0.9},
+        },
+        {
+            "chunk_id": "tool-survey",
+            "title": "A Survey on Large Language Model based Autonomous Agents",
+            "topic": "AI Agents & Tool Use",
+            "text": "Agents use planning, external tools, REST APIs, action execution, environment observation, feedback, and workflows to complete tasks.",
+            "citation_count": 1205,
+            "rerank_score": 0.82,
+            "blended_score": 0.67,
+            "score_breakdown": {"rerank_score": 0.82},
+        },
+    ]
+
+    boosted = apply_query_intent_boosts(query, candidates)
+
+    assert boosted[0]["chunk_id"] == "tool-survey"
+    assert boosted[0]["score_breakdown"]["intent_boost"] > 0
+    assert "intent_boost" not in boosted[1]["score_breakdown"]
 
 
 def test_rerank_and_blend_runs_end_to_end_with_mocked_model():

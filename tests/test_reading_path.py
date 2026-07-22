@@ -193,6 +193,39 @@ def test_invalid_llm_returned_paper_ids_are_rejected():
         )
 
 
+
+def test_invalid_llm_source_ids_are_repaired_to_candidate_sources():
+    response = make_response(papers=[make_paper("p1", "Known Paper", 2020, 100, 0.9)])
+
+    def generator(prompt):
+        return json.dumps(
+            {
+                "stages": [
+                    {
+                        "stage": "foundational",
+                        "description": "Start here.",
+                        "papers": [
+                            {
+                                "paper_id": "p1",
+                                "reason_to_read": "Grounded candidate.",
+                                "focus_points": ["method"],
+                                "prerequisites": [],
+                                "connection_to_next": None,
+                                "source_ids": ["chunk:unknown-generated-id"],
+                            }
+                        ],
+                    }
+                ],
+                "limitations": [],
+            }
+        )
+
+    path = build_reading_path(response, confidence=make_confidence(), generator=generator)
+
+    assert path.total_papers == 1
+    assert path.stages[0].papers[0].source_ids == ["paper:p1"]
+    assert any("replaced with validated" in limitation for limitation in path.limitations)
+
 def test_fewer_than_five_available_papers_are_handled():
     response = make_response(papers=[make_paper("p1", "Only Paper", 2022, 40, 0.9)])
 

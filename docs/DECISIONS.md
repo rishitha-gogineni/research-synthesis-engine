@@ -400,3 +400,53 @@ Reasoning:
 - The UI now surfaces top supporting evidence near the front of the workflow so users can quickly see why the answer is grounded.
 - Result sections are ordered by query intent: reading-path questions prioritize the reading path, limitation questions prioritize open problems, evaluation questions prioritize the evidence matrix, and overview questions prioritize brief plus top evidence.
 - These changes preserve the existing API schema and keep the visual redesign as a separate pass.
+
+## Day 22 - Context-aware query rewriting belongs at query time
+
+We added optional chat-history-aware query rewriting before retrieval instead of changing ingestion.
+
+Reasoning:
+- Ingestion-time context only describes papers, chunks, metadata, and embeddings; it cannot know a future user's conversation.
+- Follow-up questions such as `What are its limitations?` require query-time chat history to resolve references.
+- The system now tries an LLM rewrite first and falls back to a deterministic heuristic if the LLM is unavailable or returns invalid JSON.
+- The original question is preserved for display, while `standalone_query` is used for retrieval against the existing Qdrant and BM25 indexes.
+- This improves multi-turn behavior without re-fetching papers, re-chunking PDFs, or rebuilding vector collections.
+
+## 2026-07-22: Keep Main Results Quiet and Move Normal Notes to Diagnostics
+
+We will show only critical failures prominently in the Streamlit main result page, while normal limitations and implementation notes move into Diagnostics.
+
+Reasoning:
+- Corpus coverage notes, post-retrieval filter notes, and repaired source-ID notes are useful for transparency but distracting as large warning boxes.
+- The main user task is to read the direct answer and inspect evidence, so non-critical notes should not interrupt that flow.
+- Diagnostics remains available for technical review and interviewer walkthroughs.
+- Critical failures such as retrieval failure, unavailable Qdrant, insufficient evidence, or generation failure still surface clearly.
+
+## 2026-07-22: Let Optional Guidance Sections Fail Softly
+
+We will keep the core `/guidance` answer available when optional generated sections fail.
+
+Reasoning:
+- The direct answer is the primary user-facing output, while evidence matrix, reading path, and open-problems reports are supporting sections.
+- A malformed optional LLM response should not turn a successful retrieval and grounded answer into a full API failure.
+- Optional section failures are recorded as warnings/notes without exposing raw provider errors, prompts, secrets, or stack traces.
+- Core retrieval, confidence, and direct brief generation remain required for a normal answer.
+
+## 2026-07-22: Use Narrow Intent-Aware Ranking for Agent Task Questions
+
+We will add a small, explainable ranking boost for agent/tool-use task questions when the candidate text itself mentions planning, tools/APIs, action execution, feedback, workflows, autonomous agents, or survey evidence.
+
+Reasoning:
+- Agent task questions should prioritize evidence about how agents act, use tools, and execute workflows rather than less direct examples such as debate or role-playing papers.
+- The boost is narrow and query-dependent, so unrelated RAG, hallucination, LoRA, or transformer questions keep the default rerank/citation blend.
+- The boost appears in `score_breakdown.intent_boost` for debugging and demo transparency.
+- Broad topic labels alone are not enough; the candidate title/text/abstract must contain relevant task/tool evidence.
+
+## 2026-07-22: Enforce Visible Source IDs in Direct Answers
+
+We will guard generated direct answers so they include visible source IDs when retrieved evidence supports the response.
+
+Reasoning:
+- The synthesis prompt asks for citations, but LLMs can occasionally produce a good conceptual answer without explicit source IDs.
+- A citation guard keeps the answer inspectable by appending top validated retrieved source IDs only when no known source ID is already present.
+- This preserves groundedness without hardcoding answers or adding external facts.

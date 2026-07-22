@@ -3,6 +3,7 @@ import os
 import pytest
 
 from ui import api_client
+from ui import streamlit_app
 
 
 def sample_guidance_payload():
@@ -258,3 +259,48 @@ def test_weak_evidence_guidance_handles_no_retrieved_sources():
 
     assert guidance[0] == "No matching papers or full-text chunks were retrieved for this question."
 
+
+
+def test_build_guidance_payload_includes_chat_history_when_present():
+    history = [{"role": "user", "content": "Explain LoRA."}]
+
+    payload = api_client.build_guidance_payload(
+        question="What are its limitations?",
+        top_k=5,
+        chat_history=history,
+    )
+
+    assert payload["chat_history"] == history
+
+
+def test_rewrite_summary_formats_guidance_rewrite_fields():
+    summary = api_client.rewrite_summary(
+        {
+            "question": "What are its limitations?",
+            "standalone_query": "What are the limitations of LoRA?",
+            "rewrite_used": True,
+            "rewrite_method": "llm",
+            "rewrite_reason": "Resolved pronoun.",
+        }
+    )
+
+    assert summary["Original Question"] == "What are its limitations?"
+    assert summary["Standalone Query"] == "What are the limitations of LoRA?"
+    assert summary["Rewrite Used"] == "yes"
+    assert summary["Method"] == "llm"
+
+
+def test_chunk_display_label_uses_title_section_and_score():
+    label = streamlit_app.chunk_display_label(
+        {
+            "title": "A Survey on Large Language Model based Autonomous Agents",
+            "section_hint": "results",
+            "blended_score": 0.876,
+        },
+        2,
+    )
+
+    assert label.startswith("2. A Survey on Large Language Model based Autonomous Agents")
+    assert "results" in label
+    assert "score 0.88" in label
+    assert label != "results"

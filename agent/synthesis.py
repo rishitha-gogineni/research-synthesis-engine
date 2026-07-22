@@ -138,7 +138,14 @@ Write for a student or research analyst who needs a useful synthesis, not just a
 
 Direct-answer requirements:
 - Answer the exact user question in 2-3 concise paragraphs.
-- Use plain language and explain the main idea before naming papers.
+- First paragraph: give the plain-language conceptual answer before naming papers or methods.
+- Second paragraph: connect that concept to the strongest retrieved evidence using source IDs.
+- Every direct-answer paragraph should include at least one exact SOURCE_ID when evidence supports the claim.
+- Optional third paragraph: add nuance, boundary conditions, or what the evidence does not establish.
+- For comparison or contrast questions, define both sides, state the key difference, and give one concrete example.
+- For agent/task questions, explicitly address planning, tool/API use, action execution, observation/feedback, and workflow completion when supported by evidence.
+- When contrasting with chatbots, say "a plain chatbot without tool access mainly generates responses" rather than claiming all ChatGPT-like systems only answer.
+- Prefer broad survey evidence and high-citation sources when multiple sources support the same point.
 - Ground every substantive claim in the retrieved evidence.
 - Do not mention unsupported statistics, datasets, or paper findings.
 - If the evidence is partial, say what is and is not established.
@@ -186,6 +193,17 @@ def parse_brief_payload(raw_text: str) -> dict[str, Any]:
             return json.loads(cleaned[start : end + 1])
         except json.JSONDecodeError as exc:
             raise SynthesisError(f"brief generator returned malformed JSON: {exc}") from exc
+
+
+def ensure_direct_answer_citations(answer: str, sources: list[EvidenceSource]) -> str:
+    cleaned = clean_text(answer)
+    if not cleaned or not sources:
+        return answer
+    known_ids = [source.source_id for source in sources if source.source_id]
+    if any(source_id in cleaned for source_id in known_ids):
+        return answer
+    cited = "; ".join(known_ids[:2])
+    return f"{answer.rstrip()} Sources: {cited}."
 
 
 def build_guarded_brief(
@@ -238,7 +256,7 @@ def build_research_brief(
             query=response.query,
             status="generated",
             confidence_decision=confidence.decision,
-            direct_answer=payload.get("direct_answer", ""),
+            direct_answer=ensure_direct_answer_citations(payload.get("direct_answer", ""), sources),
             themes=themes,
             evidence_bullets=list(payload.get("evidence_bullets", [])),
             limitations=list(payload.get("limitations", [])),
