@@ -77,3 +77,12 @@ def test_summarize_chunks_counts_topics_and_sections():
     assert summary["chunks"] == 2
     assert summary["papers"] == 1
     assert summary["by_topic"] == {"RAG": 2}
+
+
+def test_write_chunks_replaces_invalid_surrogates(tmp_path):
+    from full_text.chunk_papers import write_chunks
+
+    output = tmp_path / "chunks.json"
+    write_chunks(output, [{"chunk_id": "c1", "text": "bad\ud835text"}])
+
+    assert "bad?text" in output.read_text(encoding="utf-8")

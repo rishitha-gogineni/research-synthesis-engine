@@ -97,3 +97,12 @@ def test_run_download_extract_can_append_existing_records(monkeypatch, tmp_path)
     )
 
     assert [record["paper_id"] for record in records] == ["old", "new"]
+
+
+def test_write_records_replaces_invalid_surrogates(tmp_path):
+    from full_text.download_extract import write_records
+
+    output = tmp_path / "records.json"
+    write_records(output, [{"paper_id": "p1", "text": "bad\ud835text"}])
+
+    assert "bad?text" in output.read_text(encoding="utf-8")

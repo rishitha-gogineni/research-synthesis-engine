@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 28 days
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, Day 21.5 UI/trust/output polish, Day 22 context-aware query rewriting, Day 22.5 answer-quality/retrieval/UI cleanup, Day 24 research agent loop, Day 25 evaluation hardening, Day 26 agent API/UI integration, Day 27 latency/demo smoothness, and Day 28 fast-first UI sections are complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, Day 21.5 UI/trust/output polish, Day 22 context-aware query rewriting, Day 22.5 answer-quality/retrieval/UI cleanup, Day 24 research agent loop, Day 25 evaluation hardening, Day 26 agent API/UI integration, Day 27 latency/demo smoothness, Day 28 fast-first UI sections, and Day 28.5 full-text recovery are complete.
 
 ## Final Positioning
 
@@ -18,9 +18,9 @@ papers per topic: 50
 abstract/enriched paper embeddings: 250
 BM25 paper documents: 250
 legal full-text PDF sources discovered: 173
-successfully extracted full-text papers: 131
-full-text chunks: 4170
-embedded full-text chunks: 4170
+successfully extracted full-text papers: 152
+full-text chunks: 4909
+embedded full-text chunks: 4909
 ```
 
 Qdrant collections:
@@ -30,7 +30,7 @@ research_papers
 -> 250 paper-level vectors from title, abstract, and structured metadata
 
 research_paper_chunks
--> 4170 full-text chunk vectors from 131 open/full-text papers
+-> 4909 full-text chunk vectors from 152 open/full-text papers
 ```
 
 ## Research Topics
@@ -353,9 +353,9 @@ Implemented:
 
 Local artifacts:
 ```text
-data/full_text_chunks.json -> 4170 chunks
-data/embedded_full_text_chunks.json -> 4170 embedded chunks
-Qdrant collection: research_paper_chunks -> 4170 points
+data/full_text_chunks.json -> 4909 chunks
+data/embedded_full_text_chunks.json -> 4909 embedded chunks
+Qdrant collection: research_paper_chunks -> 4909 points
 ```
 
 Checkpoint:
@@ -785,11 +785,34 @@ Implemented:
 - Reused existing `/reading-path` and `/open-problems` endpoints for on-demand section generation.
 - Added tests proving heavy sections can be skipped and UI payload flags are correct.
 - Live benchmark on the hallucination demo question improved the first `/guidance` response from about 21.3s full guidance to about 8.8s fast-first guidance.
-- Full suite passed with 227 tests.
+- Full suite passed with 227 tests at that checkpoint; the current suite has 234 passing tests after the full-text recovery pass.
 
 Checkpoint:
 ```text
 run analysis -> direct answer + evidence matrix first -> reading path/open problems on demand
+```
+
+
+## Day 28.5: Full-Text Recovery Pass - Complete
+
+Goal: improve full-text coverage for papers that were still abstract-only after the initial legal PDF extraction pass.
+
+Implemented:
+- Added `full_text/recover_sources.py` to audit abstract-only papers against public legal sources.
+- Used existing arXiv identifiers, OpenAlex open-access PDF locations, arXiv title matches, and Semantic Scholar open-access PDF links as recovery candidates.
+- Recovered 21 additional full-text papers.
+- Sanitized extracted PDF text before JSON writes so invalid surrogate Unicode cannot corrupt `full_text_papers.json` or `full_text_chunks.json`.
+- Rebuilt and embedded the expanded full-text chunk corpus.
+- Reindexed Qdrant `research_paper_chunks` with 4,909 chunk points.
+- Added tests for JSON sanitization in full-text paper/chunk writers and deterministic recovery helper behavior.
+
+Checkpoint:
+```text
+full-text papers: 152
+full-text chunks: 4909
+embedded full-text chunks: 4909
+Qdrant research_paper_chunks: 4909 points
+tests: 234 passed
 ```
 
 # Current Immediate Next Step

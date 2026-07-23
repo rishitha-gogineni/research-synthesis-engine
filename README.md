@@ -84,7 +84,7 @@ Papers are fetched from OpenAlex using curated title-query aliases, sorted towar
 | `data/embedded_full_text_chunks.json` | 1024-dimensional full-text chunk embeddings |
 | `data/pdfs/` | Local downloaded PDF files |
 | Qdrant `research_papers` collection | Dense vector index with 250 points |
-| Qdrant `research_paper_chunks` collection | Chunk-level full-text vector index with 4,170 points |
+| Qdrant `research_paper_chunks` collection | Chunk-level full-text vector index with 4,909 points |
 
 ## Structured Metadata
 
@@ -193,37 +193,37 @@ Available full-text papers by topic:
 
 This is enough to build a 100-150 paper full-text subset while keeping all 250 papers in the abstract-level index.
 
-Full-text extraction result:
+Full-text extraction result after the recovery pass:
 
 ```text
-legal PDF sources attempted: 173
-successfully extracted full-text papers: 131
-failed downloads/extractions: 42
-total extracted pages: 2533
-total extracted text characters: 10343086
+legal PDF sources attempted: 173 initial sources + recovery candidates
+successfully extracted full-text papers: 152
+additional papers recovered: 21
+total extracted pages: 2913
+total extracted text characters: 14163478
 ```
 
 Successful full-text papers by topic:
 
 | Research Area | Extracted Full Text Papers |
 | --- | ---: |
-| Retrieval-Augmented Generation (RAG) | 27 |
-| Transformers / Attention Mechanisms | 20 |
-| LLM Evaluation & Hallucination Detection | 31 |
-| AI Agents & Tool Use | 25 |
-| Fine-tuning (LoRA / PEFT) | 28 |
+| Retrieval-Augmented Generation (RAG) | 35 |
+| Transformers / Attention Mechanisms | 25 |
+| LLM Evaluation & Hallucination Detection | 33 |
+| AI Agents & Tool Use | 30 |
+| Fine-tuning (LoRA / PEFT) | 29 |
 
 Most failures were publisher-side download blocks such as `403 Forbidden`; those papers remain available through the abstract-level index.
 
 Full-text chunk index:
 
 ```text
-full-text papers chunked: 131
-full-text chunks: 4170
+full-text papers chunked: 152
+full-text chunks: 4909
 chunk embedding model: text-embedding-3-large
 stored chunk embedding dimensions: 1024
 Qdrant chunk collection: research_paper_chunks
-Qdrant chunk points: 4170
+Qdrant chunk points: 4909
 ```
 
 Chunk retrieval is used for detailed evidence questions such as datasets, metrics, methods, results, and limitations.
@@ -238,11 +238,11 @@ enriched papers: 250
 embedded papers: 250
 paper-level Qdrant points: 250
 BM25 documents: 250
-full-text chunks: 4170
-chunk-level Qdrant points: 4170
+full-text chunks: 4909
+chunk-level Qdrant points: 4909
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 227 passed
+tests: 234 passed
 ```
 
 These counts reflect the current local artifacts, index checks, and test suite.
@@ -377,6 +377,12 @@ Download and extract full-text PDFs:
 
 ```bash
 python -m full_text.download_extract --input data/full_text_selected_all.json --output data/full_text_papers.json --pdf-dir data/pdfs --append-existing
+```
+
+Recover additional legal PDFs for abstract-only papers when more open sources are discovered:
+
+```bash
+python -m full_text.recover_sources --existing-papers data/full_text_papers.json --existing-chunks data/full_text_chunks.json --output data/full_text_papers.json --pdf-dir data/pdfs
 ```
 
 Chunk extracted full text:

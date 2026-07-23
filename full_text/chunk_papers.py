@@ -31,9 +31,19 @@ def load_full_text_papers(path: Path) -> list[dict[str, Any]]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def clean_json_text(value: Any) -> Any:
+    if isinstance(value, str):
+        return value.encode("utf-8", "replace").decode("utf-8")
+    if isinstance(value, list):
+        return [clean_json_text(item) for item in value]
+    if isinstance(value, dict):
+        return {key: clean_json_text(item) for key, item in value.items()}
+    return value
+
+
 def write_chunks(path: Path, chunks: list[dict[str, Any]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(chunks, indent=2, ensure_ascii=False), encoding="utf-8")
+    path.write_text(json.dumps(clean_json_text(chunks), indent=2, ensure_ascii=False), encoding="utf-8")
 
 
 def paper_key(paper: dict[str, Any]) -> str:

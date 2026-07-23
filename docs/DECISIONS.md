@@ -216,9 +216,9 @@ After the initial 125-paper subset yielded 92 successful extractions, we expande
 Reasoning:
 - The user wanted the strongest possible full-text set, not a fixed 100-150 cap.
 - Attempting all discovered legal PDF sources maximizes evidence coverage while keeping closed or blocked papers out of the full-text index.
-- The final local extraction set contains 131 successful papers, 2533 pages, and about 10.3M text characters.
-- The 42 failures were mostly publisher-side access blocks such as `403 Forbidden`; those papers remain usable in the abstract-level index.
-- The next step should chunk and embed the 131 successful full-text papers into a separate chunk-level retrieval collection.
+- The initial all-source extraction set contained 131 successful papers, 2533 pages, and about 10.3M text characters.
+- The 42 initial failures were mostly publisher-side access blocks such as `403 Forbidden`; those papers remain usable in the abstract-level index.
+- The next step should chunk and embed the successful full-text papers into a separate chunk-level retrieval collection.
 
 ## 2026-07-13: Store Full-Text Retrieval as a Separate Chunk Collection
 
@@ -227,9 +227,21 @@ We will store full-text evidence in a separate Qdrant collection named `research
 Reasoning:
 - Paper-level retrieval and chunk-level retrieval answer different kinds of questions.
 - The `research_papers` collection remains one vector per paper for broad discovery across all 250 papers.
-- The `research_paper_chunks` collection stores 4,170 vectors from 131 extracted full-text papers for detailed evidence questions.
+- The `research_paper_chunks` collection stores 4,909 vectors from 152 extracted full-text papers for detailed evidence questions.
 - Chunk payloads keep paper metadata, section hints, chunk text, PDF source, citation count, and embedding metadata for traceability.
 - Keeping collections separate makes routing easier: broad questions use paper retrieval, detailed dataset/method/result/limitation questions use chunk retrieval, and comparison questions can use both.
+
+
+## 2026-07-23: Recover Additional Legal Full-Text Papers Before Final QA
+
+We added a targeted recovery pass for papers that were still abstract-only after the first full-text extraction run.
+
+Reasoning:
+- The abstract-level index already covers all 250 papers, but method, dataset, result, and limitation questions benefit from more full-text chunks.
+- The recovery script checks public legal sources only: existing arXiv identifiers, OpenAlex open-access PDF locations, arXiv title matches, and Semantic Scholar open-access PDF links.
+- This pass recovered 21 additional papers, increasing full-text coverage from 131 to 152 papers.
+- The chunk index increased from 4,170 to 4,909 vectors, and the Qdrant `research_paper_chunks` collection was reindexed with the updated embedded chunks.
+- Remaining abstract-only papers stay in the paper-level index rather than using closed-access or manually uploaded PDFs.
 
 ## 2026-07-14: Use a Rule-Based Query Router Before Agent Orchestration
 
