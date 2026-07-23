@@ -490,3 +490,13 @@ Reasoning:
 - Parallelizing these sections improves wait time while preserving the existing `/guidance` contract and the same grounded evidence inputs.
 - This is lower risk than adding streaming or changing the UI execution path because request IDs, structured errors, debug metrics, and tests remain stable.
 - A small benchmark utility gives us repeatable demo-question latency measurements instead of judging speed by feel.
+
+## 2026-07-23: Make Heavy UI Sections On Demand
+
+We will prioritize the direct answer and evidence matrix in the Streamlit workflow, while generating reading paths and open-problems reports only when the user requests them.
+
+Reasoning:
+- Live timing showed the direct brief is much faster than the full guidance response, while reading path and open-problems generation dominate wait time.
+- Most users first need the answer and supporting evidence; deeper planning sections are useful but should not block the first result.
+- API defaults remain backward compatible, so direct callers still receive the complete guidance response unless they opt out with section flags.
+- The UI can reuse existing section endpoints for on-demand generation without adding a new retrieval architecture.

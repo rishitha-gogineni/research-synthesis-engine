@@ -97,6 +97,22 @@ def test_build_guidance_payload_uses_question_and_optional_filters():
     assert payload["publication_year_max"] == 2026
     assert payload["full_text_only"] is True
     assert payload["include_debug"] is True
+    assert payload["include_evidence_matrix"] is True
+    assert payload["include_reading_path"] is True
+    assert payload["include_open_problems"] is True
+
+
+def test_build_guidance_payload_can_skip_heavy_optional_sections():
+    payload = api_client.build_guidance_payload(
+        question="Compare RAG and verification.",
+        top_k=5,
+        include_reading_path=False,
+        include_open_problems=False,
+    )
+
+    assert payload["include_evidence_matrix"] is True
+    assert payload["include_reading_path"] is False
+    assert payload["include_open_problems"] is False
 
 
 def test_error_message_formats_structured_api_errors():

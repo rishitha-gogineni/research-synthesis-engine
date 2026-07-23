@@ -279,6 +279,38 @@ def test_guidance_endpoint_reuses_one_retrieval_response(monkeypatch):
     assert len(calls) == 1
 
 
+def test_guidance_endpoint_can_skip_heavy_optional_sections(monkeypatch):
+    patch_core_services(monkeypatch)
+
+    def fail_reading_path(*args, **kwargs):
+        raise AssertionError("reading path should not be generated")
+
+    def fail_open_problems(*args, **kwargs):
+        raise AssertionError("open problems should not be generated")
+
+    monkeypatch.setattr(api_main, "build_reading_path", fail_reading_path)
+    monkeypatch.setattr(api_main, "build_open_problems_report", fail_open_problems)
+
+    response = client.post(
+        "/guidance",
+        json={
+            "query": "Compare RAG and verification.",
+            "include_reading_path": False,
+            "include_open_problems": False,
+            "include_debug": True,
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["brief"]["status"] == "generated"
+    assert payload["evidence_matrix"]["rows"]
+    assert payload["reading_path"] is None
+    assert payload["open_problems"] is None
+    assert payload["metrics"].get("reading_path_ms") is None
+    assert payload["metrics"].get("open_problems_ms") is None
+
+
 def test_guidance_endpoint_builds_optional_sections_concurrently(monkeypatch):
     patch_core_services(monkeypatch)
 

@@ -7,6 +7,14 @@ def test_build_payload_enables_debug_metrics():
     assert payload == {"question": "Compare RAG and agents.", "top_k": 7, "include_debug": True}
 
 
+def test_build_payload_supports_fast_first_guidance():
+    payload = build_payload("Compare RAG and agents.", top_k=7, fast_first=True)
+
+    assert payload["include_evidence_matrix"] is True
+    assert payload["include_reading_path"] is False
+    assert payload["include_open_problems"] is False
+
+
 def test_format_table_renders_latency_columns():
     table = format_table(
         [

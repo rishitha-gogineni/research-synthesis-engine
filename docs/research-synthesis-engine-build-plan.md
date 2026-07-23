@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
-Window: 27 days
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, Day 21.5 UI/trust/output polish, Day 22 context-aware query rewriting, Day 22.5 answer-quality/retrieval/UI cleanup, Day 24 research agent loop, Day 25 evaluation hardening, Day 26 agent API/UI integration, and Day 27 latency/demo smoothness are complete.
+Window: 28 days
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, Day 21.5 UI/trust/output polish, Day 22 context-aware query rewriting, Day 22.5 answer-quality/retrieval/UI cleanup, Day 24 research agent loop, Day 25 evaluation hardening, Day 26 agent API/UI integration, Day 27 latency/demo smoothness, and Day 28 fast-first UI sections are complete.
 
 ## Final Positioning
 
@@ -773,12 +773,31 @@ Checkpoint:
 question -> one retrieval/confidence/brief path -> parallel optional sections -> measurable latency table
 ```
 
+## Day 28: Fast-First UI Sections - Complete
+
+Goal: show the core answer faster by moving heavy supporting sections behind explicit user actions.
+
+Implemented:
+- Added `/guidance` request flags: `include_evidence_matrix`, `include_reading_path`, and `include_open_problems`.
+- Preserved API backward compatibility by keeping all optional sections enabled by default for direct API callers.
+- Updated Streamlit's initial run to request the direct answer plus evidence matrix first.
+- Added on-demand buttons in the Reading Path and Open Problems tabs.
+- Reused existing `/reading-path` and `/open-problems` endpoints for on-demand section generation.
+- Added tests proving heavy sections can be skipped and UI payload flags are correct.
+- Live benchmark on the hallucination demo question improved the first `/guidance` response from about 21.3s full guidance to about 8.8s fast-first guidance.
+- Full suite passed with 227 tests.
+
+Checkpoint:
+```text
+run analysis -> direct answer + evidence matrix first -> reading path/open problems on demand
+```
+
 # Current Immediate Next Step
 
-Start **Day 28: Final Demo QA and GitHub Polish**.
+Start **Day 29: Final Demo QA and GitHub Polish**.
 
 Recommended scope:
-- Start Qdrant and the API, then run `tools.benchmark_latency` on the strongest demo questions.
+- Benchmark the fast-first UI/API path on the strongest demo questions.
 - Manually verify the UI answer quality for 3-5 interview questions.
 - Keep only the best questions in `docs/DEMO_SCRIPT.md`.
 - Decide whether `/agent/research` should stay diagnostic-only or become a visible optional demo path.

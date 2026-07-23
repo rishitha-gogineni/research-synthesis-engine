@@ -141,6 +141,7 @@ The project now has both retrieval indexes needed for hybrid search:
 - **Combined guidance:** `agent.research_guidance` reuses one unified retrieval response and confidence assessment for the brief, evidence matrix, reading path, and open-problems output
 - **Fail-soft optional sections:** `/guidance` keeps the core answer available when optional evidence matrix, reading path, or open-problems generation fails, while surfacing quiet notes for diagnostics
 - **Parallel optional generation:** evidence matrix, reading path, and open-problems sections are built concurrently after the evidence gate passes, reducing end-to-end wait time for full analyst briefs
+- **Fast-first UI response:** the Streamlit workspace loads the direct answer and evidence matrix first, then generates reading path and open problems on demand from their tabs
 - **FastAPI backend:** `api.main` exposes health, corpus stats, route preview, retrieval, confidence, brief, evidence matrix, reading path, open problems, combined guidance, and bounded research-agent endpoints
 - **Streamlit workspace:** `ui.streamlit_app` provides a compact research analyst interface with sidebar filters, route preview, loading status, chat memory, rewritten follow-up queries, evidence-gate display, answer cards, top supporting evidence, capped source snippets, and tabbed source inspection
 
@@ -241,7 +242,7 @@ full-text chunks: 4170
 chunk-level Qdrant points: 4170
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 224 passed
+tests: 227 passed
 ```
 
 These counts reflect the current local artifacts, index checks, and test suite.
@@ -405,7 +406,7 @@ PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest tests
 Benchmark demo latency after starting the API:
 
 ```bash
-python -m tools.benchmark_latency --endpoint /guidance --endpoint /agent/research
+python -m tools.benchmark_latency --endpoint /guidance --endpoint /agent/research --fast-first
 ```
 
 Run retrieval evaluation:
@@ -462,7 +463,7 @@ Start the Streamlit analyst workspace:
 RSE_API_URL=http://localhost:8000 streamlit run ui/streamlit_app.py
 ```
 
-The workspace keeps controls in the sidebar: research area, publication year range, evidence depth, full-text evidence mode, diagnostics, and conversation memory. The main page focuses on the suggested question, the free-text question box, route preview, and analysis run. During analysis, the UI shows a concise retrieval/synthesis status before navigating to the results page.
+The workspace keeps controls in the sidebar: research area, publication year range, evidence depth, full-text evidence mode, diagnostics, and conversation memory. The main page focuses on the suggested question, the free-text question box, route preview, and analysis run. During analysis, the UI shows a concise retrieval/synthesis status before navigating to the results page. The first result prioritizes the direct answer and evidence matrix; reading path and open problems are generated on demand from their tabs.
 
 
 Call the main API endpoint:

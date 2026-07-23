@@ -19,16 +19,25 @@ DEFAULT_QUESTIONS = [
 ]
 
 
-def build_payload(question: str, *, top_k: int) -> dict[str, Any]:
-    return {"question": question, "top_k": top_k, "include_debug": True}
+def build_payload(question: str, *, top_k: int, fast_first: bool = False) -> dict[str, Any]:
+    payload = {"question": question, "top_k": top_k, "include_debug": True}
+    if fast_first:
+        payload.update(
+            {
+                "include_evidence_matrix": True,
+                "include_reading_path": False,
+                "include_open_problems": False,
+            }
+        )
+    return payload
 
 
-def call_endpoint(base_url: str, endpoint: str, question: str, *, top_k: int, timeout: int) -> dict[str, Any]:
+def call_endpoint(base_url: str, endpoint: str, question: str, *, top_k: int, timeout: int, fast_first: bool = False) -> dict[str, Any]:
     request_id = f"bench-{uuid.uuid4()}"
     started = time.perf_counter()
     response = requests.post(
         f"{base_url.rstrip('/')}{endpoint}",
-        json=build_payload(question, top_k=top_k),
+        json=build_payload(question, top_k=top_k, fast_first=fast_first and endpoint == "/guidance"),
         headers={"Content-Type": "application/json", "X-Request-ID": request_id},
         timeout=timeout,
     )
@@ -83,6 +92,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--question", action="append", default=None)
     parser.add_argument("--top-k", type=int, default=8)
     parser.add_argument("--timeout", type=int, default=240)
+    parser.add_argument("--fast-first", action="store_true", help="Measure /guidance with reading path and open problems skipped, matching the Streamlit first response.")
     return parser.parse_args()
 
 
@@ -94,7 +104,7 @@ def main() -> None:
     for question in questions:
         print(f"\nQuestion: {question}")
         question_rows = [
-            call_endpoint(args.base_url, endpoint, question, top_k=args.top_k, timeout=args.timeout)
+            call_endpoint(args.base_url, endpoint, question, top_k=args.top_k, timeout=args.timeout, fast_first=args.fast_first)
             for endpoint in endpoints
         ]
         rows.extend(question_rows)

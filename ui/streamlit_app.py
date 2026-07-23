@@ -371,7 +371,11 @@ def render_reading_path(payload: dict):
     path = payload.get("reading_path") or {}
     stages = path.get("stages", []) or []
     if not stages:
-        st.info("No staged reading path was returned for this query.")
+        st.info("Reading path is generated on demand so the direct answer can appear faster.")
+        if st.button("Generate reading path", use_container_width=False, disabled=not is_answerable(payload)):
+            if load_optional_section("reading_path", run_reading_path):
+                st.rerun()
+        return
     for stage in stages:
         with st.container(border=True):
             st.subheader(stage.get("stage") or "Reading stage")
@@ -394,7 +398,11 @@ def render_open_problems(payload: dict):
     report = payload.get("open_problems") or {}
     problems = report.get("problems", []) or []
     if not problems:
-        st.info("No open problems were returned for this query.")
+        st.info("Open problems are generated on demand so the direct answer can appear faster.")
+        if st.button("Generate open problems", use_container_width=False, disabled=not is_answerable(payload)):
+            if load_optional_section("open_problems", run_open_problems):
+                st.rerun()
+        return
     for problem in problems:
         with st.container(border=True):
             st.markdown(f"**{problem.get('title') or 'Open problem'}**")
@@ -476,6 +484,14 @@ def run_guidance(payload: dict, request_id: str) -> tuple[dict, str | None]:
     return post_api("/guidance", payload, request_id=request_id, timeout=180)
 
 
+def run_reading_path(payload: dict, request_id: str) -> tuple[dict, str | None]:
+    return post_api("/reading-path", payload, request_id=request_id, timeout=180)
+
+
+def run_open_problems(payload: dict, request_id: str) -> tuple[dict, str | None]:
+    return post_api("/open-problems", payload, request_id=request_id, timeout=180)
+
+
 def preview_route(payload: dict) -> dict:
     try:
         route, _ = post_api("/route", payload, timeout=30)
@@ -507,12 +523,49 @@ def build_payload_from_state(question: str | None = None) -> dict:
         publication_year_max=year_max,
         full_text_only=st.session_state.get("full_text_only", False),
         include_debug=st.session_state.get("include_debug", False),
+        include_evidence_matrix=True,
+        include_reading_path=False,
+        include_open_problems=False,
         chat_history=st.session_state.get("chat_history", []),
     )
 
 
 def sync_question_from_suggestion():
     st.session_state["question"] = st.session_state.get("suggested_question", SUGGESTED_QUESTIONS[0])
+
+
+def build_section_payload_from_result(result: dict) -> dict:
+    payload = build_payload_from_state(result.get("standalone_query") or result.get("question") or "")
+    payload["chat_history"] = []
+    payload["include_evidence_matrix"] = False
+    payload["include_reading_path"] = False
+    payload["include_open_problems"] = False
+    return payload
+
+
+def load_optional_section(section: str, runner) -> bool:
+    result = st.session_state.get("guidance_result") or {}
+    if not is_answerable(result):
+        st.info("This section is available after the evidence gate passes.")
+        return False
+    request_id = new_request_id()
+    payload = build_section_payload_from_result(result)
+    with st.status(f"Generating {section.replace('_', ' ')}", expanded=True) as status:
+        try:
+            section_result, response_id = runner(payload, request_id)
+        except requests.RequestException as exc:
+            status.update(label="Section generation failed", state="error", expanded=True)
+            st.error(f"CONNECTION_ERROR: {exc}")
+            return False
+        msg = error_message(section_result)
+        if msg:
+            status.update(label="Section generation failed", state="error", expanded=True)
+            st.error(msg)
+            return False
+        status.update(label="Section ready", state="complete", expanded=False)
+    st.session_state["guidance_result"][section] = section_result
+    st.session_state["request_id"] = response_id or request_id
+    return True
 
 
 def clear_followup_question():
@@ -560,7 +613,7 @@ def submit_question(question: str) -> bool:
         status.write("Resolving context and selecting a retrieval path.")
         status.write("Searching paper abstracts and full-text evidence.")
         status.write("Checking whether the evidence is strong enough to answer.")
-        status.write("Building the brief and optional evidence sections.")
+        status.write("Building the brief and quick evidence sections.")
         try:
             result, response_id = run_guidance(payload, request_id)
         except requests.RequestException as exc:

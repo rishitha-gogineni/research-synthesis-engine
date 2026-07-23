@@ -43,6 +43,9 @@ def build_guidance_payload(
     publication_year_max: int | None = None,
     full_text_only: bool = False,
     include_debug: bool = False,
+    include_evidence_matrix: bool = True,
+    include_reading_path: bool = True,
+    include_open_problems: bool = True,
     chat_history: list[dict[str, str]] | None = None,
 ) -> dict[str, Any]:
     payload: dict[str, Any] = {
@@ -50,6 +53,9 @@ def build_guidance_payload(
         "top_k": top_k,
         "include_debug": include_debug,
         "full_text_only": full_text_only,
+        "include_evidence_matrix": include_evidence_matrix,
+        "include_reading_path": include_reading_path,
+        "include_open_problems": include_open_problems,
     }
     if research_areas:
         payload["research_areas"] = research_areas

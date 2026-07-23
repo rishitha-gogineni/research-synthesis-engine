@@ -34,7 +34,7 @@ chunk_collection: available
 What are the main approaches for reducing hallucinations in LLMs?
 ```
 
-Use this question to show the full analyst brief: direct answer, themes, evidence matrix, top supporting evidence, and open problems.
+Use this question to show the fast-first analyst brief: direct answer, themes, evidence matrix, and top supporting evidence first, then generate open problems on demand.
 
 What to point out:
 
@@ -81,6 +81,7 @@ What to point out:
 6. On the results page, explain the evidence gate first.
 7. Read the direct answer only if the gate passed.
 8. Open the evidence matrix and source tabs to show how claims can be inspected.
+9. Generate reading path or open problems only when you want to show those heavier sections.
 
 ## One-Minute Architecture Explanation
 

@@ -110,6 +110,9 @@ class ApiQueryRequest(BaseModel):
     publication_year_max: int | None = Field(default=None, ge=1900, le=2100)
     full_text_only: bool = False
     include_debug: bool = False
+    include_evidence_matrix: bool = True
+    include_reading_path: bool = True
+    include_open_problems: bool = True
     chat_history: list[ChatTurn] = Field(default_factory=list, max_length=12)
 
     @property
@@ -848,19 +851,21 @@ def guidance(request: ApiQueryRequest, fastapi_request: Request) -> ApiGuidanceR
         open_problems_result = None
 
         if confidence_result.decision == "sufficient_evidence":
-            optional_builders: dict[str, Callable[[], Any]] = {
-                "evidence_matrix": lambda: build_evidence_matrix(retrieval, brief=brief_result, max_rows=request.top_k),
-                "reading_path": lambda: build_reading_path(
+            optional_builders: dict[str, Callable[[], Any]] = {}
+            if request.include_evidence_matrix:
+                optional_builders["evidence_matrix"] = lambda: build_evidence_matrix(retrieval, brief=brief_result, max_rows=request.top_k)
+            if request.include_reading_path:
+                optional_builders["reading_path"] = lambda: build_reading_path(
                     retrieval,
                     confidence=confidence_result,
                     max_papers=request.max_papers,
-                ),
-                "open_problems": lambda: build_open_problems_report(
+                )
+            if request.include_open_problems:
+                optional_builders["open_problems"] = lambda: build_open_problems_report(
                     retrieval,
                     confidence=confidence_result,
                     max_problems=request.max_problems,
-                ),
-            }
+                )
             display_names = {
                 "evidence_matrix": "Evidence matrix",
                 "reading_path": "Reading path",
@@ -871,27 +876,28 @@ def guidance(request: ApiQueryRequest, fastapi_request: Request) -> ApiGuidanceR
                 "reading_path": "reading_path_ms",
                 "open_problems": "open_problems_ms",
             }
-            with ThreadPoolExecutor(max_workers=len(optional_builders)) as executor:
-                futures = [
-                    executor.submit(run_timed_optional_section, section, builder)
-                    for section, builder in optional_builders.items()
-                ]
-                for future in as_completed(futures):
-                    section, result, exc, elapsed_ms = future.result()
-                    timer.values[metric_names[section]] = elapsed_ms
-                    if exc is not None:
-                        LOGGER.warning("guidance_optional_generation_failed", extra={"section": section})
-                        warnings.append(optional_generation_warning(display_names[section], exc))
-                        continue
-                    if section == "evidence_matrix":
-                        matrix_result = result
-                    elif section == "reading_path":
-                        reading_path_result = result
-                        warnings.extend(reading_path_result.limitations)
-                    elif section == "open_problems":
-                        open_problems_result = result
-                        warnings.extend(open_problems_result.corpus_limitations)
-                        warnings.extend(open_problems_result.evidence_gaps)
+            if optional_builders:
+                with ThreadPoolExecutor(max_workers=len(optional_builders)) as executor:
+                    futures = [
+                        executor.submit(run_timed_optional_section, section, builder)
+                        for section, builder in optional_builders.items()
+                    ]
+                    for future in as_completed(futures):
+                        section, result, exc, elapsed_ms = future.result()
+                        timer.values[metric_names[section]] = elapsed_ms
+                        if exc is not None:
+                            LOGGER.warning("guidance_optional_generation_failed", extra={"section": section})
+                            warnings.append(optional_generation_warning(display_names[section], exc))
+                            continue
+                        if section == "evidence_matrix":
+                            matrix_result = result
+                        elif section == "reading_path":
+                            reading_path_result = result
+                            warnings.extend(reading_path_result.limitations)
+                        elif section == "open_problems":
+                            open_problems_result = result
+                            warnings.extend(open_problems_result.corpus_limitations)
+                            warnings.extend(open_problems_result.evidence_gaps)
         else:
             warnings.extend([confidence_result.reason, confidence_result.recommended_action])
 
