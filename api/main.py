@@ -22,6 +22,7 @@ from agent.open_problems import OpenProblemsError, build_open_problems_report
 from agent.query_rewriter import ChatTurn, QueryRewriteResult, rewrite_query
 from agent.reading_path import ReadingPathError, build_reading_path
 from agent.research_guidance import ResearchGuidanceError
+from agent.research_graph import ResearchAgentState, run_research_agent
 from agent.synthesis import SynthesisError, build_research_brief
 from full_text.index_chunks_qdrant import DEFAULT_COLLECTION as DEFAULT_CHUNK_COLLECTION
 from retrieval.confidence import ConfidenceError, assess_confidence
@@ -179,6 +180,31 @@ class ApiGuidanceResponse(BaseModel):
     reading_path: ReadingPath | None = None
     open_problems: OpenProblemsReport | None = None
     warnings: list[str] = Field(default_factory=list)
+    metrics: RequestMetrics | None = None
+    debug: dict[str, Any] | None = None
+
+
+class AgentTraceStep(BaseModel):
+    step: str
+    status: str = "completed"
+    detail: str | None = None
+
+
+class ApiAgentResearchResponse(BaseModel):
+    """Response for the bounded research-agent loop."""
+
+    original_query: str
+    standalone_query: str
+    attempted_queries: list[str]
+    retry_count: int
+    confidence_decision: str | None
+    retrieved_paper_count: int
+    retrieved_chunk_count: int
+    retrieval: ApiRetrievalResponse | None = None
+    confidence: ConfidenceAssessment | None = None
+    brief: ResearchBrief | None = None
+    warnings: list[str] = Field(default_factory=list)
+    trace: list[AgentTraceStep] = Field(default_factory=list)
     metrics: RequestMetrics | None = None
     debug: dict[str, Any] | None = None
 
@@ -475,6 +501,85 @@ def build_retrieval_response(
     )
 
 
+def build_agent_trace(state: ResearchAgentState) -> list[AgentTraceStep]:
+    trace = [
+        AgentTraceStep(
+            step="Context rewrite",
+            detail=f"Standalone query: {state.get('standalone_query') or state.get('original_query')}",
+        )
+    ]
+    attempted_queries = state.get("attempted_queries", []) or []
+    retry_count = state.get("retry_count", 0)
+    for index, query in enumerate(attempted_queries, start=1):
+        trace.append(AgentTraceStep(step=f"Retrieval attempt {index}", detail=query))
+        if index <= retry_count:
+            trace.append(
+                AgentTraceStep(
+                    step=f"CRAG retry {index}",
+                    detail="Low confidence triggered reflection rewriting.",
+                )
+            )
+    trace.append(
+        AgentTraceStep(
+            step="Confidence check",
+            detail=f"Decision: {state.get('confidence_decision') or 'unknown'}",
+        )
+    )
+    brief = state.get("brief")
+    trace.append(
+        AgentTraceStep(
+            step="Synthesis",
+            detail=f"Brief status: {brief.status if brief else 'not generated'}",
+        )
+    )
+    return trace
+
+
+def build_agent_response(
+    state: ResearchAgentState,
+    *,
+    request: ApiQueryRequest,
+    warnings: list[str],
+    metrics: RequestMetrics,
+) -> ApiAgentResearchResponse:
+    retrieval = state.get("retrieval_response")
+    confidence_result = state.get("confidence")
+    brief_result = state.get("brief")
+    retrieval_response = None
+    if retrieval is not None:
+        retrieval_response = build_retrieval_response(
+            retrieval,
+            request=request,
+            warnings=warnings,
+            metrics=metrics,
+            confidence=confidence_result,
+        )
+    debug = None
+    if request.include_debug:
+        debug = {
+            "attempted_queries": state.get("attempted_queries", []) or [],
+            "warnings": warnings,
+        }
+        if retrieval is not None:
+            debug.update(retrieval_debug(retrieval, confidence_result, metrics))
+    return ApiAgentResearchResponse(
+        original_query=state["original_query"],
+        standalone_query=state["standalone_query"],
+        attempted_queries=state.get("attempted_queries", []) or [],
+        retry_count=state["retry_count"],
+        confidence_decision=state.get("confidence_decision"),
+        retrieved_paper_count=len(state.get("retrieved_papers", []) or []),
+        retrieved_chunk_count=len(state.get("retrieved_chunks", []) or []),
+        retrieval=retrieval_response,
+        confidence=confidence_result,
+        brief=brief_result,
+        warnings=list(dict.fromkeys(warnings)),
+        trace=build_agent_trace(state),
+        metrics=metrics if request.include_debug else None,
+        debug=debug,
+    )
+
+
 def count_json_records(path: Path) -> int | None:
     try:
         if not path.exists():
@@ -647,6 +752,59 @@ def open_problems(request: ApiQueryRequest, fastapi_request: Request) -> OpenPro
         retrieval, _ = apply_request_filters(retrieval, request)
         confidence_result = assess_confidence(retrieval)
         return build_open_problems_report(retrieval, confidence=confidence_result, max_problems=request.max_problems)
+    except SERVICE_ERRORS as exc:
+        raise service_error(exc, fastapi_request) from exc
+
+
+@app.post(
+    "/agent/research",
+    response_model=ApiAgentResearchResponse,
+    tags=["Agent"],
+    summary="Run the bounded research-agent loop",
+    responses={
+        200: {"description": "Agent state, retrieval summary, confidence decision, and grounded brief"},
+        503: {"model": ApiErrorResponse, "description": "Retrieval or generation dependency failed"},
+    },
+)
+def agent_research(request: ApiQueryRequest, fastapi_request: Request) -> ApiAgentResearchResponse:
+    timer = Timer()
+    filter_warnings: list[str] = []
+
+    def filtered_searcher(query: str) -> UnifiedSearchResponse:
+        started = time.perf_counter()
+        retrieval = retrieve_for_request(request, query_override=query)
+        timer.record("retrieval_ms", started)
+        filtered, warnings = apply_request_filters(retrieval, request)
+        filter_warnings.extend(warnings)
+        return filtered
+
+    def timed_confidence(response: UnifiedSearchResponse) -> ConfidenceAssessment:
+        started = time.perf_counter()
+        result = assess_confidence(response)
+        timer.record("confidence_ms", started)
+        return result
+
+    def timed_synthesis(response: UnifiedSearchResponse, confidence: ConfidenceAssessment) -> ResearchBrief:
+        started = time.perf_counter()
+        result = build_research_brief(response, confidence=confidence)
+        timer.record("brief_ms", started)
+        return result
+
+    try:
+        state = run_research_agent(
+            request.question,
+            chat_history=request.chat_history,
+            max_retries=2,
+            searcher=filtered_searcher,
+            confidence_checker=timed_confidence,
+            synthesizer=timed_synthesis,
+        )
+        warnings = list(filter_warnings) + list(state.get("warnings", []) or [])
+        brief_result = state.get("brief")
+        if brief_result and brief_result.warning:
+            warnings.append(brief_result.warning)
+        metrics = timer.metrics()
+        return build_agent_response(state, request=request, warnings=warnings, metrics=metrics)
     except SERVICE_ERRORS as exc:
         raise service_error(exc, fastapi_request) from exc
 

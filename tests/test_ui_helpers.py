@@ -273,6 +273,38 @@ def test_build_guidance_payload_includes_chat_history_when_present():
     assert payload["chat_history"] == history
 
 
+def test_agent_trace_rows_flattens_agent_response():
+    rows = api_client.agent_trace_rows(
+        {
+            "trace": [
+                {"step": "Context rewrite", "status": "completed", "detail": "Standalone query: LoRA limitations"},
+                {"step": "Retrieval attempt 1"},
+            ]
+        }
+    )
+
+    assert rows == [
+        {"Step": "Context rewrite", "Status": "completed", "Detail": "Standalone query: LoRA limitations"},
+        {"Step": "Retrieval attempt 1", "Status": "completed", "Detail": "-"},
+    ]
+
+
+def test_run_agent_research_posts_to_agent_endpoint(monkeypatch):
+    calls = []
+
+    def fake_post(endpoint, payload, *, request_id=None, timeout=120):
+        calls.append((endpoint, payload, request_id, timeout))
+        return {"trace": []}, request_id
+
+    monkeypatch.setattr(api_client, "post_api", fake_post)
+
+    body, request_id = api_client.run_agent_research({"question": "test"}, request_id="agent-ui-1")
+
+    assert body == {"trace": []}
+    assert request_id == "agent-ui-1"
+    assert calls == [("/agent/research", {"question": "test"}, "agent-ui-1", 180)]
+
+
 def test_rewrite_summary_formats_guidance_rewrite_fields():
     summary = api_client.rewrite_summary(
         {

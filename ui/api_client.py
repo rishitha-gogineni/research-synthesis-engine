@@ -62,6 +62,21 @@ def build_guidance_payload(
     return payload
 
 
+def run_agent_research(payload: dict[str, Any], *, request_id: str | None = None) -> tuple[dict[str, Any], str | None]:
+    return post_api("/agent/research", payload, request_id=request_id, timeout=180)
+
+
+def agent_trace_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    return [
+        {
+            "Step": item.get("step"),
+            "Status": item.get("status", "completed"),
+            "Detail": item.get("detail") or "-",
+        }
+        for item in payload.get("trace", []) or []
+    ]
+
+
 def post_api(endpoint: str, payload: dict[str, Any], *, request_id: str | None = None, timeout: int = 120) -> tuple[dict[str, Any], str | None]:
     url = f"{api_base_url()}{endpoint}"
     headers = {"Content-Type": "application/json"}

@@ -310,6 +310,77 @@ def test_guidance_endpoint_skips_day19_when_confidence_is_low(monkeypatch):
     assert payload["warnings"]
 
 
+def test_agent_research_endpoint_returns_trace_and_retry_metadata(monkeypatch):
+    def fail_retrieval(*args, **kwargs):
+        raise AssertionError("agent endpoint test should use the mocked graph runner")
+
+    def fake_agent(query, **kwargs):
+        assert query == "What are its limitations?"
+        assert kwargs["chat_history"][0].content == "Explain AI agents."
+        retrieval = make_retrieval("What are the limitations of AI agents?")
+        confidence = make_confidence(retrieval.query)
+        return {
+            "original_query": query,
+            "chat_history": kwargs["chat_history"],
+            "standalone_query": retrieval.query,
+            "retrieved_papers": retrieval.paper_results,
+            "retrieved_chunks": retrieval.chunk_results,
+            "confidence_decision": "sufficient_evidence",
+            "retry_count": 1,
+            "retrieval_response": retrieval,
+            "confidence": confidence,
+            "brief": make_brief(retrieval.query),
+            "attempted_queries": [query, retrieval.query],
+            "warnings": ["Retry 1 used expanded query after low confidence."],
+        }
+
+    monkeypatch.setattr(api_main, "run_unified_search", fail_retrieval)
+    monkeypatch.setattr(api_main, "run_research_agent", fake_agent)
+
+    response = client.post(
+        "/agent/research",
+        json={
+            "question": "What are its limitations?",
+            "chat_history": [{"role": "user", "content": "Explain AI agents."}],
+            "include_debug": True,
+        },
+        headers={"X-Request-ID": "agent-request-123"},
+    )
+
+    assert response.status_code == 200
+    assert response.headers["X-Request-ID"] == "agent-request-123"
+    payload = response.json()
+    assert payload["original_query"] == "What are its limitations?"
+    assert payload["standalone_query"] == "What are the limitations of AI agents?"
+    assert payload["retry_count"] == 1
+    assert payload["retrieved_paper_count"] == 1
+    assert payload["confidence_decision"] == "sufficient_evidence"
+    assert payload["retrieval"]["question"] == "What are the limitations of AI agents?"
+    assert payload["brief"]["status"] == "generated"
+    assert payload["trace"][0]["step"] == "Context rewrite"
+    assert any(item["step"] == "CRAG retry 1" for item in payload["trace"])
+    assert payload["debug"]["attempted_queries"] == ["What are its limitations?", "What are the limitations of AI agents?"]
+
+
+def test_agent_research_endpoint_returns_structured_error(monkeypatch):
+    def fail_agent(query, **kwargs):
+        raise api_main.SynthesisError("provider returned malformed JSON")
+
+    monkeypatch.setattr(api_main, "run_research_agent", fail_agent)
+
+    response = client.post(
+        "/agent/research",
+        json={"question": "Compare RAG and agents."},
+        headers={"X-Request-ID": "agent-error-123"},
+    )
+
+    assert response.status_code == 503
+    assert response.headers["X-Request-ID"] == "agent-error-123"
+    payload = response.json()
+    assert payload["error"]["code"] == "LLM_GENERATION_FAILED"
+    assert payload["error"]["request_id"] == "agent-error-123"
+
+
 def test_invalid_query_returns_422():
     response = client.post("/retrieve", json={"query": "   "})
 

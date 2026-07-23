@@ -26,7 +26,7 @@ The Streamlit workspace returns an analyst-style brief with:
 **Phase 5: Multi-Turn UX & Quality Polish — Complete**  
 **Phase 6: Research Agent Loop — Complete**
 
-The offline ingestion and indexing pipeline is implemented and validated. Route-aware retrieval can choose paper-level search, full-text chunk search, both result sets, or metadata filtering for free-text user questions. Grounded synthesis uses a CRAG-style confidence check before presenting a direct answer. Evidence matrices, reading paths, and open-problems reports are generated from the same retrieved evidence without duplicate retrieval calls. A FastAPI backend exposes the retrieval and synthesis services, and a Streamlit analyst workspace provides sidebar filters, route previews, loading status, confidence-gated answers, evidence matrices, reading paths, open problems, source lists, follow-up query handling, and diagnostics.
+The offline ingestion and indexing pipeline is implemented and validated. Route-aware retrieval can choose paper-level search, full-text chunk search, both result sets, or metadata filtering for free-text user questions. Grounded synthesis uses a CRAG-style confidence check before presenting a direct answer. Evidence matrices, reading paths, and open-problems reports are generated from the same retrieved evidence without duplicate retrieval calls. A FastAPI backend exposes the retrieval, synthesis, guidance, and research-agent services, and a Streamlit analyst workspace provides sidebar filters, route previews, loading status, confidence-gated answers, evidence matrices, reading paths, open problems, source lists, follow-up query handling, and diagnostics.
 
 ```text
 OpenAlex fetch
@@ -140,7 +140,7 @@ The project now has both retrieval indexes needed for hybrid search:
 - **Open problems:** `agent.open_problems` derives unresolved problems from retrieved limitations, future-work signals, and evidence gaps
 - **Combined guidance:** `agent.research_guidance` reuses one unified retrieval response and confidence assessment for the brief, evidence matrix, reading path, and open-problems output
 - **Fail-soft optional sections:** `/guidance` keeps the core answer available when optional evidence matrix, reading path, or open-problems generation fails, while surfacing quiet notes for diagnostics
-- **FastAPI backend:** `api.main` exposes health, corpus stats, route preview, retrieval, confidence, brief, evidence matrix, reading path, open problems, and combined guidance endpoints
+- **FastAPI backend:** `api.main` exposes health, corpus stats, route preview, retrieval, confidence, brief, evidence matrix, reading path, open problems, combined guidance, and bounded research-agent endpoints
 - **Streamlit workspace:** `ui.streamlit_app` provides a compact research analyst interface with sidebar filters, route preview, loading status, chat memory, rewritten follow-up queries, evidence-gate display, answer cards, top supporting evidence, capped source snippets, and tabbed source inspection
 
 Hybrid query example:
@@ -240,7 +240,7 @@ full-text chunks: 4170
 chunk-level Qdrant points: 4170
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 217 passed
+tests: 221 passed
 ```
 
 These counts reflect the current local artifacts, index checks, and test suite.
@@ -480,6 +480,7 @@ POST /evidence-matrix
 POST /reading-path
 POST /open-problems
 POST /guidance
+POST /agent/research
 ```
 
 API request notes:
@@ -544,7 +545,7 @@ user question + optional chat history
 → Streamlit workspace
 → standalone query rewrite
 → optional route preview
-→ FastAPI /guidance or research graph loop
+→ FastAPI /guidance or /agent/research graph loop
 → paper retrieval / chunk retrieval / metadata filter
 → local cross-encoder reranking
 → citation-aware scoring

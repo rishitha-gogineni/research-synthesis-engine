@@ -471,3 +471,13 @@ Reasoning:
 - Out-of-corpus and weak-evidence queries should be measured separately from normal retrieval quality because their desired behavior is refusal, clarification, or fallback rather than high recall.
 - Recall@K and MRR remain restricted to queries with non-empty `expected_relevant_ids`; unlabeled contextual or fallback checks must not silently count as retrieval misses.
 - The evaluation runner now reports rewrite keyword hit rate, confidence decision accuracy, and CRAG fallback success rate alongside route accuracy, topic hit rate, keyword hit rate, Recall@K, and MRR.
+## 2026-07-23: Expose the Research Agent Loop Without Replacing Guidance
+
+We will add `/agent/research` as a traceable agent endpoint while keeping `/guidance` as the default full analyst-brief workflow.
+
+Reasoning:
+- `/guidance` already produces the most complete user-facing output: direct answer, evidence matrix, reading path, open problems, sources, and diagnostics.
+- The research graph is valuable for showing agentic behavior: contextual rewrite, retrieval attempt, CRAG confidence check, bounded retry, and synthesis.
+- Exposing the graph through a separate endpoint lets us evaluate quality and latency before making it the default UI execution path.
+- The endpoint reuses existing request validation, filters, structured errors, request IDs, debug controls, and timing metrics instead of creating a parallel backend contract.
+- The first UI integration is a simple diagnostics trace, not streaming, so the working Streamlit analyst workspace remains stable.

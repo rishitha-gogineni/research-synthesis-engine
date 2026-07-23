@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
-Window: 25 days  
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, Day 21.5 UI/trust/output polish, Day 22 context-aware query rewriting, Day 22.5 answer-quality/retrieval/UI cleanup, Day 24 research agent loop, and Day 25 evaluation hardening are complete.
+Window: 26 days
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, Day 21.5 UI/trust/output polish, Day 22 context-aware query rewriting, Day 22.5 answer-quality/retrieval/UI cleanup, Day 24 research agent loop, Day 25 evaluation hardening, and Day 26 agent API/UI integration are complete.
 
 ## Final Positioning
 
@@ -739,19 +739,33 @@ Checkpoint:
 evaluation covers routing, retrieval sanity, partial relevant-ID labels, query rewriting, and confidence fallback behavior
 ```
 
+## Day 26: Agent API/UI Integration - Complete
+
+Goal: expose the Day 24 research-agent loop without replacing the stable `/guidance` analyst workflow.
+
+Implemented:
+- Added `POST /agent/research` over `agent.research_graph.run_research_agent`.
+- Returned original query, standalone query, attempted queries, retry count, confidence decision, retrieval counts, retrieval summary, confidence, brief, warnings, and non-streaming trace steps.
+- Reused existing request validation, request IDs, structured errors, filters, debug control, and timing metrics.
+- Added UI client helpers for calling the agent endpoint and flattening trace rows.
+- Added a Diagnostics hook that can render an Agent Trace when an agent response is inspected.
+- Added mocked API/UI tests for graph invocation, structured errors, request IDs, and trace formatting.
+- Full suite passed with 221 tests.
+
+Checkpoint:
+```text
+/question + chat history -> /agent/research -> bounded agent loop -> traceable response
+```
+
 # Current Immediate Next Step
 
-Start **Day 26: Agent API/UI Integration**.
+Start **Day 27: Latency and Demo Smoothness**.
 
 Recommended scope:
-- Add `POST /agent/research` over the Day 24 research graph.
-- Return original query, standalone query, attempted queries, retry count, confidence decision, brief, warnings, and retrieval counts.
-- Add mocked API tests for graph invocation and structured errors.
-- Add a simple non-streaming Agent Trace panel in Streamlit diagnostics.
-
-```text
-Streamlit -> /agent/research -> research graph state -> traceable agentic RAG response
-```
+- Measure per-stage latency for `/guidance` and `/agent/research` on 3-5 demo questions.
+- Cache or reuse query embeddings where straightforward.
+- Avoid repeated optional generation when the same evidence is already available.
+- Keep `/guidance` as the default UI path until the agent endpoint is quality-checked against demo questions.
 
 # Minimum Viable Final Demo
 

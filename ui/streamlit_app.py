@@ -18,6 +18,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from ui.api_client import (
     SUPPORTED_RESEARCH_TOPICS,
     SUGGESTED_QUESTIONS,
+    agent_trace_rows,
     build_guidance_payload,
     confidence_style,
     error_message,
@@ -450,6 +451,10 @@ def render_diagnostics(payload: dict):
     retrieval = payload.get("retrieval") or {}
     route = retrieval.get("route") or {}
     confidence = payload.get("confidence") or {}
+    trace_rows = agent_trace_rows(payload)
+    if trace_rows:
+        st.subheader("Agent Trace")
+        dataframe(trace_rows)
     notes = result_notes(payload)
     if notes:
         st.subheader("Notes")
