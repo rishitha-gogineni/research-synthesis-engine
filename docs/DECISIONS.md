@@ -450,3 +450,14 @@ Reasoning:
 - The synthesis prompt asks for citations, but LLMs can occasionally produce a good conceptual answer without explicit source IDs.
 - A citation guard keeps the answer inspectable by appending top validated retrieved source IDs only when no known source ID is already present.
 - This preserves groundedness without hardcoding answers or adding external facts.
+
+## 2026-07-22: Add a Lightweight Research Agent Loop Before New Infrastructure
+
+We will formalize the current pipeline as a small synchronous state loop before adding LangGraph, streaming, tracing, or MCP integrations.
+
+Reasoning:
+- The core modules already work independently: query rewriting, unified retrieval, CRAG confidence, and grounded synthesis.
+- A lightweight `ResearchAgentState` makes the agent flow explicit without introducing a heavy framework dependency.
+- Dependency-injected node functions keep the loop easy to test without OpenAI, Qdrant, or local reranker calls.
+- The first retry behavior is bounded and conservative: low confidence can trigger an expanded query, but the loop stops after a small retry limit.
+- This creates a clean foundation for a later API endpoint or UI execution trace.

@@ -23,7 +23,8 @@ The Streamlit workspace returns an analyst-style brief with:
 **Phase 2: Route-Aware Retrieval — Complete**  
 **Phase 3: Evaluation & Grounded Synthesis — Complete**  
 **Phase 4: API & UI — Complete**  
-**Phase 5: Multi-Turn UX & Quality Polish — Complete**
+**Phase 5: Multi-Turn UX & Quality Polish — Complete**  
+**Phase 6: Research Agent Loop — Complete**
 
 The offline ingestion and indexing pipeline is implemented and validated. Route-aware retrieval can choose paper-level search, full-text chunk search, both result sets, or metadata filtering for free-text user questions. Grounded synthesis uses a CRAG-style confidence check before presenting a direct answer. Evidence matrices, reading paths, and open-problems reports are generated from the same retrieved evidence without duplicate retrieval calls. A FastAPI backend exposes the retrieval and synthesis services, and a Streamlit analyst workspace provides sidebar filters, route previews, loading status, confidence-gated answers, evidence matrices, reading paths, open problems, source lists, follow-up query handling, and diagnostics.
 
@@ -131,6 +132,7 @@ The project now has both retrieval indexes needed for hybrid search:
 - **Tool interface:** `tools.research_retrieval` validates request/response schemas and returns JSON for downstream API, agent, or UI layers
 - **Unified retrieval:** `retrieval.unified_search` routes each query, returns paper and/or chunk results, and attaches rerank/citation-aware score fields
 - **Context-aware rewriting:** `agent.query_rewriter` rewrites follow-up questions into standalone retrieval queries using chat history, with deterministic fallback
+- **Research agent loop:** `agent.research_graph` wires rewrite, unified retrieval, CRAG confidence, bounded low-confidence retry, and synthesis into a tested state loop
 - **Intent-aware reranking:** `retrieval.rerank` adds a narrow, explainable boost for agent/tool-use task questions so tool/API/workflow evidence is prioritized over less direct examples
 - **Confidence-gated synthesis:** `agent.synthesis` generates a grounded brief only when retrieved evidence passes the CRAG confidence check and enforces visible source citations in direct answers
 - **Evidence matrix:** `agent.evidence_matrix` turns retrieved evidence into inspectable claim/source rows with methodology, dataset, result, limitation, and strength fields
@@ -238,7 +240,7 @@ full-text chunks: 4170
 chunk-level Qdrant points: 4170
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 210 passed
+tests: 215 passed
 ```
 
 These counts reflect the current local artifacts, index checks, and test suite.
@@ -524,7 +526,7 @@ user question + optional chat history
 → Streamlit workspace
 → standalone query rewrite
 → optional route preview
-→ FastAPI /guidance
+→ FastAPI /guidance or research graph loop
 → paper retrieval / chunk retrieval / metadata filter
 → local cross-encoder reranking
 → citation-aware scoring

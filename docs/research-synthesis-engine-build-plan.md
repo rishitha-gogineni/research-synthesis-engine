@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 25 days  
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, Day 21.5 UI/trust/output polish, Day 22 context-aware query rewriting, and Day 22.5 answer-quality/retrieval/UI cleanup are complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, Day 21.5 UI/trust/output polish, Day 22 context-aware query rewriting, Day 22.5 answer-quality/retrieval/UI cleanup, and Day 24 research agent loop are complete.
 
 ## Final Positioning
 
@@ -693,27 +693,28 @@ Completed:
 - README updated with current phase status, validation count, API/UI behavior, follow-up support, fail-soft guidance, intent-aware reranking, and citation guard.
 - Day-by-day plan updated to include Day 22.5 polish and the next agent-loop scope.
 - Decision log updated for quiet diagnostics, fail-soft optional sections, narrow agent-ranking boosts, and direct-answer citation guarding.
-- Current full test suite status: 210 tests passing.
+- Current full test suite status: 215 tests passing.
 
 Checkpoint:
 ```text
 current code + docs accurately describe the working project state
 ```
 
-## Day 24: Research Agent Loop Layer - Next
+## Day 24: Research Agent Loop Layer - Complete
 
 Goal: formalize the current pipeline as an agent-style state loop without rewriting working retrieval or synthesis modules.
 
-Planned scope:
-- Add `agent/research_graph.py`.
-- Define a lightweight `ResearchAgentState` with original query, chat history, standalone query, retrieved papers, retrieved chunks, confidence decision, retry count, and final guidance fields.
-- Wire existing modules as graph-style nodes:
+Implemented:
+- Added `agent/research_graph.py`.
+- Defined `ResearchAgentState` with original query, chat history, standalone query, retrieved papers, retrieved chunks, confidence decision, retry count, attempted queries, warnings, retrieval response, confidence, and brief fields.
+- Wired existing modules as graph-style nodes:
   - Context rewrite
   - Unified search
   - CRAG confidence check
-  - Synthesis/guidance
-- Add a low-confidence reflection/rewrite node that can broaden or restate the query up to a small retry limit.
-- Start with synchronous Python functions and mocked tests before adding a new API endpoint or UI trace.
+  - Synthesis
+- Added a bounded low-confidence reflection/rewrite retry path.
+- Kept the first version synchronous and dependency-injectable for reliable mocked tests.
+- Added tests for high-confidence straight-through flow, retry success, retry limit stop, state initialization, and invalid retry configuration.
 
 Checkpoint:
 ```text
@@ -738,16 +739,16 @@ project is stable, explainable, evaluated, and demo-ready
 
 # Current Immediate Next Step
 
-Start **Day 24: Research Agent Loop Layer** after this documentation/commit checkpoint.
+Start **Day 25: Evaluation + Demo Hardening**.
 
 Recommended scope:
-- Add `agent/research_graph.py` with a lightweight state object.
-- Wire existing components as graph-style nodes: context rewrite -> unified search -> confidence check -> synthesis.
-- Add a low-confidence reflection/retry path with a small retry limit.
-- Keep the first version synchronous and testable with mocked components before exposing a new API endpoint or UI trace.
+- Add multi-turn contextual evaluation queries.
+- Add out-of-corpus questions to verify confidence-gated refusal.
+- Report route accuracy, topic hit rate, labeled Recall@K/MRR, and CRAG fallback behavior.
+- Update README with stable evaluation results and final demo questions.
 
 ```text
-query + chat history -> context rewrite -> unified search -> confidence check -> answer or retry/reflection
+eval queries -> route/retrieval/confidence metrics -> README demo evidence
 ```
 
 # Minimum Viable Final Demo
