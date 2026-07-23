@@ -1,3 +1,5 @@
+import time
+
 from fastapi.testclient import TestClient
 
 import api.main as api_main
@@ -275,6 +277,37 @@ def test_guidance_endpoint_reuses_one_retrieval_response(monkeypatch):
     assert payload["reading_path"]["total_papers"] == 1
     assert payload["open_problems"]["problems"][0]["supporting_source_ids"] == ["paper:p1"]
     assert len(calls) == 1
+
+
+def test_guidance_endpoint_builds_optional_sections_concurrently(monkeypatch):
+    patch_core_services(monkeypatch)
+
+    def slow_matrix(response, brief=None, max_rows=10):
+        time.sleep(0.2)
+        return make_matrix(response.query)
+
+    def slow_reading_path(response, confidence=None, max_papers=8):
+        time.sleep(0.2)
+        return make_reading_path(response.query)
+
+    def slow_open_problems(response, confidence=None, max_problems=6):
+        time.sleep(0.2)
+        return make_open_problems(response.query)
+
+    monkeypatch.setattr(api_main, "build_evidence_matrix", slow_matrix)
+    monkeypatch.setattr(api_main, "build_reading_path", slow_reading_path)
+    monkeypatch.setattr(api_main, "build_open_problems_report", slow_open_problems)
+
+    started = time.perf_counter()
+    response = client.post("/guidance", json={"query": "Compare RAG and verification.", "include_debug": True})
+    elapsed = time.perf_counter() - started
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert elapsed < 0.45
+    assert payload["metrics"]["evidence_matrix_ms"] >= 190
+    assert payload["metrics"]["reading_path_ms"] >= 190
+    assert payload["metrics"]["open_problems_ms"] >= 190
 
 
 def test_guidance_endpoint_keeps_brief_when_optional_section_fails(monkeypatch):

@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
-Window: 26 days
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, Day 21.5 UI/trust/output polish, Day 22 context-aware query rewriting, Day 22.5 answer-quality/retrieval/UI cleanup, Day 24 research agent loop, Day 25 evaluation hardening, and Day 26 agent API/UI integration are complete.
+Window: 27 days
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, Day 21.5 UI/trust/output polish, Day 22 context-aware query rewriting, Day 22.5 answer-quality/retrieval/UI cleanup, Day 24 research agent loop, Day 25 evaluation hardening, Day 26 agent API/UI integration, and Day 27 latency/demo smoothness are complete.
 
 ## Final Positioning
 
@@ -757,15 +757,31 @@ Checkpoint:
 /question + chat history -> /agent/research -> bounded agent loop -> traceable response
 ```
 
+## Day 27: Latency and Demo Smoothness - Complete
+
+Goal: reduce perceived wait time and make demo latency measurable without changing the analyst output contract.
+
+Implemented:
+- Parallelized independent optional `/guidance` sections after the CRAG evidence gate passes: evidence matrix, reading path, and open problems.
+- Preserved the existing `/guidance` response shape, warnings, request IDs, debug controls, and timing metrics.
+- Improved Streamlit loading copy to show the actual high-level stages: context/routing, evidence search, confidence check, and brief/evidence-section generation.
+- Added `tools/benchmark_latency.py` to measure `/guidance` and `/agent/research` wall time plus returned debug metrics for demo questions.
+- Added tests for concurrent optional section execution and latency benchmark formatting.
+
+Checkpoint:
+```text
+question -> one retrieval/confidence/brief path -> parallel optional sections -> measurable latency table
+```
+
 # Current Immediate Next Step
 
-Start **Day 27: Latency and Demo Smoothness**.
+Start **Day 28: Final Demo QA and GitHub Polish**.
 
 Recommended scope:
-- Measure per-stage latency for `/guidance` and `/agent/research` on 3-5 demo questions.
-- Cache or reuse query embeddings where straightforward.
-- Avoid repeated optional generation when the same evidence is already available.
-- Keep `/guidance` as the default UI path until the agent endpoint is quality-checked against demo questions.
+- Start Qdrant and the API, then run `tools.benchmark_latency` on the strongest demo questions.
+- Manually verify the UI answer quality for 3-5 interview questions.
+- Keep only the best questions in `docs/DEMO_SCRIPT.md`.
+- Decide whether `/agent/research` should stay diagnostic-only or become a visible optional demo path.
 
 # Minimum Viable Final Demo
 

@@ -557,7 +557,10 @@ def submit_question(question: str) -> bool:
     payload = build_payload_from_state(cleaned)
     started_at = time.perf_counter()
     with st.status("Running research analysis", expanded=True) as status:
-        status.write("Searching the corpus, checking evidence, and preparing the research brief.")
+        status.write("Resolving context and selecting a retrieval path.")
+        status.write("Searching paper abstracts and full-text evidence.")
+        status.write("Checking whether the evidence is strong enough to answer.")
+        status.write("Building the brief and optional evidence sections.")
         try:
             result, response_id = run_guidance(payload, request_id)
         except requests.RequestException as exc:

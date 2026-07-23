@@ -8,8 +8,9 @@ import os
 import re
 import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
@@ -535,6 +536,15 @@ def build_agent_trace(state: ResearchAgentState) -> list[AgentTraceStep]:
     return trace
 
 
+def run_timed_optional_section(section: str, builder: Callable[[], Any]) -> tuple[str, Any | None, Exception | None, float]:
+    started = time.perf_counter()
+    try:
+        result = builder()
+        return section, result, None, round((time.perf_counter() - started) * 1000, 3)
+    except (EvidenceMatrixError, ReadingPathError, OpenProblemsError) as exc:
+        return section, None, exc, round((time.perf_counter() - started) * 1000, 3)
+
+
 def build_agent_response(
     state: ResearchAgentState,
     *,
@@ -770,10 +780,14 @@ def agent_research(request: ApiQueryRequest, fastapi_request: Request) -> ApiAge
     timer = Timer()
     filter_warnings: list[str] = []
 
+    def add_elapsed(name: str, start: float) -> None:
+        elapsed = round((time.perf_counter() - start) * 1000, 3)
+        timer.values[name] = round(timer.values.get(name, 0.0) + elapsed, 3)
+
     def filtered_searcher(query: str) -> UnifiedSearchResponse:
         started = time.perf_counter()
         retrieval = retrieve_for_request(request, query_override=query)
-        timer.record("retrieval_ms", started)
+        add_elapsed("retrieval_ms", started)
         filtered, warnings = apply_request_filters(retrieval, request)
         filter_warnings.extend(warnings)
         return filtered
@@ -781,7 +795,7 @@ def agent_research(request: ApiQueryRequest, fastapi_request: Request) -> ApiAge
     def timed_confidence(response: UnifiedSearchResponse) -> ConfidenceAssessment:
         started = time.perf_counter()
         result = assess_confidence(response)
-        timer.record("confidence_ms", started)
+        add_elapsed("confidence_ms", started)
         return result
 
     def timed_synthesis(response: UnifiedSearchResponse, confidence: ConfidenceAssessment) -> ResearchBrief:
@@ -834,43 +848,50 @@ def guidance(request: ApiQueryRequest, fastapi_request: Request) -> ApiGuidanceR
         open_problems_result = None
 
         if confidence_result.decision == "sufficient_evidence":
-            started = time.perf_counter()
-            try:
-                matrix_result = build_evidence_matrix(retrieval, brief=brief_result, max_rows=request.top_k)
-            except EvidenceMatrixError as exc:
-                LOGGER.warning("guidance_optional_generation_failed", extra={"section": "evidence_matrix"})
-                warnings.append(optional_generation_warning("Evidence matrix", exc))
-            finally:
-                timer.record("evidence_matrix_ms", started)
-
-            started = time.perf_counter()
-            try:
-                reading_path_result = build_reading_path(
+            optional_builders: dict[str, Callable[[], Any]] = {
+                "evidence_matrix": lambda: build_evidence_matrix(retrieval, brief=brief_result, max_rows=request.top_k),
+                "reading_path": lambda: build_reading_path(
                     retrieval,
                     confidence=confidence_result,
                     max_papers=request.max_papers,
-                )
-                warnings.extend(reading_path_result.limitations)
-            except ReadingPathError as exc:
-                LOGGER.warning("guidance_optional_generation_failed", extra={"section": "reading_path"})
-                warnings.append(optional_generation_warning("Reading path", exc))
-            finally:
-                timer.record("reading_path_ms", started)
-
-            started = time.perf_counter()
-            try:
-                open_problems_result = build_open_problems_report(
+                ),
+                "open_problems": lambda: build_open_problems_report(
                     retrieval,
                     confidence=confidence_result,
                     max_problems=request.max_problems,
-                )
-                warnings.extend(open_problems_result.corpus_limitations)
-                warnings.extend(open_problems_result.evidence_gaps)
-            except OpenProblemsError as exc:
-                LOGGER.warning("guidance_optional_generation_failed", extra={"section": "open_problems"})
-                warnings.append(optional_generation_warning("Open problems", exc))
-            finally:
-                timer.record("open_problems_ms", started)
+                ),
+            }
+            display_names = {
+                "evidence_matrix": "Evidence matrix",
+                "reading_path": "Reading path",
+                "open_problems": "Open problems",
+            }
+            metric_names = {
+                "evidence_matrix": "evidence_matrix_ms",
+                "reading_path": "reading_path_ms",
+                "open_problems": "open_problems_ms",
+            }
+            with ThreadPoolExecutor(max_workers=len(optional_builders)) as executor:
+                futures = [
+                    executor.submit(run_timed_optional_section, section, builder)
+                    for section, builder in optional_builders.items()
+                ]
+                for future in as_completed(futures):
+                    section, result, exc, elapsed_ms = future.result()
+                    timer.values[metric_names[section]] = elapsed_ms
+                    if exc is not None:
+                        LOGGER.warning("guidance_optional_generation_failed", extra={"section": section})
+                        warnings.append(optional_generation_warning(display_names[section], exc))
+                        continue
+                    if section == "evidence_matrix":
+                        matrix_result = result
+                    elif section == "reading_path":
+                        reading_path_result = result
+                        warnings.extend(reading_path_result.limitations)
+                    elif section == "open_problems":
+                        open_problems_result = result
+                        warnings.extend(open_problems_result.corpus_limitations)
+                        warnings.extend(open_problems_result.evidence_gaps)
         else:
             warnings.extend([confidence_result.reason, confidence_result.recommended_action])
 

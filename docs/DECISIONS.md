@@ -481,3 +481,12 @@ Reasoning:
 - Exposing the graph through a separate endpoint lets us evaluate quality and latency before making it the default UI execution path.
 - The endpoint reuses existing request validation, filters, structured errors, request IDs, debug controls, and timing metrics instead of creating a parallel backend contract.
 - The first UI integration is a simple diagnostics trace, not streaming, so the working Streamlit analyst workspace remains stable.
+## 2026-07-23: Parallelize Optional Guidance Sections Before Adding Streaming
+
+We will reduce full-brief latency by running independent optional guidance sections concurrently after retrieval, confidence, and direct brief generation succeed.
+
+Reasoning:
+- The evidence matrix, reading path, and open-problems report all depend on the same retrieval response and confidence decision, but they do not depend on each other.
+- Parallelizing these sections improves wait time while preserving the existing `/guidance` contract and the same grounded evidence inputs.
+- This is lower risk than adding streaming or changing the UI execution path because request IDs, structured errors, debug metrics, and tests remain stable.
+- A small benchmark utility gives us repeatable demo-question latency measurements instead of judging speed by feel.
