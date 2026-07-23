@@ -268,5 +268,96 @@
       "fine-tuning"
     ],
     "expected_relevant_ids": []
+  },
+  {
+    "query": "What are its limitations?",
+    "category": "multi_turn",
+    "chat_history": [
+      {
+        "role": "user",
+        "content": "What is LoRA fine-tuning?"
+      },
+      {
+        "role": "assistant",
+        "content": "LoRA is a parameter-efficient fine-tuning method for adapting large models."
+      }
+    ],
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "LoRA",
+      "limitation",
+      "fine-tuning"
+    ],
+    "expected_standalone_keywords": [
+      "LoRA",
+      "limitations"
+    ],
+    "expected_relevant_ids": []
+  },
+  {
+    "query": "How does it reduce hallucinations?",
+    "category": "multi_turn",
+    "chat_history": [
+      {
+        "role": "user",
+        "content": "Explain retrieval-augmented generation."
+      },
+      {
+        "role": "assistant",
+        "content": "RAG retrieves external evidence and conditions generation on that context."
+      }
+    ],
+    "expected_route": "hybrid_both",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)",
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "retrieval",
+      "hallucination",
+      "grounding"
+    ],
+    "expected_standalone_keywords": [
+      "retrieval",
+      "hallucinations"
+    ],
+    "expected_relevant_ids": []
+  },
+  {
+    "query": "What does this corpus say about quantum cryptography hardware implementations?",
+    "category": "out_of_corpus",
+    "expected_route": "hybrid_both",
+    "expected_topics": [],
+    "expected_keywords": [
+      "quantum",
+      "cryptography"
+    ],
+    "expected_confidence_decision": "insufficient_evidence",
+    "expected_relevant_ids": []
+  },
+  {
+    "query": "What does the indexed corpus say about medieval agricultural tax law?",
+    "category": "out_of_corpus",
+    "expected_route": "hybrid_both",
+    "expected_topics": [],
+    "expected_keywords": [
+      "medieval",
+      "agricultural",
+      "tax"
+    ],
+    "expected_confidence_decision": "insufficient_evidence",
+    "expected_relevant_ids": []
+  },
+  {
+    "query": "Tell me about it.",
+    "category": "weak_evidence",
+    "expected_route": "hybrid_both",
+    "expected_topics": [],
+    "expected_keywords": [],
+    "expected_confidence_decision": "ask_clarifying_question",
+    "expected_relevant_ids": []
   }
 ]

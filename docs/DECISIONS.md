@@ -461,3 +461,13 @@ Reasoning:
 - Dependency-injected node functions keep the loop easy to test without OpenAI, Qdrant, or local reranker calls.
 - The first retry behavior is bounded and conservative: low confidence can trigger an expanded query, but the loop stops after a small retry limit.
 - This creates a clean foundation for a later API endpoint or UI execution trace.
+
+## 2026-07-22: Evaluate Query Rewriting and Confidence Fallback Separately
+
+We will extend retrieval evaluation beyond route and topic checks to include contextual rewriting and confidence-gated fallback behavior.
+
+Reasoning:
+- The system now supports multi-turn questions, so evaluation should verify whether follow-ups become useful standalone retrieval queries.
+- Out-of-corpus and weak-evidence queries should be measured separately from normal retrieval quality because their desired behavior is refusal, clarification, or fallback rather than high recall.
+- Recall@K and MRR remain restricted to queries with non-empty `expected_relevant_ids`; unlabeled contextual or fallback checks must not silently count as retrieval misses.
+- The evaluation runner now reports rewrite keyword hit rate, confidence decision accuracy, and CRAG fallback success rate alongside route accuracy, topic hit rate, keyword hit rate, Recall@K, and MRR.

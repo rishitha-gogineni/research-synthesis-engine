@@ -209,6 +209,21 @@ class ConfidenceAssessment(BaseModel):
     route_confidence: float = Field(default=0.0, ge=0.0, le=1.0)
 
 
+class EvaluationChatTurn(BaseModel):
+    """One prior turn used by a contextual evaluation query."""
+
+    role: Literal["user", "assistant"]
+    content: str = Field(..., min_length=1)
+
+    @field_validator("content")
+    @classmethod
+    def content_must_not_be_blank(cls, value: str) -> str:
+        stripped = " ".join(value.split())
+        if not stripped:
+            raise ValueError("chat history content must not be empty")
+        return stripped
+
+
 class EvaluationQuery(BaseModel):
     """One human-readable retrieval evaluation query."""
 
@@ -217,6 +232,10 @@ class EvaluationQuery(BaseModel):
     expected_topics: list[str] = Field(default_factory=list)
     expected_keywords: list[str] = Field(default_factory=list)
     expected_relevant_ids: list[str] = Field(default_factory=list)
+    category: Literal["single_turn", "multi_turn", "out_of_corpus", "weak_evidence"] = "single_turn"
+    chat_history: list[EvaluationChatTurn] = Field(default_factory=list)
+    expected_standalone_keywords: list[str] = Field(default_factory=list)
+    expected_confidence_decision: Optional[ConfidenceDecisionName] = None
 
     @field_validator("query")
     @classmethod

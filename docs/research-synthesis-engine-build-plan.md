@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 25 days  
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, Day 21.5 UI/trust/output polish, Day 22 context-aware query rewriting, Day 22.5 answer-quality/retrieval/UI cleanup, and Day 24 research agent loop are complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, Day 21.5 UI/trust/output polish, Day 22 context-aware query rewriting, Day 22.5 answer-quality/retrieval/UI cleanup, Day 24 research agent loop, and Day 25 evaluation hardening are complete.
 
 ## Final Positioning
 
@@ -721,34 +721,36 @@ Checkpoint:
 query + chat history -> rewrite -> search -> confidence -> answer or bounded retry
 ```
 
-## Day 25: Evaluation + Demo Hardening
+## Day 25: Evaluation + Demo Hardening - Complete
 
 Goal: prove quality and prepare the project for GitHub/interview use.
 
-Planned scope:
-- Add multi-turn contextual evaluation queries.
-- Add out-of-corpus queries to verify confidence gating refuses weak evidence.
-- Report route accuracy, topic hit rate, Recall@K/MRR on labeled queries, and CRAG fallback behavior.
-- Update README with a small evaluation summary after metrics are stable.
-- Finalize demo questions and interview talking points.
+Implemented:
+- Expanded `EvaluationQuery` with category, optional chat history, expected standalone-query keywords, and optional expected confidence decision.
+- Expanded `tests/fixtures/eval_queries.json` from 20 to 25 queries.
+- Added multi-turn contextual follow-up cases for query rewriting.
+- Added out-of-corpus and weak-evidence cases for confidence-gating checks.
+- Updated `retrieval/evaluate.py` to report rewrite keyword hit rate, confidence decision accuracy, and CRAG fallback success rate while preserving Recall@K/MRR only for the labeled relevant-ID subset.
+- Added mocked tests for contextual rewriting and confidence/fallback metrics.
+- README now describes evaluation coverage and runner outputs.
 
 Checkpoint:
 ```text
-project is stable, explainable, evaluated, and demo-ready
+evaluation covers routing, retrieval sanity, partial relevant-ID labels, query rewriting, and confidence fallback behavior
 ```
 
 # Current Immediate Next Step
 
-Start **Day 25: Evaluation + Demo Hardening**.
+Start **Day 26: Agent API/UI Integration**.
 
 Recommended scope:
-- Add multi-turn contextual evaluation queries.
-- Add out-of-corpus questions to verify confidence-gated refusal.
-- Report route accuracy, topic hit rate, labeled Recall@K/MRR, and CRAG fallback behavior.
-- Update README with stable evaluation results and final demo questions.
+- Add `POST /agent/research` over the Day 24 research graph.
+- Return original query, standalone query, attempted queries, retry count, confidence decision, brief, warnings, and retrieval counts.
+- Add mocked API tests for graph invocation and structured errors.
+- Add a simple non-streaming Agent Trace panel in Streamlit diagnostics.
 
 ```text
-eval queries -> route/retrieval/confidence metrics -> README demo evidence
+Streamlit -> /agent/research -> research graph state -> traceable agentic RAG response
 ```
 
 # Minimum Viable Final Demo

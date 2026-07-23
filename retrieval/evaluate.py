@@ -9,14 +9,18 @@ from typing import Callable
 
 from pydantic import ValidationError
 
+from agent.query_rewriter import ChatTurn, QueryRewriteResult, rewrite_query
+from retrieval.confidence import assess_confidence
 from retrieval.unified_search import run_unified_search
-from shared.schemas import EvaluationQuery, UnifiedSearchResponse
+from shared.schemas import ConfidenceAssessment, EvaluationQuery, UnifiedSearchResponse
 
 
 DEFAULT_EVAL_QUERIES = Path("tests/fixtures/eval_queries.json")
 DEFAULT_TOP_KS = (5, 10)
 
 SearchRunner = Callable[..., UnifiedSearchResponse]
+RewriteRunner = Callable[[str, list[ChatTurn]], QueryRewriteResult]
+ConfidenceRunner = Callable[[UnifiedSearchResponse], ConfidenceAssessment]
 
 
 class EvaluationError(RuntimeError):
@@ -88,6 +92,28 @@ def keyword_hit(results: list[object], expected_keywords: list[str], top_k: int)
     return any(keyword.lower() in haystack for keyword in expected_keywords)
 
 
+def text_contains_keywords(value: str, expected_keywords: list[str]) -> bool | None:
+    if not expected_keywords:
+        return None
+    lowered = normalize_text(value)
+    return all(keyword.lower() in lowered for keyword in expected_keywords)
+
+
+def eval_chat_history(query: EvaluationQuery) -> list[ChatTurn]:
+    return [ChatTurn(role=turn.role, content=turn.content) for turn in query.chat_history]
+
+
+def maybe_rewrite_query(
+    query: EvaluationQuery,
+    *,
+    rewriter: RewriteRunner = rewrite_query,
+    enabled: bool = True,
+) -> QueryRewriteResult:
+    if not enabled or not query.chat_history:
+        return QueryRewriteResult(original_query=query.query, standalone_query=query.query, rewrite_used=False, method="none")
+    return rewriter(query.query, eval_chat_history(query))
+
+
 def id_hits(results: list[object], expected_relevant_ids: list[str], top_k: int) -> set[str]:
     expected = set(expected_relevant_ids)
     retrieved = {identifier for result in results[:top_k] if (identifier := result_id(result))}
@@ -115,21 +141,48 @@ def format_rate(value: float | None) -> str:
     return f"{value:.2f}"
 
 
-def evaluate_response(query: EvaluationQuery, response: UnifiedSearchResponse, top_ks: tuple[int, ...]) -> dict[str, object]:
+def evaluate_response(
+    query: EvaluationQuery,
+    response: UnifiedSearchResponse,
+    top_ks: tuple[int, ...],
+    *,
+    rewrite_result: QueryRewriteResult | None = None,
+    confidence: ConfidenceAssessment | None = None,
+) -> dict[str, object]:
+    rewrite_result = rewrite_result or QueryRewriteResult(
+        original_query=query.query,
+        standalone_query=response.query,
+        rewrite_used=response.query != query.query,
+        method="none",
+    )
     route_correct = response.route.route == query.expected_route
     route_results = select_results(response, query.expected_route)
     combined_results = all_results(response)
     has_relevant_ids = bool(query.expected_relevant_ids)
+    confidence_decision = confidence.decision if confidence else None
 
     topic_hits = {k: topic_hit(combined_results, query.expected_topics, k) for k in top_ks}
     keyword_hits = {k: keyword_hit(combined_results, query.expected_keywords, k) for k in top_ks}
     id_hit_sets = {k: id_hits(route_results, query.expected_relevant_ids, k) for k in top_ks}
+    rewrite_keyword_hit = text_contains_keywords(rewrite_result.standalone_query, query.expected_standalone_keywords)
+    confidence_correct = (
+        confidence_decision == query.expected_confidence_decision
+        if query.expected_confidence_decision is not None and confidence_decision is not None
+        else None
+    )
 
     return {
         "query": query.query,
+        "category": query.category,
+        "standalone_query": rewrite_result.standalone_query,
+        "rewrite_used": rewrite_result.rewrite_used,
+        "rewrite_keyword_hit": rewrite_keyword_hit,
         "expected_route": query.expected_route,
         "actual_route": response.route.route,
         "route_correct": route_correct,
+        "expected_confidence_decision": query.expected_confidence_decision,
+        "actual_confidence_decision": confidence_decision,
+        "confidence_correct": confidence_correct,
         "has_relevant_ids": has_relevant_ids,
         "result_ids": [identifier for result in route_results if (identifier := result_id(result))],
         "topic_hits": topic_hits,
@@ -143,8 +196,20 @@ def summarize_evaluations(evaluations: list[dict[str, object]], top_ks: tuple[in
     total = len(evaluations)
     labeled = [evaluation for evaluation in evaluations if evaluation["has_relevant_ids"]]
     labeled_count = len(labeled)
+    multi_turn = [evaluation for evaluation in evaluations if evaluation.get("category") == "multi_turn"]
+    out_of_corpus = [evaluation for evaluation in evaluations if evaluation.get("category") == "out_of_corpus"]
+    rewrite_labeled = [evaluation for evaluation in evaluations if evaluation.get("rewrite_keyword_hit") is not None]
+    confidence_labeled = [evaluation for evaluation in evaluations if evaluation.get("confidence_correct") is not None]
+    fallback_labeled = [
+        evaluation
+        for evaluation in confidence_labeled
+        if evaluation.get("expected_confidence_decision") != "sufficient_evidence"
+    ]
 
     route_accuracy = safe_rate(sum(1 for evaluation in evaluations if evaluation["route_correct"]), total)
+    rewrite_keyword_hit_rate = safe_rate(sum(1 for evaluation in rewrite_labeled if evaluation["rewrite_keyword_hit"]), len(rewrite_labeled))
+    confidence_decision_accuracy = safe_rate(sum(1 for evaluation in confidence_labeled if evaluation["confidence_correct"]), len(confidence_labeled))
+    crag_fallback_success_rate = safe_rate(sum(1 for evaluation in fallback_labeled if evaluation["confidence_correct"]), len(fallback_labeled))
 
     topic_counts = {}
     keyword_counts = {}
@@ -172,7 +237,12 @@ def summarize_evaluations(evaluations: list[dict[str, object]], top_ks: tuple[in
         "queries": total,
         "queries_with_relevant_ids": labeled_count,
         "queries_topic_keyword_only": total - labeled_count,
+        "multi_turn_queries": len(multi_turn),
+        "out_of_corpus_queries": len(out_of_corpus),
         "route_accuracy": route_accuracy,
+        "rewrite_keyword_hit_rate": {"value": rewrite_keyword_hit_rate, "n": len(rewrite_labeled)},
+        "confidence_decision_accuracy": {"value": confidence_decision_accuracy, "n": len(confidence_labeled)},
+        "crag_fallback_success_rate": {"value": crag_fallback_success_rate, "n": len(fallback_labeled)},
         "topic_hit_rate": topic_counts,
         "keyword_hit_rate": keyword_counts,
         "recall": recall_counts,
@@ -186,12 +256,17 @@ def run_evaluation(
     search_runner: SearchRunner = run_unified_search,
     top_ks: tuple[int, ...] = DEFAULT_TOP_KS,
     apply_reranking: bool = True,
+    apply_query_rewriting: bool = True,
+    rewriter: RewriteRunner = rewrite_query,
+    confidence_checker: ConfidenceRunner = assess_confidence,
 ) -> tuple[dict[str, object], list[dict[str, object]]]:
     evaluations = []
     max_top_k = max(top_ks)
     for query in queries:
-        response = search_runner(query.query, top_k=max_top_k, apply_reranking=apply_reranking)
-        evaluations.append(evaluate_response(query, response, top_ks))
+        rewrite_result = maybe_rewrite_query(query, rewriter=rewriter, enabled=apply_query_rewriting)
+        response = search_runner(rewrite_result.standalone_query, top_k=max_top_k, apply_reranking=apply_reranking)
+        confidence = confidence_checker(response) if query.expected_confidence_decision is not None else None
+        evaluations.append(evaluate_response(query, response, top_ks, rewrite_result=rewrite_result, confidence=confidence))
     return summarize_evaluations(evaluations, top_ks), evaluations
 
 
@@ -200,7 +275,12 @@ def summary_to_text(summary: dict[str, object], top_ks: tuple[int, ...]) -> str:
         f"queries: {summary['queries']}",
         f"queries_with_relevant_ids: {summary['queries_with_relevant_ids']}",
         f"queries_topic_keyword_only: {summary['queries_topic_keyword_only']}",
+        f"multi_turn_queries: {summary['multi_turn_queries']}",
+        f"out_of_corpus_queries: {summary['out_of_corpus_queries']}",
         f"route_accuracy: {format_rate(summary['route_accuracy'])}",
+        f"rewrite_keyword_hit_rate: {format_rate(summary['rewrite_keyword_hit_rate']['value'])} (contextual subset, n={summary['rewrite_keyword_hit_rate']['n']})",
+        f"confidence_decision_accuracy: {format_rate(summary['confidence_decision_accuracy']['value'])} (labeled confidence subset, n={summary['confidence_decision_accuracy']['n']})",
+        f"crag_fallback_success_rate: {format_rate(summary['crag_fallback_success_rate']['value'])} (expected fallback subset, n={summary['crag_fallback_success_rate']['n']})",
     ]
     for k in top_ks:
         topic = summary["topic_hit_rate"][k]

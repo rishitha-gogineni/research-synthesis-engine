@@ -240,10 +240,28 @@ full-text chunks: 4170
 chunk-level Qdrant points: 4170
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 215 passed
+tests: 217 passed
 ```
 
 These counts reflect the current local artifacts, index checks, and test suite.
+
+## Evaluation Coverage
+
+The retrieval evaluation fixture contains 25 human-readable queries across the five research areas. It now includes single-turn retrieval checks, multi-turn contextual follow-ups, route-specific questions, partial relevant-ID labels, and out-of-corpus/weak-evidence cases for confidence-gating checks.
+
+The evaluation runner reports:
+
+- route accuracy over the full query set
+- topic and keyword hit rates as broad sanity checks
+- Recall@5, Recall@10, and MRR only on queries with `expected_relevant_ids`
+- rewrite keyword hit rate for contextual follow-up queries
+- confidence decision accuracy and CRAG fallback success rate for confidence-labeled cases
+
+Run it with local services configured:
+
+```bash
+python -m retrieval.evaluate --queries tests/fixtures/eval_queries.json
+```
 
 ## Tech Stack
 

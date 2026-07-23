@@ -4,6 +4,7 @@ import sys
 
 import pytest
 
+from agent.query_rewriter import QueryRewriteResult
 from retrieval.evaluate import (
     EvaluationError,
     evaluate_response,
@@ -16,7 +17,7 @@ from retrieval.evaluate import (
     summary_to_text,
     topic_hit,
 )
-from shared.schemas import EvaluationQuery, QueryRoute, RetrievedChunk, RetrievedPaper, UnifiedSearchResponse
+from shared.schemas import ConfidenceAssessment, EvaluationQuery, QueryRoute, RetrievedChunk, RetrievedPaper, UnifiedSearchResponse
 
 
 def make_response(query, route, paper_ids=None, chunk_ids=None, topic="LLM Evaluation & Hallucination Detection"):
@@ -53,6 +54,21 @@ def make_response(query, route, paper_ids=None, chunk_ids=None, topic="LLM Evalu
     )
 
 
+def make_confidence(response, decision="sufficient_evidence"):
+    return ConfidenceAssessment(
+        query=response.query,
+        route=response.route.route,
+        confidence_score=0.9 if decision == "sufficient_evidence" else 0.3,
+        decision=decision,
+        reason="test confidence",
+        recommended_action="test action",
+        signals=["test"],
+        result_count=response.paper_result_count + response.chunk_result_count,
+        top_score=0.9,
+        route_confidence=0.9,
+    )
+
+
 def test_evaluation_query_defaults_expected_relevant_ids_to_empty():
     query = EvaluationQuery(query="What are RAG themes?", expected_route="paper_level")
 
@@ -62,7 +78,7 @@ def test_evaluation_query_defaults_expected_relevant_ids_to_empty():
 def test_load_eval_queries_reads_fixture():
     queries = load_eval_queries(__import__("pathlib").Path("tests/fixtures/eval_queries.json"))
 
-    assert len(queries) == 20
+    assert len(queries) >= 20
     assert any(query.expected_relevant_ids for query in queries)
 
 
@@ -154,12 +170,94 @@ def test_run_evaluation_computes_recall_only_on_labeled_subset():
     assert len(evaluations) == 3
 
 
+def test_run_evaluation_rewrites_contextual_queries_and_reports_rewrite_metric():
+    queries = [
+        EvaluationQuery(
+            query="What are its limitations?",
+            category="multi_turn",
+            expected_route="chunk_level",
+            chat_history=[{"role": "user", "content": "Explain LoRA fine-tuning."}],
+            expected_standalone_keywords=["LoRA", "limitations"],
+        )
+    ]
+    seen_queries = []
+
+    def fake_rewriter(query, chat_history):
+        assert chat_history[0].content == "Explain LoRA fine-tuning."
+        return QueryRewriteResult(
+            original_query=query,
+            standalone_query="What are the limitations of LoRA fine-tuning?",
+            rewrite_used=True,
+            method="heuristic",
+            reason="test",
+        )
+
+    def fake_runner(query, **kwargs):
+        seen_queries.append(query)
+        return make_response(query, "chunk_level", chunk_ids=["c1"], topic="Fine-tuning (LoRA / PEFT)")
+
+    summary, evaluations = run_evaluation(
+        queries,
+        search_runner=fake_runner,
+        rewriter=fake_rewriter,
+        top_ks=(1,),
+        apply_reranking=False,
+    )
+
+    assert seen_queries == ["What are the limitations of LoRA fine-tuning?"]
+    assert evaluations[0]["rewrite_used"] is True
+    assert evaluations[0]["rewrite_keyword_hit"] is True
+    assert summary["multi_turn_queries"] == 1
+    assert summary["rewrite_keyword_hit_rate"] == {"value": 1.0, "n": 1}
+
+
+def test_run_evaluation_reports_confidence_and_crag_fallback_metrics():
+    queries = [
+        EvaluationQuery(
+            query="What does this corpus say about quantum cryptography hardware?",
+            category="out_of_corpus",
+            expected_route="hybrid_both",
+            expected_confidence_decision="insufficient_evidence",
+        ),
+        EvaluationQuery(
+            query="What are RAG themes?",
+            expected_route="paper_level",
+            expected_confidence_decision="sufficient_evidence",
+        ),
+    ]
+
+    def fake_runner(query, **kwargs):
+        route = "hybrid_both" if "quantum" in query else "paper_level"
+        return make_response(query, route, paper_ids=["p1"])
+
+    def fake_confidence(response):
+        decision = "insufficient_evidence" if "quantum" in response.query else "sufficient_evidence"
+        return make_confidence(response, decision)
+
+    summary, evaluations = run_evaluation(
+        queries,
+        search_runner=fake_runner,
+        confidence_checker=fake_confidence,
+        top_ks=(1,),
+    )
+
+    assert summary["out_of_corpus_queries"] == 1
+    assert summary["confidence_decision_accuracy"] == {"value": 1.0, "n": 2}
+    assert summary["crag_fallback_success_rate"] == {"value": 1.0, "n": 1}
+    assert evaluations[0]["actual_confidence_decision"] == "insufficient_evidence"
+
+
 def test_summary_to_text_labels_rigorous_and_sanity_metrics():
     summary = {
         "queries": 20,
         "queries_with_relevant_ids": 12,
         "queries_topic_keyword_only": 8,
+        "multi_turn_queries": 2,
+        "out_of_corpus_queries": 1,
         "route_accuracy": 0.9,
+        "rewrite_keyword_hit_rate": {"value": 0.5, "n": 2},
+        "confidence_decision_accuracy": {"value": 0.75, "n": 4},
+        "crag_fallback_success_rate": {"value": 0.67, "n": 3},
         "topic_hit_rate": {5: {"value": 0.85, "n": 20}},
         "keyword_hit_rate": {5: {"value": 0.75, "n": 20}},
         "recall": {5: {"value": 0.72, "n": 12}},
@@ -169,6 +267,11 @@ def test_summary_to_text_labels_rigorous_and_sanity_metrics():
     text = summary_to_text(summary, (5,))
 
     assert "queries_with_relevant_ids: 12" in text
+    assert "multi_turn_queries: 2" in text
+    assert "out_of_corpus_queries: 1" in text
+    assert "rewrite_keyword_hit_rate: 0.50 (contextual subset, n=2)" in text
+    assert "confidence_decision_accuracy: 0.75 (labeled confidence subset, n=4)" in text
+    assert "crag_fallback_success_rate: 0.67 (expected fallback subset, n=3)" in text
     assert "topic_hit_rate@5: 0.85 (sanity check, n=20)" in text
     assert "recall@5 (labeled subset, n=12): 0.72" in text
     assert "mrr (labeled subset, n=12): 0.68" in text
