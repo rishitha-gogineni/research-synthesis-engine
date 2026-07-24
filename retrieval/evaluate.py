@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections import Counter
 from pathlib import Path
 from typing import Callable
 
@@ -174,6 +175,7 @@ def evaluate_response(
     return {
         "query": query.query,
         "category": query.category,
+        "evaluation_focus": query.evaluation_focus,
         "standalone_query": rewrite_result.standalone_query,
         "rewrite_used": rewrite_result.rewrite_used,
         "rewrite_keyword_hit": rewrite_keyword_hit,
@@ -205,6 +207,7 @@ def summarize_evaluations(evaluations: list[dict[str, object]], top_ks: tuple[in
         for evaluation in confidence_labeled
         if evaluation.get("expected_confidence_decision") != "sufficient_evidence"
     ]
+    focus_counts = dict(sorted(Counter(str(evaluation.get("evaluation_focus") or "unspecified") for evaluation in evaluations).items()))
 
     route_accuracy = safe_rate(sum(1 for evaluation in evaluations if evaluation["route_correct"]), total)
     rewrite_keyword_hit_rate = safe_rate(sum(1 for evaluation in rewrite_labeled if evaluation["rewrite_keyword_hit"]), len(rewrite_labeled))
@@ -239,6 +242,7 @@ def summarize_evaluations(evaluations: list[dict[str, object]], top_ks: tuple[in
         "queries_topic_keyword_only": total - labeled_count,
         "multi_turn_queries": len(multi_turn),
         "out_of_corpus_queries": len(out_of_corpus),
+        "evaluation_focus_counts": focus_counts,
         "route_accuracy": route_accuracy,
         "rewrite_keyword_hit_rate": {"value": rewrite_keyword_hit_rate, "n": len(rewrite_labeled)},
         "confidence_decision_accuracy": {"value": confidence_decision_accuracy, "n": len(confidence_labeled)},
@@ -277,6 +281,7 @@ def summary_to_text(summary: dict[str, object], top_ks: tuple[int, ...]) -> str:
         f"queries_topic_keyword_only: {summary['queries_topic_keyword_only']}",
         f"multi_turn_queries: {summary['multi_turn_queries']}",
         f"out_of_corpus_queries: {summary['out_of_corpus_queries']}",
+        "evaluation_focus_counts: " + ", ".join(f"{key}={value}" for key, value in sorted(summary.get("evaluation_focus_counts", {}).items())),
         f"route_accuracy: {format_rate(summary['route_accuracy'])}",
         f"rewrite_keyword_hit_rate: {format_rate(summary['rewrite_keyword_hit_rate']['value'])} (contextual subset, n={summary['rewrite_keyword_hit_rate']['n']})",
         f"confidence_decision_accuracy: {format_rate(summary['confidence_decision_accuracy']['value'])} (labeled confidence subset, n={summary['confidence_decision_accuracy']['n']})",

@@ -78,8 +78,15 @@ def test_evaluation_query_defaults_expected_relevant_ids_to_empty():
 def test_load_eval_queries_reads_fixture():
     queries = load_eval_queries(__import__("pathlib").Path("tests/fixtures/eval_queries.json"))
 
-    assert len(queries) >= 20
-    assert any(query.expected_relevant_ids for query in queries)
+    assert len(queries) >= 35
+    assert sum(bool(query.expected_relevant_ids) for query in queries) >= 20
+    assert {query.evaluation_focus for query in queries} >= {
+        "full_text_evidence",
+        "metadata_filter",
+        "cross_topic_comparison",
+        "contextual_rewrite",
+        "confidence_gate",
+    }
 
 
 def test_load_eval_queries_reports_bad_json(tmp_path):
@@ -161,6 +168,7 @@ def test_run_evaluation_computes_recall_only_on_labeled_subset():
     assert summary["queries"] == 3
     assert summary["queries_with_relevant_ids"] == 2
     assert summary["queries_topic_keyword_only"] == 1
+    assert summary["evaluation_focus_counts"] == {"route_selection": 3}
     assert summary["route_accuracy"] == pytest.approx(2 / 3)
     assert summary["recall"][1]["value"] == 0.0
     assert summary["recall"][1]["n"] == 2
@@ -254,6 +262,7 @@ def test_summary_to_text_labels_rigorous_and_sanity_metrics():
         "queries_topic_keyword_only": 8,
         "multi_turn_queries": 2,
         "out_of_corpus_queries": 1,
+        "evaluation_focus_counts": {"full_text_evidence": 8, "confidence_gate": 3},
         "route_accuracy": 0.9,
         "rewrite_keyword_hit_rate": {"value": 0.5, "n": 2},
         "confidence_decision_accuracy": {"value": 0.75, "n": 4},
@@ -269,6 +278,7 @@ def test_summary_to_text_labels_rigorous_and_sanity_metrics():
     assert "queries_with_relevant_ids: 12" in text
     assert "multi_turn_queries: 2" in text
     assert "out_of_corpus_queries: 1" in text
+    assert "evaluation_focus_counts: confidence_gate=3, full_text_evidence=8" in text
     assert "rewrite_keyword_hit_rate: 0.50 (contextual subset, n=2)" in text
     assert "confidence_decision_accuracy: 0.75 (labeled confidence subset, n=4)" in text
     assert "crag_fallback_success_rate: 0.67 (expected fallback subset, n=3)" in text

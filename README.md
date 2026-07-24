@@ -1,73 +1,149 @@
 # Research Synthesis Engine
 
-Research Synthesis Engine is a literature intelligence system for academic papers. It ingests top-cited research papers from OpenAlex, extracts structured metadata from abstracts, builds dense and sparse retrieval indexes, and generates confidence-gated research briefs, inspectable evidence matrices, reading paths, and grounded open-problems reports.
+Research Synthesis Engine is a literature intelligence system for AI research papers. It builds a curated corpus, indexes both abstracts and full-text chunks, routes user questions to the right retrieval path, and returns grounded research briefs with evidence matrices, reading paths, open problems, and source snippets.
 
-Users can choose a research area, pick a suggested question, or ask a free-text research question such as:
+The project is designed around a practical research workflow: a user should be able to ask a question such as `What are the main approaches for reducing hallucinations in LLMs?` and receive a concise answer backed by retrieved papers, not a generic chatbot response.
 
-```text
-What are the main approaches for reducing hallucinations in LLMs?
-```
+## Current Snapshot
 
-The Streamlit workspace returns an analyst-style brief with:
+| Area | Current State |
+| --- | ---: |
+| Research areas | 5 |
+| Paper-level corpus | 250 papers |
+| Full-text papers extracted | 152 papers |
+| Full-text chunks indexed | 4,909 chunks |
+| Paper-level Qdrant points | 250 |
+| Chunk-level Qdrant points | 4,909 |
+| Evaluation queries | 35 |
+| Queries with exact relevant-ID labels | 22 |
+| Test suite | 236 passing tests |
+| Fast-first guidance latency | 21.3s -> 8.8s on the demo benchmark |
+
+## What The System Returns
+
+The Streamlit workspace produces an analyst-style research brief:
 
 - A confidence-gated direct answer
 - Research themes
-- Evidence matrix
+- Evidence matrix with claims, methods, datasets, results, limitations, and source IDs
 - Recommended reading path
-- Open problems
-- Source snippets and diagnostics
+- Open problems grounded in retrieved evidence
+- Source snippets and optional diagnostics
+- Follow-up handling through context-aware query rewriting
 
-## Project Status
-
-**Phase 1: Ingestion & Indexing — Complete**  
-**Phase 2: Route-Aware Retrieval — Complete**  
-**Phase 3: Evaluation & Grounded Synthesis — Complete**  
-**Phase 4: API & UI — Complete**  
-**Phase 5: Multi-Turn UX & Quality Polish — Complete**  
-**Phase 6: Research Agent Loop — Complete**
-
-The offline ingestion and indexing pipeline is implemented and validated. Route-aware retrieval can choose paper-level search, full-text chunk search, both result sets, or metadata filtering for free-text user questions. Grounded synthesis uses a CRAG-style confidence check before presenting a direct answer. Evidence matrices, reading paths, and open-problems reports are generated from the same retrieved evidence without duplicate retrieval calls. A FastAPI backend exposes the retrieval, synthesis, guidance, and research-agent services, and a Streamlit analyst workspace provides sidebar filters, route previews, loading status, confidence-gated answers, evidence matrices, reading paths, open problems, source lists, follow-up query handling, and diagnostics.
-
-```text
-OpenAlex fetch
-→ raw paper corpus
-→ LLM metadata extraction
-→ enriched paper corpus
-→ OpenAI embeddings
-→ Matryoshka truncation
-→ Qdrant dense index
-→ BM25 sparse index
-```
-
-## Ingestion Pipeline Architecture
+## Architecture Overview
 
 ```mermaid
 flowchart LR
-    A["OpenAlex Works API"] --> B["fetch_papers.py<br/>curated title queries<br/>top-cited papers"]
-    B --> C["data/raw_papers.json<br/>250 papers<br/>50 per topic"]
-    C --> D["extract.py<br/>gpt-4o-mini<br/>structured abstract extraction"]
-    D --> E["data/enriched_papers_final.json<br/>contribution, methodology,<br/>dataset, result, limitations"]
-    E --> F["embed.py<br/>text-embedding-3-large"]
-    F --> G["3072-dim embeddings"]
-    G --> H["Matryoshka truncation<br/>3072 -> 1024 dims"]
-    H --> I["data/embedded_papers.json"]
-    I --> J["Qdrant<br/>dense vector index<br/>250 points"]
-    I --> K["BM25<br/>sparse keyword index<br/>250 documents"]
+    A["OpenAlex + legal open PDFs"] --> B["Offline ingestion and indexing"]
+    B --> C["Paper index<br/>250 abstract-level records"]
+    B --> D["Chunk index<br/>4,909 full-text chunks"]
+    C --> E["Route-aware retrieval"]
+    D --> E
+    E --> F["CRAG confidence gate"]
+    F --> G["Grounded synthesis"]
+    G --> H["FastAPI + Streamlit workspace"]
 ```
 
-## Dataset
+The system has two separate phases: an offline pipeline that builds trusted local artifacts, and a live pipeline that answers questions from those artifacts.
 
-The corpus contains 250 academic papers across 5 research areas:
+## Offline Ingestion Pipeline
 
-| Research Area | Papers |
-| --- | ---: |
-| Retrieval-Augmented Generation (RAG) | 50 |
-| Transformers / Attention Mechanisms | 50 |
-| LLM Evaluation & Hallucination Detection | 50 |
-| AI Agents & Tool Use | 50 |
-| Fine-tuning (LoRA / PEFT) | 50 |
+```mermaid
+flowchart TD
+    A["OpenAlex Works API"] --> B["ingestion/fetch_papers.py"]
+    B --> C["data/raw_papers.json<br/>250 papers, 5 topics"]
+    C --> D["ingestion/extract.py<br/>gpt-4o-mini structured extraction"]
+    D --> E["data/enriched_papers_final.json"]
+    E --> F["ingestion/embed.py<br/>text-embedding-3-large"]
+    F --> G["3072-dim embedding"]
+    G --> H["Matryoshka truncation<br/>store 1024 dims"]
+    H --> I["data/embedded_papers.json"]
+    I --> J["Qdrant research_papers<br/>250 vectors"]
+    I --> K["BM25 sparse index<br/>250 documents"]
+```
 
-Papers are fetched from OpenAlex using curated title-query aliases, sorted toward highly cited works, deduplicated globally, and filtered to require a title and reconstructable abstract.
+The abstract-level index covers every paper in the corpus. It supports broad discovery questions, topic comparisons, reading recommendations, and metadata-style queries.
+
+## Full-Text Expansion Pipeline
+
+```mermaid
+flowchart TD
+    A["data/enriched_papers_final.json"] --> B["full_text/discover_sources.py<br/>legal PDF discovery"]
+    B --> C["data/full_text_sources.json"]
+    C --> D["full_text/download_extract.py<br/>download + PDF text extraction"]
+    D --> E["data/full_text_papers.json<br/>152 successful papers"]
+    E --> F["full_text/chunk_papers.py<br/>section-hinted chunks"]
+    F --> G["data/full_text_chunks.json<br/>4,909 chunks"]
+    G --> H["full_text/embed_chunks.py<br/>1024-dim chunk embeddings"]
+    H --> I["data/embedded_full_text_chunks.json"]
+    I --> J["Qdrant research_paper_chunks<br/>4,909 vectors"]
+```
+
+Full-text retrieval is used for questions that need details from the body of papers: datasets, metrics, experiments, method differences, reported results, and limitations. Papers without legal full text still remain available through abstract-level retrieval.
+
+## Live Retrieval Pipeline
+
+```mermaid
+flowchart TD
+    A["User question"] --> B["retrieval/router.py"]
+    B -->|"broad theme / overview"| C["Paper-level hybrid search<br/>Qdrant + BM25"]
+    B -->|"dataset / metric / method / limitation"| D["Chunk-level vector search<br/>full-text chunks"]
+    B -->|"comparison / ambiguous"| E["Hybrid both<br/>paper + chunk retrieval"]
+    B -->|"top-cited / year-filtered"| F["Metadata filter"]
+    C --> G["retrieval/rerank.py"]
+    D --> G
+    E --> G
+    F --> G
+    G --> H["Citation-aware blended scoring"]
+    H --> I["UnifiedSearchResponse"]
+```
+
+The router keeps broad paper discovery separate from detailed full-text evidence. Ambiguous questions default to `hybrid_both` so the system does not prematurely choose the wrong retrieval granularity.
+
+## Agentic Synthesis Pipeline
+
+```mermaid
+flowchart TD
+    A["Question + optional chat history"] --> B["Contextual rewriter<br/>agent/query_rewriter.py"]
+    B --> C["Standalone retrieval query"]
+    C --> D["Unified search"]
+    D --> E["CRAG confidence check"]
+    E -->|"sufficient evidence"| F["Grounded synthesis"]
+    E -->|"low confidence and retry_count < 2"| G["Reflection rewrite<br/>expanded search query"]
+    G --> D
+    E -->|"insufficient or unclear"| H["Refuse or ask clarifying question"]
+    F --> I["Direct answer"]
+    F --> J["Evidence matrix"]
+    F --> K["Reading path"]
+    F --> L["Open problems"]
+```
+
+This is implemented as a bounded Python state loop in `agent/research_graph.py`. It provides the agentic behavior the project needs: context rewriting, retrieval, confidence assessment, limited retry, and traceable synthesis without requiring a heavyweight orchestration framework.
+
+## API And UI Flow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant UI as Streamlit Workspace
+    participant API as FastAPI Backend
+    participant R as Retrieval Layer
+    participant A as Agent/Synthesis Layer
+    participant Q as Qdrant
+
+    U->>UI: Ask research question
+    UI->>API: POST /guidance or /agent/research
+    API->>A: Rewrite follow-up if chat history exists
+    A->>R: Execute route-aware retrieval
+    R->>Q: Search paper and/or chunk collections
+    Q-->>R: Ranked candidates
+    R-->>A: Paper/chunk evidence
+    A->>A: Confidence gate + grounded synthesis
+    API-->>UI: Brief, evidence matrix, source snippets, diagnostics
+```
+
+The default UI path uses `/guidance` for the polished research brief. `/agent/research` is available for traceable agent-loop diagnostics.
 
 ## Data Artifacts
 
@@ -75,16 +151,27 @@ Papers are fetched from OpenAlex using curated title-query aliases, sorted towar
 | --- | --- |
 | `data/raw_papers.json` | Raw OpenAlex paper metadata and abstracts |
 | `data/enriched_papers_final.json` | LLM-extracted structured metadata |
-| `data/embedded_papers.json` | 1024-dimensional truncated embeddings plus metadata |
+| `data/embedded_papers.json` | 1024-dimensional truncated paper embeddings |
 | `data/bm25_index.pkl` | Local BM25 sparse retrieval index |
 | `data/full_text_sources.json` | Discovered legal open full-text PDF sources |
-| `data/full_text_selected.json` | Topic-balanced full-text subset selected for PDF extraction |
-| `data/full_text_papers.json` | Download/extraction results for available full-text PDFs |
-| `data/full_text_chunks.json` | Section-hinted chunks from successful full-text extractions |
+| `data/full_text_papers.json` | Download and extraction results for available PDFs |
+| `data/full_text_chunks.json` | Section-hinted full-text chunks |
 | `data/embedded_full_text_chunks.json` | 1024-dimensional full-text chunk embeddings |
 | `data/pdfs/` | Local downloaded PDF files |
-| Qdrant `research_papers` collection | Dense vector index with 250 points |
-| Qdrant `research_paper_chunks` collection | Chunk-level full-text vector index with 4,909 points |
+| Qdrant `research_papers` | Dense paper-level vector index |
+| Qdrant `research_paper_chunks` | Dense full-text chunk vector index |
+
+## Corpus
+
+| Research Area | Papers | Extracted Full Text Papers |
+| --- | ---: | ---: |
+| Retrieval-Augmented Generation (RAG) | 50 | 35 |
+| Transformers / Attention Mechanisms | 50 | 25 |
+| LLM Evaluation & Hallucination Detection | 50 | 33 |
+| AI Agents & Tool Use | 50 | 30 |
+| Fine-tuning (LoRA / PEFT) | 50 | 29 |
+
+Papers are fetched from OpenAlex using curated title-query aliases, ranked toward highly cited work, deduplicated globally, and filtered to require a title and reconstructable abstract.
 
 ## Structured Metadata
 
@@ -122,115 +209,63 @@ Example enriched record:
 }
 ```
 
-## Retrieval Foundation
+## Evaluation Strategy
 
-The project now has both retrieval indexes needed for hybrid search:
+The evaluation fixture is intentionally mixed: some queries have exact relevant IDs for Recall/MRR, while others test routing, topic coverage, keyword presence, contextual rewriting, and confidence-gated refusal.
 
-- **Dense retrieval:** Qdrant collection `research_papers`, 250 vectors, cosine distance, 1024 dimensions
-- **Sparse retrieval:** BM25 index over the same 250-paper corpus
-- **Hybrid retrieval:** `retrieval.hybrid_search` embeds a user question, searches Qdrant and BM25, merges duplicate papers, and returns ranked candidates with dense, sparse, and hybrid scores
-- **Tool interface:** `tools.research_retrieval` validates request/response schemas and returns JSON for downstream API, agent, or UI layers
-- **Unified retrieval:** `retrieval.unified_search` routes each query, returns paper and/or chunk results, and attaches rerank/citation-aware score fields
-- **Context-aware rewriting:** `agent.query_rewriter` rewrites follow-up questions into standalone retrieval queries using chat history, with deterministic fallback
-- **Research agent loop:** `agent.research_graph` wires rewrite, unified retrieval, CRAG confidence, bounded low-confidence retry, and synthesis into a tested state loop
-- **Intent-aware reranking:** `retrieval.rerank` adds a narrow, explainable boost for agent/tool-use task questions so tool/API/workflow evidence is prioritized over less direct examples
-- **Confidence-gated synthesis:** `agent.synthesis` generates a grounded brief only when retrieved evidence passes the CRAG confidence check and enforces visible source citations in direct answers
-- **Evidence matrix:** `agent.evidence_matrix` turns retrieved evidence into inspectable claim/source rows with methodology, dataset, result, limitation, and strength fields
-- **Reading path:** `agent.reading_path` recommends a grounded 5-10 paper sequence across foundations, methods, evaluation, recent advances, and limitations
-- **Open problems:** `agent.open_problems` derives unresolved problems from retrieved limitations, future-work signals, and evidence gaps
-- **Combined guidance:** `agent.research_guidance` reuses one unified retrieval response and confidence assessment for the brief, evidence matrix, reading path, and open-problems output
-- **Fail-soft optional sections:** `/guidance` keeps the core answer available when optional evidence matrix, reading path, or open-problems generation fails, while surfacing quiet notes for diagnostics
-- **Parallel optional generation:** evidence matrix, reading path, and open-problems sections are built concurrently after the evidence gate passes, reducing end-to-end wait time for full analyst briefs
-- **Fast-first UI response:** the Streamlit workspace loads the direct answer and evidence matrix first, then generates reading path and open problems on demand from their tabs
-- **FastAPI backend:** `api.main` exposes health, corpus stats, route preview, retrieval, confidence, brief, evidence matrix, reading path, open problems, combined guidance, and bounded research-agent endpoints
-- **Streamlit workspace:** `ui.streamlit_app` provides a compact research analyst interface with sidebar filters, route preview, loading status, chat memory, rewritten follow-up queries, evidence-gate display, answer cards, top supporting evidence, capped source snippets, and tabbed source inspection
+| Evaluation Focus | Query Count | What It Checks |
+| --- | ---: | --- |
+| Full-text evidence | 12 | Dataset, metric, method, result, and limitation questions that should use chunks |
+| Cross-topic comparison | 6 | Questions that should combine paper-level and chunk-level evidence |
+| Confidence gate | 5 | Out-of-corpus or under-specified questions that should not hallucinate |
+| Metadata filter | 4 | Top-cited and year-filtered questions |
+| Contextual rewrite | 4 | Follow-up questions that require chat history |
+| Route selection | 3 | Broad overview questions |
+| Reading path | 1 | Reading recommendation behavior |
 
-Hybrid query example:
+Current evaluation fixture:
+
+```text
+queries: 35
+queries_with_relevant_ids: 22
+multi_turn_queries: 4
+out_of_corpus_queries: 3
+weak_evidence_queries: 2
+```
+
+Run the evaluation after starting Qdrant:
 
 ```bash
-python -m retrieval.hybrid_search "What are the main approaches for reducing hallucinations in LLMs?" --final-top-k 5
+python -m retrieval.evaluate --queries tests/fixtures/eval_queries.json
 ```
 
-Dense sanity query:
+The runner reports route accuracy, topic hit rate, keyword hit rate, Recall@5, Recall@10, MRR, rewrite keyword hit rate, confidence decision accuracy, and CRAG fallback success rate. Recall and MRR are computed only over the subset with exact relevant-ID labels.
 
-```text
-hallucination detection in large language models
-```
+Latest local run on the 35-query fixture:
 
-returned relevant papers from `LLM Evaluation & Hallucination Detection`, including hallucination surveys and detection methods.
+| Metric | Value | Scope |
+| --- | ---: | --- |
+| Route accuracy | 0.71 | all queries |
+| Topic hit rate@10 | 1.00 | topic-labeled queries |
+| Keyword hit rate@10 | 0.94 | keyword-labeled queries |
+| Recall@10 | 0.41 | 22 exact-ID labeled queries |
+| MRR | 0.31 | 22 exact-ID labeled queries |
+| Rewrite keyword hit rate | 1.00 | 4 contextual queries |
+| Confidence decision accuracy | 0.80 | 5 confidence-labeled queries |
+| CRAG fallback success rate | 0.80 | 5 expected fallback queries |
 
-BM25 sanity query returned relevant papers such as:
+A detailed metric policy and fixture breakdown lives in `docs/EVALUATION.md`.
 
-```text
-A Survey on Hallucination in Large Language Models
-SelfCheckGPT: Zero-Resource Black-Box Hallucination Detection
-HaluEval: A Large-Scale Hallucination Evaluation Benchmark
-```
+## Performance Note
 
-## Full-Text Source Discovery
+The UI was changed to return the direct answer and evidence matrix first, then generate heavier sections on demand. On the hallucination demo question, this reduced the first `/guidance` response from about 21.3 seconds to about 8.8 seconds.
 
-The project includes a source discovery step for legal open PDFs. It checks existing arXiv links first, then queries OpenAlex for open-access PDF locations.
-
-Current local discovery result:
-
-```text
-full-text sources checked: 250
-full-text available: 173
-arXiv sources: 49
-OpenAlex open-access PDF sources: 124
-unavailable: 77
-```
-
-Available full-text papers by topic:
-
-| Research Area | Full Text Available |
+| Mode | Initial Response |
 | --- | ---: |
-| Retrieval-Augmented Generation (RAG) | 40 |
-| Transformers / Attention Mechanisms | 26 |
-| LLM Evaluation & Hallucination Detection | 39 |
-| AI Agents & Tool Use | 35 |
-| Fine-tuning (LoRA / PEFT) | 33 |
-
-This is enough to build a 100-150 paper full-text subset while keeping all 250 papers in the abstract-level index.
-
-Full-text extraction result after the recovery pass:
-
-```text
-legal PDF sources attempted: 173 initial sources + recovery candidates
-successfully extracted full-text papers: 152
-additional papers recovered: 21
-total extracted pages: 2913
-total extracted text characters: 14163478
-```
-
-Successful full-text papers by topic:
-
-| Research Area | Extracted Full Text Papers |
-| --- | ---: |
-| Retrieval-Augmented Generation (RAG) | 35 |
-| Transformers / Attention Mechanisms | 25 |
-| LLM Evaluation & Hallucination Detection | 33 |
-| AI Agents & Tool Use | 30 |
-| Fine-tuning (LoRA / PEFT) | 29 |
-
-Most failures were publisher-side download blocks such as `403 Forbidden`; those papers remain available through the abstract-level index.
-
-Full-text chunk index:
-
-```text
-full-text papers chunked: 152
-full-text chunks: 4909
-chunk embedding model: text-embedding-3-large
-stored chunk embedding dimensions: 1024
-Qdrant chunk collection: research_paper_chunks
-Qdrant chunk points: 4909
-```
-
-Chunk retrieval is used for detailed evidence questions such as datasets, metrics, methods, results, and limitations.
+| Full guidance in one call | 21.3s |
+| Fast-first guidance | 8.8s |
 
 ## Validation
-
-Current validated numbers:
 
 ```text
 raw papers: 250
@@ -238,32 +273,15 @@ enriched papers: 250
 embedded papers: 250
 paper-level Qdrant points: 250
 BM25 documents: 250
+full-text papers: 152
 full-text chunks: 4909
 chunk-level Qdrant points: 4909
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 234 passed
+tests: 236 passed
 ```
 
 These counts reflect the current local artifacts, index checks, and test suite.
-
-## Evaluation Coverage
-
-The retrieval evaluation fixture contains 25 human-readable queries across the five research areas. It now includes single-turn retrieval checks, multi-turn contextual follow-ups, route-specific questions, partial relevant-ID labels, and out-of-corpus/weak-evidence cases for confidence-gating checks.
-
-The evaluation runner reports:
-
-- route accuracy over the full query set
-- topic and keyword hit rates as broad sanity checks
-- Recall@5, Recall@10, and MRR only on queries with `expected_relevant_ids`
-- rewrite keyword hit rate for contextual follow-up queries
-- confidence decision accuracy and CRAG fallback success rate for confidence-labeled cases
-
-Run it with local services configured:
-
-```bash
-python -m retrieval.evaluate --queries tests/fixtures/eval_queries.json
-```
 
 ## Tech Stack
 

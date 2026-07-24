@@ -117,6 +117,15 @@ OpenProblemCategoryName = Literal[
     "deployment",
 ]
 EvidenceStrengthName = Literal["strong", "moderate", "weak"]
+EvaluationFocusName = Literal[
+    "route_selection",
+    "full_text_evidence",
+    "metadata_filter",
+    "cross_topic_comparison",
+    "contextual_rewrite",
+    "confidence_gate",
+    "reading_path",
+]
 
 
 class QueryRoute(BaseModel):
@@ -236,6 +245,8 @@ class EvaluationQuery(BaseModel):
     chat_history: list[EvaluationChatTurn] = Field(default_factory=list)
     expected_standalone_keywords: list[str] = Field(default_factory=list)
     expected_confidence_decision: Optional[ConfidenceDecisionName] = None
+    evaluation_focus: EvaluationFocusName = "route_selection"
+    rationale: Optional[str] = None
 
     @field_validator("query")
     @classmethod

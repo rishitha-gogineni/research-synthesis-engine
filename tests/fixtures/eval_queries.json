@@ -11,7 +11,12 @@
       "grounding",
       "retrieval"
     ],
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [
+      "https://openalex.org/W4389520749",
+      "https://openalex.org/W4389518784"
+    ],
+    "evaluation_focus": "route_selection",
+    "rationale": "Checks route selection behavior."
   },
   {
     "query": "Which datasets and metrics are used to evaluate hallucination detection?",
@@ -28,7 +33,9 @@
     "expected_relevant_ids": [
       "chunk-5e37453ff3c6af81",
       "chunk-b53616c0b2827a46"
-    ]
+    ],
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "Checks full text evidence behavior."
   },
   {
     "query": "Compare RAG and self-verification methods for reducing hallucinations.",
@@ -42,7 +49,12 @@
       "verification",
       "hallucination"
     ],
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [
+      "https://openalex.org/W4389984066",
+      "https://openalex.org/W4389520749"
+    ],
+    "evaluation_focus": "cross_topic_comparison",
+    "rationale": "Checks cross topic comparison behavior."
   },
   {
     "query": "Show top-cited LoRA papers after 2020.",
@@ -58,7 +70,9 @@
     "expected_relevant_ids": [
       "https://openalex.org/W3168867926",
       "https://openalex.org/W4322766882"
-    ]
+    ],
+    "evaluation_focus": "metadata_filter",
+    "rationale": "Checks metadata filter behavior."
   },
   {
     "query": "What are common limitations in AI agent tool-use papers?",
@@ -71,7 +85,11 @@
       "agent",
       "limitation"
     ],
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [
+      "chunk-d10d738033219311"
+    ],
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "Checks full text evidence behavior."
   },
   {
     "query": "Which LoRA and PEFT papers should I read first and why?",
@@ -84,7 +102,12 @@
       "PEFT",
       "fine-tuning"
     ],
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4389524317"
+    ],
+    "evaluation_focus": "reading_path",
+    "rationale": "Checks reading path behavior."
   },
   {
     "query": "Which benchmarks are used for tool-use agents?",
@@ -97,7 +120,11 @@
       "tool",
       "agent"
     ],
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [
+      "chunk-d10d738033219311"
+    ],
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "Checks full text evidence behavior."
   },
   {
     "query": "What are the research themes in Retrieval-Augmented Generation?",
@@ -113,7 +140,9 @@
     "expected_relevant_ids": [
       "https://openalex.org/W4389984066",
       "https://openalex.org/W4401857375"
-    ]
+    ],
+    "evaluation_focus": "route_selection",
+    "rationale": "Checks route selection behavior."
   },
   {
     "query": "Which metrics are reported in RAG evaluation papers?",
@@ -126,7 +155,9 @@
       "evaluation",
       "retrieval"
     ],
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [],
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "Checks full text evidence behavior."
   },
   {
     "query": "Compare transformers and attention variants for sequence modeling.",
@@ -139,7 +170,9 @@
       "transformer",
       "sequence"
     ],
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [],
+    "evaluation_focus": "cross_topic_comparison",
+    "rationale": "Checks cross topic comparison behavior."
   },
   {
     "query": "Show recent transformer attention papers after 2021.",
@@ -151,7 +184,9 @@
       "attention",
       "transformer"
     ],
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [],
+    "evaluation_focus": "metadata_filter",
+    "rationale": "Checks metadata filter behavior."
   },
   {
     "query": "What datasets are used in transformer machine translation papers?",
@@ -164,7 +199,11 @@
       "translation",
       "dataset"
     ],
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [
+      "https://openalex.org/W2626778328"
+    ],
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "Checks full text evidence behavior."
   },
   {
     "query": "What methods are used for parameter-efficient fine-tuning?",
@@ -177,7 +216,12 @@
       "LoRA",
       "parameter-efficient"
     ],
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [
+      "chunk-f3e28578997fbb25",
+      "https://openalex.org/W3168867926"
+    ],
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "Checks full text evidence behavior."
   },
   {
     "query": "Compare LoRA and adapters for fine-tuning large language models.",
@@ -190,7 +234,12 @@
       "adapter",
       "fine-tuning"
     ],
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4389524317"
+    ],
+    "evaluation_focus": "cross_topic_comparison",
+    "rationale": "Checks cross topic comparison behavior."
   },
   {
     "query": "What are the main approaches in AI agents and tool use?",
@@ -203,7 +252,12 @@
       "tool",
       "planning"
     ],
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [
+      "https://openalex.org/W4386184788",
+      "https://openalex.org/W4386794445"
+    ],
+    "evaluation_focus": "route_selection",
+    "rationale": "Checks route selection behavior."
   },
   {
     "query": "Which results are reported for hallucination detection benchmarks?",
@@ -216,7 +270,12 @@
       "hallucination",
       "benchmark"
     ],
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [
+      "https://openalex.org/W4389518784",
+      "chunk-2f0e0bf88dfa5bf0"
+    ],
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "Checks full text evidence behavior."
   },
   {
     "query": "List top cited RAG papers before 2024.",
@@ -228,7 +287,9 @@
       "RAG",
       "retrieval"
     ],
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [],
+    "evaluation_focus": "metadata_filter",
+    "rationale": "Checks metadata filter behavior."
   },
   {
     "query": "What limitations are discussed in RAG survey papers?",
@@ -241,7 +302,9 @@
       "survey",
       "retrieval"
     ],
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [],
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "Checks full text evidence behavior."
   },
   {
     "query": "Give an overview of hallucination evaluation methods.",
@@ -254,7 +317,9 @@
       "evaluation",
       "method"
     ],
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [],
+    "evaluation_focus": "cross_topic_comparison",
+    "rationale": "Checks cross topic comparison behavior."
   },
   {
     "query": "What are the key results in LoRA papers?",
@@ -267,7 +332,11 @@
       "result",
       "fine-tuning"
     ],
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [
+      "https://openalex.org/W3168867926"
+    ],
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "Checks full text evidence behavior."
   },
   {
     "query": "What are its limitations?",
@@ -295,7 +364,9 @@
       "LoRA",
       "limitations"
     ],
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [],
+    "evaluation_focus": "contextual_rewrite",
+    "rationale": "Checks contextual rewrite behavior."
   },
   {
     "query": "How does it reduce hallucinations?",
@@ -324,7 +395,9 @@
       "retrieval",
       "hallucinations"
     ],
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [],
+    "evaluation_focus": "contextual_rewrite",
+    "rationale": "Checks contextual rewrite behavior."
   },
   {
     "query": "What does this corpus say about quantum cryptography hardware implementations?",
@@ -336,7 +409,9 @@
       "cryptography"
     ],
     "expected_confidence_decision": "insufficient_evidence",
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [],
+    "evaluation_focus": "confidence_gate",
+    "rationale": "Checks confidence gate behavior."
   },
   {
     "query": "What does the indexed corpus say about medieval agricultural tax law?",
@@ -349,7 +424,9 @@
       "tax"
     ],
     "expected_confidence_decision": "insufficient_evidence",
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [],
+    "evaluation_focus": "confidence_gate",
+    "rationale": "Checks confidence gate behavior."
   },
   {
     "query": "Tell me about it.",
@@ -358,6 +435,211 @@
     "expected_topics": [],
     "expected_keywords": [],
     "expected_confidence_decision": "ask_clarifying_question",
-    "expected_relevant_ids": []
+    "expected_relevant_ids": [],
+    "evaluation_focus": "confidence_gate",
+    "rationale": "Checks confidence gate behavior."
+  },
+  {
+    "query": "What is the difference between AI agents and RAG?",
+    "expected_route": "hybrid_both",
+    "expected_topics": [
+      "AI Agents & Tool Use",
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "agent",
+      "tool",
+      "retrieval",
+      "RAG"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W4386184788",
+      "https://openalex.org/W4389984066"
+    ],
+    "evaluation_focus": "cross_topic_comparison",
+    "rationale": "Common demo question that should combine agent and RAG evidence rather than answer from one topic only."
+  },
+  {
+    "query": "How do AI agents perform tasks with tools compared with a chatbot that only answers?",
+    "expected_route": "hybrid_both",
+    "expected_topics": [
+      "AI Agents & Tool Use"
+    ],
+    "expected_keywords": [
+      "agent",
+      "tool",
+      "planning",
+      "workflow"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W4386184788",
+      "https://openalex.org/W4386794445"
+    ],
+    "evaluation_focus": "cross_topic_comparison",
+    "rationale": "Checks that task execution/tool-use evidence is prioritized for an interview-style agent question."
+  },
+  {
+    "query": "What evidence do the papers give about SelfCheckGPT for hallucination detection?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "SelfCheckGPT",
+      "hallucination",
+      "detection"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W4389520749",
+      "chunk-19ec7a06f21a3d25"
+    ],
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "Checks detailed chunk retrieval for a named hallucination detection method."
+  },
+  {
+    "query": "What are limitations of RAG when retrieval quality is poor?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)",
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "retrieval",
+      "limitation",
+      "quality",
+      "hallucination"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W4389984066",
+      "chunk-3adf6c50dfb22f81"
+    ],
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "Checks limitations retrieval from detailed evidence rather than broad paper titles."
+  },
+  {
+    "query": "Which highly cited attention papers should I inspect after 2017?",
+    "expected_route": "metadata_filter",
+    "expected_topics": [
+      "Transformers / Attention Mechanisms"
+    ],
+    "expected_keywords": [
+      "attention",
+      "transformer"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W2626778328"
+    ],
+    "evaluation_focus": "metadata_filter",
+    "rationale": "Checks citation/year-style filtering on a transformer topic."
+  },
+  {
+    "query": "Which datasets are used for LoRA or PEFT evaluation?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "LoRA",
+      "dataset",
+      "evaluation",
+      "fine-tuning"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W3168867926",
+      "chunk-f3e28578997fbb25"
+    ],
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "Checks method/dataset extraction from PEFT full-text evidence."
+  },
+  {
+    "query": "What are its evaluation methods?",
+    "category": "multi_turn",
+    "chat_history": [
+      {
+        "role": "user",
+        "content": "Explain SelfCheckGPT for hallucination detection."
+      },
+      {
+        "role": "assistant",
+        "content": "SelfCheckGPT is a black-box hallucination detection method that checks consistency across sampled generations."
+      }
+    ],
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "SelfCheckGPT",
+      "evaluation",
+      "hallucination"
+    ],
+    "expected_standalone_keywords": [
+      "SelfCheckGPT",
+      "evaluation"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W4389520749",
+      "chunk-19ec7a06f21a3d25"
+    ],
+    "evaluation_focus": "contextual_rewrite",
+    "rationale": "Checks whether a pronoun follow-up is rewritten into a named standalone query."
+  },
+  {
+    "query": "How do they compare with adapters?",
+    "category": "multi_turn",
+    "chat_history": [
+      {
+        "role": "user",
+        "content": "What are LoRA fine-tuning methods?"
+      },
+      {
+        "role": "assistant",
+        "content": "LoRA adapts model weights through low-rank updates while keeping most parameters frozen."
+      }
+    ],
+    "expected_route": "hybrid_both",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "LoRA",
+      "adapter",
+      "fine-tuning"
+    ],
+    "expected_standalone_keywords": [
+      "LoRA",
+      "adapters"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4389524317"
+    ],
+    "evaluation_focus": "contextual_rewrite",
+    "rationale": "Checks contextual comparison rewriting for PEFT methods."
+  },
+  {
+    "query": "What does the indexed corpus say about Kubernetes autoscaling policies?",
+    "category": "out_of_corpus",
+    "expected_route": "hybrid_both",
+    "expected_topics": [],
+    "expected_keywords": [
+      "Kubernetes",
+      "autoscaling"
+    ],
+    "expected_confidence_decision": "insufficient_evidence",
+    "expected_relevant_ids": [],
+    "evaluation_focus": "confidence_gate",
+    "rationale": "Checks refusal behavior for a technical topic outside the five-topic AI research corpus."
+  },
+  {
+    "query": "Can you explain that paper?",
+    "category": "weak_evidence",
+    "expected_route": "hybrid_both",
+    "expected_topics": [],
+    "expected_keywords": [],
+    "expected_confidence_decision": "ask_clarifying_question",
+    "expected_relevant_ids": [],
+    "evaluation_focus": "confidence_gate",
+    "rationale": "Checks clarifying-question behavior for underspecified follow-up without usable context."
   }
 ]

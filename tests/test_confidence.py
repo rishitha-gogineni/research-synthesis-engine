@@ -14,8 +14,8 @@ from retrieval.confidence import (
 from shared.schemas import QueryRoute, RetrievedChunk, RetrievedPaper, UnifiedSearchResponse
 
 
-def make_route(route="paper_level", confidence=0.9):
-    return QueryRoute(query="test query", route=route, reason="test", confidence=confidence)
+def make_route(route="paper_level", confidence=0.9, query="hallucination benchmark evidence"):
+    return QueryRoute(query=query, route=route, reason="test", confidence=confidence)
 
 
 def make_paper(paper_id="p1", topic="LLM Evaluation & Hallucination Detection", score=0.9):
@@ -44,12 +44,12 @@ def make_chunk(chunk_id="c1", paper_id="p1", topic="LLM Evaluation & Hallucinati
     )
 
 
-def make_response(route="paper_level", route_confidence=0.9, papers=None, chunks=None):
+def make_response(route="paper_level", route_confidence=0.9, papers=None, chunks=None, query="hallucination benchmark evidence"):
     papers = papers or []
     chunks = chunks or []
     return UnifiedSearchResponse(
-        query="test query",
-        route=make_route(route, route_confidence),
+        query=query,
+        route=make_route(route, route_confidence, query=query),
         paper_result_count=len(papers),
         chunk_result_count=len(chunks),
         paper_results=papers,
@@ -126,6 +126,30 @@ def test_hybrid_both_disagreement_lowers_confidence():
 
     assert components["agreement_score"] == 0.45
     assert any("do not overlap" in signal for signal in components["agreement_signals"])
+
+
+def test_off_topic_results_are_insufficient_even_with_high_scores():
+    response = make_response(
+        query="quantum cryptography hardware",
+        papers=[make_paper("p1", score=0.95), make_paper("p2", score=0.9)],
+    )
+
+    assessment = assess_confidence(response)
+
+    assert assessment.decision == "insufficient_evidence"
+    assert any("query_support_score=0.00" in signal for signal in assessment.signals)
+
+
+def test_underspecified_query_asks_for_clarification():
+    response = make_response(
+        query="Tell me about it.",
+        papers=[make_paper("p1", score=0.95), make_paper("p2", score=0.9)],
+    )
+
+    assessment = assess_confidence(response)
+
+    assert assessment.decision == "ask_clarifying_question"
+    assert any("query_specificity=0" in signal for signal in assessment.signals)
 
 
 def test_load_response_reads_unified_response_json(tmp_path):

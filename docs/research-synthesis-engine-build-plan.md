@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 28 days
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, Day 21.5 UI/trust/output polish, Day 22 context-aware query rewriting, Day 22.5 answer-quality/retrieval/UI cleanup, Day 24 research agent loop, Day 25 evaluation hardening, Day 26 agent API/UI integration, Day 27 latency/demo smoothness, Day 28 fast-first UI sections, and Day 28.5 full-text recovery are complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, Day 21.5 UI/trust/output polish, Day 22 context-aware query rewriting, Day 22.5 answer-quality/retrieval/UI cleanup, Day 24 research agent loop, Day 25 evaluation hardening, Day 26 agent API/UI integration, Day 27 latency/demo smoothness, Day 28 fast-first UI sections, Day 28.5 full-text recovery, and Day 29 README/evaluation polish are complete.
 
 ## Final Positioning
 
@@ -812,12 +812,34 @@ full-text papers: 152
 full-text chunks: 4909
 embedded full-text chunks: 4909
 Qdrant research_paper_chunks: 4909 points
-tests: 234 passed
+tests: 236 passed
+```
+
+
+## Day 29: README Architecture and Evaluation Polish - Complete
+
+Goal: make the repository easier to understand for reviewers and strengthen the evaluation story.
+
+Implemented:
+- Reworked the README opening around concrete project capabilities, corpus counts, latency improvement, and validation counts.
+- Split architecture documentation into separate Mermaid diagrams for system overview, offline ingestion, full-text expansion, live retrieval, agentic synthesis, and API/UI flow.
+- Expanded `tests/fixtures/eval_queries.json` from 25 to 35 queries.
+- Increased exact relevant-ID labels from 3 to 22 queries so Recall/MRR are more meaningful.
+- Added `evaluation_focus` labels for full-text evidence, cross-topic comparison, confidence gating, metadata filtering, contextual rewriting, route selection, and reading path behavior.
+- Updated `retrieval.evaluate` to report evaluation focus coverage.
+- Added `docs/EVALUATION.md` with metric definitions, fixture coverage, and labeling policy.
+- Full suite passed with 236 tests after adding query-support confidence guardrail tests.
+
+Checkpoint:
+```text
+README: architecture split into clear diagrams
+eval fixture: 35 queries, 22 exact-ID labeled
+tests: 236 passed
 ```
 
 # Current Immediate Next Step
 
-Start **Day 29: Final Demo QA and GitHub Polish**.
+Start **Day 30: Final Demo QA and GitHub Polish**.
 
 Recommended scope:
 - Benchmark the fast-first UI/API path on the strongest demo questions.

@@ -512,3 +512,26 @@ Reasoning:
 - Most users first need the answer and supporting evidence; deeper planning sections are useful but should not block the first result.
 - API defaults remain backward compatible, so direct callers still receive the complete guidance response unless they opt out with section flags.
 - The UI can reuse existing section endpoints for on-demand generation without adding a new retrieval architecture.
+
+
+## 2026-07-24: Make Evaluation Coverage Explicit
+
+We expanded the retrieval evaluation fixture and added an explicit `evaluation_focus` label to each query.
+
+Reasoning:
+- A stronger project README needs a visible evaluation story, not only architecture diagrams.
+- Exact-ID labels are the most rigorous retrieval checks, so the labeled subset was expanded from 3 to 22 queries.
+- Not every useful evaluation query should count toward Recall/MRR; contextual rewrites, metadata filters, weak-evidence questions, and out-of-corpus refusals need separate behavior checks.
+- `retrieval.evaluate` now reports focus coverage so reviewers can see what the fixture is testing.
+- The README summarizes the evaluation fixture, while `docs/EVALUATION.md` keeps metric policy and labeling details out of the main project page.
+
+
+## 2026-07-24: Add Query-Support Signal To Confidence Gating
+
+The CRAG confidence check now verifies whether meaningful user-query terms appear in retrieved titles, abstracts, structured metadata, or chunk text.
+
+Reasoning:
+- The expanded evaluation set exposed that dense retrieval can return high-scoring but off-topic results for out-of-corpus questions.
+- Score strength alone is not enough for a safe synthesis gate; retrieved evidence must also visibly support the specific user question.
+- Underspecified queries with no meaningful research terms should ask for clarification rather than synthesize from arbitrary nearest neighbors.
+- The latest local evaluation improved confidence decision accuracy and CRAG fallback success rate to 0.80 on the confidence-labeled subset.
