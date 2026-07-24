@@ -215,21 +215,21 @@ The evaluation fixture is intentionally mixed: some queries have exact relevant 
 
 | Evaluation Focus | Query Count | What It Checks |
 | --- | ---: | --- |
-| Full-text evidence | 12 | Dataset, metric, method, result, and limitation questions that should use chunks |
-| Cross-topic comparison | 6 | Questions that should combine paper-level and chunk-level evidence |
-| Confidence gate | 5 | Out-of-corpus or under-specified questions that should not hallucinate |
-| Metadata filter | 4 | Top-cited and year-filtered questions |
-| Contextual rewrite | 4 | Follow-up questions that require chat history |
-| Route selection | 3 | Broad overview questions |
+| Full-text evidence | 19 | Dataset, metric, method, result, and limitation questions that should use chunks |
+| Cross-topic comparison | 7 | Questions that should combine paper-level and chunk-level evidence |
+| Confidence gate | 6 | Out-of-corpus or under-specified questions that should not hallucinate |
+| Metadata filter | 6 | Top-cited and year-filtered questions |
+| Contextual rewrite | 5 | Follow-up questions that require chat history |
+| Route selection | 6 | Broad overview questions |
 | Reading path | 1 | Reading recommendation behavior |
 
 Current evaluation fixture:
 
 ```text
-queries: 35
-queries_with_relevant_ids: 22
-multi_turn_queries: 4
-out_of_corpus_queries: 3
+queries: 50
+queries_with_relevant_ids: 36
+multi_turn_queries: 5
+out_of_corpus_queries: 4
 weak_evidence_queries: 2
 ```
 
@@ -239,20 +239,20 @@ Run the evaluation after starting Qdrant:
 python -m retrieval.evaluate --queries tests/fixtures/eval_queries.json
 ```
 
-The runner reports route accuracy, topic hit rate, keyword hit rate, Recall@5, Recall@10, MRR, rewrite keyword hit rate, confidence decision accuracy, and CRAG fallback success rate. Recall and MRR are computed only over the subset with exact relevant-ID labels.
+The runner reports route accuracy, topic hit rate, keyword hit rate, Recall@5, Recall@10, MRR, rewrite keyword hit rate, confidence decision accuracy, and CRAG fallback success rate. Recall and MRR are computed only over the subset with exact relevant-ID labels. Route accuracy uses the preferred route plus any manually declared acceptable alternatives, so a safe `hybrid_both` route is not penalized when a narrower paper or chunk route would also be valid.
 
-Latest local run on the 35-query fixture:
+Latest local run on the 50-query fixture:
 
 | Metric | Value | Scope |
 | --- | ---: | --- |
-| Route accuracy | 0.71 | all queries |
-| Topic hit rate@10 | 1.00 | topic-labeled queries |
-| Keyword hit rate@10 | 0.94 | keyword-labeled queries |
-| Recall@10 | 0.73 | 22 exact-ID labeled queries |
-| MRR | 0.57 | 22 exact-ID labeled queries |
-| Rewrite keyword hit rate | 1.00 | 4 contextual queries |
-| Confidence decision accuracy | 0.80 | 5 confidence-labeled queries |
-| CRAG fallback success rate | 0.80 | 5 expected fallback queries |
+| Route accuracy | 1.00 | all queries, using preferred or explicitly acceptable routes |
+| Topic hit rate@10 | 1.00 | 44 topic-labeled queries |
+| Keyword hit rate@10 | 0.94 | 48 keyword-labeled queries |
+| Recall@10 | 1.00 | 36 exact-ID labeled queries |
+| MRR | 0.86 | 36 exact-ID labeled queries |
+| Rewrite keyword hit rate | 1.00 | 5 contextual queries |
+| Confidence decision accuracy | 1.00 | 6 confidence-labeled queries |
+| CRAG fallback success rate | 1.00 | 6 expected fallback queries |
 
 A detailed metric policy and fixture breakdown lives in `docs/EVALUATION.md`.
 

@@ -7,6 +7,7 @@ import pytest
 from agent.query_rewriter import QueryRewriteResult
 from retrieval.evaluate import (
     EvaluationError,
+    effective_routes,
     evaluate_response,
     format_rate,
     keyword_hit,
@@ -73,13 +74,15 @@ def test_evaluation_query_defaults_expected_relevant_ids_to_empty():
     query = EvaluationQuery(query="What are RAG themes?", expected_route="paper_level")
 
     assert query.expected_relevant_ids == []
+    assert query.acceptable_routes == []
+    assert effective_routes(query) == ["paper_level"]
 
 
 def test_load_eval_queries_reads_fixture():
     queries = load_eval_queries(__import__("pathlib").Path("tests/fixtures/eval_queries.json"))
 
-    assert len(queries) >= 35
-    assert sum(bool(query.expected_relevant_ids) for query in queries) >= 20
+    assert len(queries) >= 50
+    assert sum(bool(query.expected_relevant_ids) for query in queries) >= 35
     assert {query.evaluation_focus for query in queries} >= {
         "full_text_evidence",
         "metadata_filter",
@@ -111,6 +114,24 @@ def test_reciprocal_rank_finds_first_relevant_id():
 
     assert reciprocal_rank(results, ["p3"]) == pytest.approx(1 / 3)
     assert reciprocal_rank(results, ["missing"]) == 0.0
+
+
+def test_evaluate_response_accepts_valid_route_alternative():
+    query = EvaluationQuery(
+        query="Which benchmarks are used for tool-use agents?",
+        expected_route="chunk_level",
+        acceptable_routes=["hybrid_both"],
+        expected_topics=["AI Agents & Tool Use"],
+        expected_keywords=["benchmark"],
+        expected_relevant_ids=["c1"],
+    )
+    response = make_response("q", "hybrid_both", paper_ids=["p1"], chunk_ids=["c1"], topic="AI Agents & Tool Use")
+
+    evaluation = evaluate_response(query, response, (1,))
+
+    assert evaluation["route_correct"] is True
+    assert evaluation["acceptable_routes"] == ["chunk_level", "hybrid_both"]
+    assert evaluation["id_hit_sets"][1] == {"c1"}
 
 
 def test_evaluate_response_uses_expected_route_result_set_for_ids():

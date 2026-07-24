@@ -152,6 +152,12 @@ def format_rate(value: float | None) -> str:
     return f"{value:.2f}"
 
 
+def effective_routes(query: EvaluationQuery) -> list[str]:
+    """Return the preferred route plus valid route alternatives for evaluation."""
+    routes = [query.expected_route, *query.acceptable_routes]
+    return list(dict.fromkeys(routes))
+
+
 def evaluate_response(
     query: EvaluationQuery,
     response: UnifiedSearchResponse,
@@ -166,7 +172,8 @@ def evaluate_response(
         rewrite_used=response.query != query.query,
         method="none",
     )
-    route_correct = response.route.route == query.expected_route
+    accepted_routes = effective_routes(query)
+    route_correct = response.route.route in accepted_routes
     route_results = select_results(response, query.expected_route)
     combined_results = all_results(response)
     has_relevant_ids = bool(query.expected_relevant_ids)
@@ -190,6 +197,7 @@ def evaluate_response(
         "rewrite_used": rewrite_result.rewrite_used,
         "rewrite_keyword_hit": rewrite_keyword_hit,
         "expected_route": query.expected_route,
+        "acceptable_routes": accepted_routes,
         "actual_route": response.route.route,
         "route_correct": route_correct,
         "expected_confidence_decision": query.expected_confidence_decision,

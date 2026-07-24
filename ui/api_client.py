@@ -26,14 +26,14 @@ SUGGESTED_QUESTIONS = [
 ]
 
 EVALUATION_SUMMARY = {
-    "Route accuracy": {"value": "0.71", "scope": "35 queries"},
-    "Topic hit@10": {"value": "1.00", "scope": "30 topic-labeled queries"},
-    "Keyword hit@10": {"value": "0.94", "scope": "33 keyword-labeled queries"},
-    "Recall@10": {"value": "0.73", "scope": "22 exact-ID labels"},
-    "MRR": {"value": "0.57", "scope": "22 exact-ID labels"},
-    "Rewrite hit rate": {"value": "1.00", "scope": "4 contextual queries"},
-    "Confidence accuracy": {"value": "0.80", "scope": "5 confidence labels"},
-    "CRAG fallback success": {"value": "0.80", "scope": "5 fallback labels"},
+    "Route accuracy": {"value": "1.00", "scope": "50 queries"},
+    "Topic hit@10": {"value": "1.00", "scope": "44 topic-labeled queries"},
+    "Keyword hit@10": {"value": "0.94", "scope": "48 keyword-labeled queries"},
+    "Recall@10": {"value": "1.00", "scope": "36 exact-ID labels"},
+    "MRR": {"value": "0.86", "scope": "36 exact-ID labels"},
+    "Rewrite hit rate": {"value": "1.00", "scope": "5 contextual queries"},
+    "Confidence accuracy": {"value": "1.00", "scope": "6 confidence labels"},
+    "CRAG fallback success": {"value": "1.00", "scope": "6 fallback labels"},
 }
 
 

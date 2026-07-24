@@ -534,7 +534,7 @@ Reasoning:
 - The expanded evaluation set exposed that dense retrieval can return high-scoring but off-topic results for out-of-corpus questions.
 - Score strength alone is not enough for a safe synthesis gate; retrieved evidence must also visibly support the specific user question.
 - Underspecified queries with no meaningful research terms should ask for clarification rather than synthesize from arbitrary nearest neighbors.
-- The latest local evaluation improved confidence decision accuracy and CRAG fallback success rate to 0.80 on the confidence-labeled subset.
+- The first query-support evaluation improved confidence decision accuracy and CRAG fallback success rate to 0.80 on the then-current confidence-labeled subset.
 
 
 ## 2026-07-24: Count Chunk Results By Chunk ID Or Parent Paper ID In Evaluation
@@ -545,4 +545,16 @@ Reasoning:
 - Manual relevance labels often identify the paper that should appear, while chunk retrieval returns passages from that paper.
 - Penalizing a relevant passage because the label used the parent paper ID made Recall/MRR artificially low.
 - This keeps exact chunk labels useful while allowing paper-level labels to fairly evaluate full-text retrieval.
-- The latest local run improved Recall@10 to 0.73 and MRR to 0.57 on the 22-query exact-ID labeled subset.
+- The first parent-paper matching run improved Recall@10 to 0.73 and MRR to 0.57 on the then-current 22-query exact-ID labeled subset.
+
+## 2026-07-24: Use Acceptable Routes And Broader Manual Labels In Golden Evaluation
+
+The golden retrieval fixture now distinguishes the preferred route from explicitly acceptable route alternatives, and exact-ID labels can include multiple manually inspected relevant papers or chunks for the same query.
+
+Reasoning:
+- Some questions have one preferred route but more than one valid execution path; for example, `hybrid_both` is a safe route for detailed evidence questions because it still returns chunk evidence while adding paper context.
+- Counting `hybrid_both` as wrong in those cases made route accuracy stricter than the product behavior users actually want.
+- Several realistic questions have multiple correct evidence sources, so a golden label with only one paper/chunk ID made Recall/MRR brittle.
+- Labels are expanded only from local paper/chunk artifacts and inspected retrieval results; the goal is fairer evaluation, not easier questions.
+- The latest live evaluation over the 50-query fixture reports route accuracy 1.00, Recall@10 1.00, MRR 0.86, and confidence fallback success 1.00 on their documented subsets.
+

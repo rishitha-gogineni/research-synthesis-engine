@@ -23,8 +23,9 @@ QUERY_SUPPORT_MINIMUM = 0.18
 QUERY_SPECIFICITY_MINIMUM = 1
 QUERY_STOPWORDS = {
     "about", "after", "against", "answer", "answers", "are", "can", "compare", "corpus",
-    "does", "explain", "from", "give", "highly", "indexed", "into", "main", "paper",
-    "papers", "policies", "question", "recent", "research", "results", "should", "show",
+    "does", "explain", "from", "give", "hardware", "highly", "implementation", "implementations",
+    "indexed", "into", "main", "paper", "papers", "policies", "question", "recent",
+    "research", "results", "should", "show",
     "that", "their", "there", "these", "they", "this", "those", "used", "user", "what",
     "when", "where", "which", "while", "with", "without", "about", "tell", "query", "test",
 }

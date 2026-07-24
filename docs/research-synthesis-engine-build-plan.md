@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 28 days
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, Day 21.5 UI/trust/output polish, Day 22 context-aware query rewriting, Day 22.5 answer-quality/retrieval/UI cleanup, Day 24 research agent loop, Day 25 evaluation hardening, Day 26 agent API/UI integration, Day 27 latency/demo smoothness, Day 28 fast-first UI sections, Day 28.5 full-text recovery, and Day 29 README/evaluation polish are complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, Day 21.5 UI/trust/output polish, Day 22 context-aware query rewriting, Day 22.5 answer-quality/retrieval/UI cleanup, Day 24 research agent loop, Day 25 evaluation hardening, Day 26 agent API/UI integration, Day 27 latency/demo smoothness, Day 28 fast-first UI sections, Day 28.5 full-text recovery, and Day 29 README/evaluation polish, Day 30 final UI/evaluation hardening, and Day 31 golden dataset strengthening are complete.
 
 ## Final Positioning
 
@@ -844,7 +844,7 @@ Goal: make the final demo more transparent and improve the fairness of exact-ID 
 
 Implemented:
 - Updated evaluation matching so full-text chunk results can match either their chunk ID or parent paper ID.
-- Reran live evaluation with Qdrant available; Recall@10 improved to 0.73 and MRR improved to 0.57 on the 22-query labeled subset.
+- Reran live evaluation with Qdrant available; this first pass improved Recall@10 to 0.73 and MRR to 0.57 on the then-current 22-query labeled subset.
 - Added a Diagnostics-only System Quality panel in the Streamlit UI.
 - Added an optional `Show agent reasoning trace` toggle that calls `/agent/research` only when requested.
 - Updated UI suggested questions to match the final demo script.
@@ -856,6 +856,32 @@ recall@10: 0.73
 mrr: 0.57
 confidence_decision_accuracy: 0.80
 crag_fallback_success_rate: 0.80
+```
+
+
+## Day 31: Golden Dataset Strengthening - Complete
+
+Goal: make retrieval evaluation stronger, fairer, and more interview-ready.
+
+Implemented:
+- Expanded `tests/fixtures/eval_queries.json` to 50 queries.
+- Increased exact relevant-ID labels to 36 queries.
+- Added `acceptable_routes` so route accuracy can distinguish a preferred route from valid broader alternatives such as `hybrid_both`.
+- Added more manually inspected relevant paper/chunk IDs for realistic questions with multiple correct evidence sources.
+- Tightened confidence gating for generic off-topic matches by filtering terms such as implementation/hardware from query-support scoring.
+- Updated README, `docs/EVALUATION.md`, and the UI diagnostics metric summary to the verified 50-query run.
+
+Checkpoint:
+```text
+queries: 50
+queries_with_relevant_ids: 36
+route_accuracy: 1.00
+recall@10: 1.00
+mrr: 0.86
+rewrite_keyword_hit_rate: 1.00
+confidence_decision_accuracy: 1.00
+crag_fallback_success_rate: 1.00
+tests: 238 passed
 ```
 
 # Current Immediate Next Step

@@ -238,6 +238,10 @@ class EvaluationQuery(BaseModel):
 
     query: str = Field(..., min_length=1)
     expected_route: QueryRouteName
+    acceptable_routes: list[QueryRouteName] = Field(
+        default_factory=list,
+        description="Optional set of routes that are valid alternatives to the preferred expected_route.",
+    )
     expected_topics: list[str] = Field(default_factory=list)
     expected_keywords: list[str] = Field(default_factory=list)
     expected_relevant_ids: list[str] = Field(default_factory=list)
