@@ -292,7 +292,7 @@ def test_build_guidance_payload_includes_chat_history_when_present():
 def test_agent_trace_rows_flattens_agent_response():
     rows = api_client.agent_trace_rows(
         {
-            "trace": [
+            "agent_trace": [
                 {"step": "Context rewrite", "status": "completed", "detail": "Standalone query: LoRA limitations"},
                 {"step": "Retrieval attempt 1"},
             ]
@@ -303,6 +303,13 @@ def test_agent_trace_rows_flattens_agent_response():
         {"Step": "Context rewrite", "Status": "completed", "Detail": "Standalone query: LoRA limitations"},
         {"Step": "Retrieval attempt 1", "Status": "completed", "Detail": "-"},
     ]
+
+
+def test_evaluation_metric_rows_expose_latest_quality_summary():
+    rows = api_client.evaluation_metric_rows()
+
+    assert {row["Metric"] for row in rows} >= {"Route accuracy", "Recall@10", "CRAG fallback success"}
+    assert all(row["Value"] and row["Scope"] for row in rows)
 
 
 def test_run_agent_research_posts_to_agent_endpoint(monkeypatch):

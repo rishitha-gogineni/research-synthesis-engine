@@ -40,12 +40,23 @@ def normalize_text(value: str | None) -> str:
     return (value or "").lower()
 
 
-def result_id(result: object) -> str | None:
+def result_identifiers(result: object) -> list[str]:
+    """Return every stable ID that can identify a retrieved result.
+
+Chunk results can be labeled either by their exact chunk ID or by their parent
+paper ID, so evaluation should consider both identifiers.
+    """
+    identifiers: list[str] = []
     for attr in ("chunk_id", "paper_id"):
         value = getattr(result, attr, None)
-        if value:
-            return str(value)
-    return None
+        if value and str(value) not in identifiers:
+            identifiers.append(str(value))
+    return identifiers
+
+
+def result_id(result: object) -> str | None:
+    identifiers = result_identifiers(result)
+    return identifiers[0] if identifiers else None
 
 
 def select_results(response: UnifiedSearchResponse, route: str) -> list[object]:
@@ -117,15 +128,14 @@ def maybe_rewrite_query(
 
 def id_hits(results: list[object], expected_relevant_ids: list[str], top_k: int) -> set[str]:
     expected = set(expected_relevant_ids)
-    retrieved = {identifier for result in results[:top_k] if (identifier := result_id(result))}
+    retrieved = {identifier for result in results[:top_k] for identifier in result_identifiers(result)}
     return expected & retrieved
 
 
 def reciprocal_rank(results: list[object], expected_relevant_ids: list[str]) -> float:
     expected = set(expected_relevant_ids)
     for index, result in enumerate(results, start=1):
-        identifier = result_id(result)
-        if identifier in expected:
+        if expected & set(result_identifiers(result)):
             return 1.0 / index
     return 0.0
 

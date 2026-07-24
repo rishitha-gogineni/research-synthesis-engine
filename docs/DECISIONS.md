@@ -535,3 +535,14 @@ Reasoning:
 - Score strength alone is not enough for a safe synthesis gate; retrieved evidence must also visibly support the specific user question.
 - Underspecified queries with no meaningful research terms should ask for clarification rather than synthesize from arbitrary nearest neighbors.
 - The latest local evaluation improved confidence decision accuracy and CRAG fallback success rate to 0.80 on the confidence-labeled subset.
+
+
+## 2026-07-24: Count Chunk Results By Chunk ID Or Parent Paper ID In Evaluation
+
+The retrieval evaluator now treats a full-text chunk as matching an expected relevant ID if either the chunk ID or the parent paper ID matches.
+
+Reasoning:
+- Manual relevance labels often identify the paper that should appear, while chunk retrieval returns passages from that paper.
+- Penalizing a relevant passage because the label used the parent paper ID made Recall/MRR artificially low.
+- This keeps exact chunk labels useful while allowing paper-level labels to fairly evaluate full-text retrieval.
+- The latest local run improved Recall@10 to 0.73 and MRR to 0.57 on the 22-query exact-ID labeled subset.

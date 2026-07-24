@@ -812,7 +812,7 @@ full-text papers: 152
 full-text chunks: 4909
 embedded full-text chunks: 4909
 Qdrant research_paper_chunks: 4909 points
-tests: 236 passed
+tests: 237 passed
 ```
 
 
@@ -828,18 +828,39 @@ Implemented:
 - Added `evaluation_focus` labels for full-text evidence, cross-topic comparison, confidence gating, metadata filtering, contextual rewriting, route selection, and reading path behavior.
 - Updated `retrieval.evaluate` to report evaluation focus coverage.
 - Added `docs/EVALUATION.md` with metric definitions, fixture coverage, and labeling policy.
-- Full suite passed with 236 tests after adding query-support confidence guardrail tests.
+- Full suite passed with 237 tests after adding query-support confidence guardrail and UI/evaluation hardening tests.
 
 Checkpoint:
 ```text
 README: architecture split into clear diagrams
 eval fixture: 35 queries, 22 exact-ID labeled
-tests: 236 passed
+tests: 237 passed
+```
+
+
+## Day 30: Final UI/Evaluation Hardening - Complete
+
+Goal: make the final demo more transparent and improve the fairness of exact-ID retrieval evaluation.
+
+Implemented:
+- Updated evaluation matching so full-text chunk results can match either their chunk ID or parent paper ID.
+- Reran live evaluation with Qdrant available; Recall@10 improved to 0.73 and MRR improved to 0.57 on the 22-query labeled subset.
+- Added a Diagnostics-only System Quality panel in the Streamlit UI.
+- Added an optional `Show agent reasoning trace` toggle that calls `/agent/research` only when requested.
+- Updated UI suggested questions to match the final demo script.
+
+Checkpoint:
+```text
+route_accuracy: 0.71
+recall@10: 0.73
+mrr: 0.57
+confidence_decision_accuracy: 0.80
+crag_fallback_success_rate: 0.80
 ```
 
 # Current Immediate Next Step
 
-Start **Day 30: Final Demo QA and GitHub Polish**.
+Next recommended work: final manual UI answer-quality spot check and screenshots, if desired.
 
 Recommended scope:
 - Benchmark the fast-first UI/API path on the strongest demo questions.

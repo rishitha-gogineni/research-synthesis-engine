@@ -16,7 +16,7 @@ The project is designed around a practical research workflow: a user should be a
 | Chunk-level Qdrant points | 4,909 |
 | Evaluation queries | 35 |
 | Queries with exact relevant-ID labels | 22 |
-| Test suite | 236 passing tests |
+| Test suite | 237 passing tests |
 | Fast-first guidance latency | 21.3s -> 8.8s on the demo benchmark |
 
 ## What The System Returns
@@ -248,8 +248,8 @@ Latest local run on the 35-query fixture:
 | Route accuracy | 0.71 | all queries |
 | Topic hit rate@10 | 1.00 | topic-labeled queries |
 | Keyword hit rate@10 | 0.94 | keyword-labeled queries |
-| Recall@10 | 0.41 | 22 exact-ID labeled queries |
-| MRR | 0.31 | 22 exact-ID labeled queries |
+| Recall@10 | 0.73 | 22 exact-ID labeled queries |
+| MRR | 0.57 | 22 exact-ID labeled queries |
 | Rewrite keyword hit rate | 1.00 | 4 contextual queries |
 | Confidence decision accuracy | 0.80 | 5 confidence-labeled queries |
 | CRAG fallback success rate | 0.80 | 5 expected fallback queries |
@@ -278,7 +278,7 @@ full-text chunks: 4909
 chunk-level Qdrant points: 4909
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 236 passed
+tests: 237 passed
 ```
 
 These counts reflect the current local artifacts, index checks, and test suite.

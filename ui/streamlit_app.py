@@ -23,6 +23,7 @@ from ui.api_client import (
     confidence_style,
     error_message,
     is_answerable,
+    evaluation_metric_rows,
     evidence_rows,
     get_api,
     metric_rows,
@@ -30,6 +31,7 @@ from ui.api_client import (
     open_problem_rows,
     post_api,
     reading_path_rows,
+    run_agent_research,
     route_label,
     rewrite_summary,
     section_counts,
@@ -219,6 +221,7 @@ def render_filter_sidebar(health: dict, stats: dict):
         st.slider("Evidence depth", min_value=3, max_value=20, key="top_k", step=1)
         st.checkbox("Full-text evidence only", key="full_text_only")
         st.checkbox("Diagnostics", key="include_debug")
+        st.checkbox("Show agent reasoning trace", key="show_agent_trace")
         st.caption(f"Conversation memory: {len(st.session_state.get('chat_history', []))} turns")
         if st.button("Clear memory", use_container_width=True):
             st.session_state["chat_history"] = []
@@ -468,6 +471,9 @@ def render_diagnostics(payload: dict):
         st.subheader("Notes")
         for note in notes:
             st.write(f"- {note}")
+    st.subheader("System Quality")
+    dataframe(evaluation_metric_rows())
+    st.caption("Latest local evaluation run on tests/fixtures/eval_queries.json. Exact-ID recall is computed only on labeled queries.")
     st.subheader("Route")
     st.json(route, expanded=False)
     st.subheader("Confidence")
@@ -509,6 +515,7 @@ def initialize_state():
     st.session_state.setdefault("top_k", 8)
     st.session_state.setdefault("full_text_only", False)
     st.session_state.setdefault("include_debug", False)
+    st.session_state.setdefault("show_agent_trace", False)
     st.session_state.setdefault("chat_history", [])
     st.session_state.setdefault("followup_question", "")
 
@@ -626,6 +633,23 @@ def submit_question(question: str) -> bool:
     if msg:
         st.error(msg)
         return False
+    if st.session_state.get("show_agent_trace"):
+        with st.status("Running optional agent trace", expanded=False) as trace_status:
+            try:
+                agent_result, _ = run_agent_research(payload, request_id=new_request_id())
+            except requests.RequestException as exc:
+                result.setdefault("warnings", []).append(f"Agent trace unavailable: {exc}")
+                trace_status.update(label="Agent trace unavailable", state="error", expanded=False)
+            else:
+                trace_error = error_message(agent_result)
+                if trace_error:
+                    result.setdefault("warnings", []).append(f"Agent trace unavailable: {trace_error}")
+                    trace_status.update(label="Agent trace unavailable", state="error", expanded=False)
+                else:
+                    result["agent_trace"] = agent_result.get("trace", [])
+                    result["agent_attempted_queries"] = agent_result.get("attempted_queries", [])
+                    result["agent_retry_count"] = agent_result.get("retry_count", 0)
+                    trace_status.update(label="Agent trace ready", state="complete", expanded=False)
     st.session_state["guidance_result"] = result
     st.session_state["request_id"] = response_id or request_id
     st.session_state["show_diagnostics"] = st.session_state.get("include_debug", False)

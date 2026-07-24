@@ -19,11 +19,22 @@ SUPPORTED_RESEARCH_TOPICS = [
 ]
 SUGGESTED_QUESTIONS = [
     "What are the main approaches for reducing hallucinations in LLMs?",
-    "Which datasets and metrics are used to evaluate hallucination detection?",
     "Compare RAG and self-verification methods for reducing hallucinations.",
-    "What are common limitations in AI agent tool-use papers?",
-    "Which LoRA and PEFT papers should I read first?",
+    "What is the difference between AI agents and RAG?",
+    "What evidence do the papers give about SelfCheckGPT for hallucination detection?",
+    "Which LoRA and PEFT papers should I read first and why?",
 ]
+
+EVALUATION_SUMMARY = {
+    "Route accuracy": {"value": "0.71", "scope": "35 queries"},
+    "Topic hit@10": {"value": "1.00", "scope": "30 topic-labeled queries"},
+    "Keyword hit@10": {"value": "0.94", "scope": "33 keyword-labeled queries"},
+    "Recall@10": {"value": "0.73", "scope": "22 exact-ID labels"},
+    "MRR": {"value": "0.57", "scope": "22 exact-ID labels"},
+    "Rewrite hit rate": {"value": "1.00", "scope": "4 contextual queries"},
+    "Confidence accuracy": {"value": "0.80", "scope": "5 confidence labels"},
+    "CRAG fallback success": {"value": "0.80", "scope": "5 fallback labels"},
+}
 
 
 def api_base_url() -> str:
@@ -73,13 +84,21 @@ def run_agent_research(payload: dict[str, Any], *, request_id: str | None = None
 
 
 def agent_trace_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    trace = payload.get("trace") or payload.get("agent_trace") or []
     return [
         {
             "Step": item.get("step"),
             "Status": item.get("status", "completed"),
             "Detail": item.get("detail") or "-",
         }
-        for item in payload.get("trace", []) or []
+        for item in trace
+    ]
+
+
+def evaluation_metric_rows() -> list[dict[str, Any]]:
+    return [
+        {"Metric": metric, "Value": values["value"], "Scope": values["scope"]}
+        for metric, values in EVALUATION_SUMMARY.items()
     ]
 
 
