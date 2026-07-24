@@ -1,6 +1,6 @@
 # Demo Script
 
-This walkthrough is designed for a short project demo or interview screen share. It focuses on the parts that make the system more than a basic chatbot: route-aware retrieval, confidence gating, evidence inspection, and reading-path generation.
+This walkthrough is designed for a short project demo or interview screen share. It focuses on what makes the system stronger than a basic chatbot: route-aware retrieval, full-text evidence, confidence gating, contextual follow-ups, and inspectable research outputs.
 
 ## Before The Demo
 
@@ -26,76 +26,145 @@ paper_collection: available
 chunk_collection: available
 ```
 
-## Three Strong Questions
+Optional evaluation check:
 
-### 1. Hallucination Reduction
+```bash
+python -m retrieval.evaluate --queries tests/fixtures/eval_queries.json
+```
+
+## Best Demo Questions
+
+### 1. Broad Synthesis
 
 ```text
 What are the main approaches for reducing hallucinations in LLMs?
 ```
 
-Use this question to show the fast-first analyst brief: direct answer, themes, evidence matrix, and top supporting evidence first, then generate open problems on demand.
+Shows: fast-first research brief, confidence gate, themes, evidence matrix, and source inspection.
 
 What to point out:
 
-- The system does not answer directly from memory.
-- It retrieves from the indexed corpus first.
-- The confidence gate determines whether a grounded answer is shown.
-- The evidence matrix makes claims inspectable against sources.
+- The system retrieves evidence before answering.
+- The first answer is grounded and concise, not just a paper list.
+- The evidence matrix makes claims inspectable.
 
-### 2. RAG Versus Self-Verification
+### 2. Cross-Topic Comparison
 
 ```text
 Compare RAG and self-verification methods for reducing hallucinations.
 ```
 
-Use this question to show route-aware retrieval and comparison-style synthesis.
+Shows: `hybrid_both` routing and comparison-style synthesis.
 
 What to point out:
 
-- The router should prefer a broader route because this is a comparison question.
-- Paper-level and chunk-level evidence can both be useful.
-- The answer should separate tradeoffs rather than listing papers.
+- The router uses both broad paper retrieval and detailed chunk retrieval.
+- The answer should explain tradeoffs, not only rank papers.
+- Sources come from the indexed literature corpus.
 
-### 3. Reading Path
+### 3. Agentic RAG Question
 
 ```text
-Which LoRA and PEFT papers should I read first?
+What is the difference between AI agents and RAG?
 ```
 
-Use this question to show the staged reading path.
+Shows: cross-topic retrieval between `AI Agents & Tool Use` and `Retrieval-Augmented Generation (RAG)`.
+
+What to point out:
+
+- RAG is mainly an evidence-grounding pattern.
+- Agents add planning, tool use, and multi-step task execution.
+- This question is a good way to explain the project itself.
+
+### 4. Full-Text Evidence Question
+
+```text
+What evidence do the papers give about SelfCheckGPT for hallucination detection?
+```
+
+Shows: chunk-level retrieval over full-text papers.
+
+What to point out:
+
+- This should use detailed full-text snippets, not only abstracts.
+- The source tab should show paper titles, chunk labels, and snippets.
+- Full-text evidence is useful for methods, datasets, metrics, and limitations.
+
+### 5. Contextual Follow-Up
+
+First ask:
+
+```text
+Explain SelfCheckGPT for hallucination detection.
+```
+
+Then ask the follow-up:
+
+```text
+What are its evaluation methods?
+```
+
+Shows: context-aware query rewriting.
+
+What to point out:
+
+- The follow-up is rewritten into a standalone retrieval query.
+- The system uses chat history for retrieval, not just generation.
+- Diagnostics can show the original question and rewritten query.
+
+### 6. Confidence Gate / Refusal
+
+```text
+What does the indexed corpus say about Kubernetes autoscaling policies?
+```
+
+Shows: out-of-corpus handling.
+
+What to point out:
+
+- The system should avoid unsupported synthesis when corpus evidence is weak.
+- The confidence gate checks query support, not just vector score strength.
+- This is a safety feature, not a failure.
+
+### 7. Reading Path
+
+```text
+Which LoRA and PEFT papers should I read first and why?
+```
+
+Shows: staged reading recommendation.
 
 What to point out:
 
 - The output is not just top-cited papers.
-- Papers are staged into a learning sequence.
-- Each recommendation includes a reason to read it.
+- Papers are organized into a learning sequence.
+- Each recommendation includes a reason grounded in retrieved evidence.
 
 ## UI Walkthrough
 
 1. Open the Streamlit workspace.
-2. In the sidebar, select optional research areas, year range, top K, full-text-only mode, or diagnostics.
-3. Pick a suggested question or type a custom research question.
+2. Select a research area only if you want a narrower query.
+3. Type or select a question.
 4. Use `Preview route` to show the route without retrieval.
-5. Use `Run analysis` to run route preview, retrieval, confidence check, and synthesis.
-6. On the results page, explain the evidence gate first.
-7. Read the direct answer only if the gate passed.
-8. Open the evidence matrix and source tabs to show how claims can be inspected.
-9. Generate reading path or open problems only when you want to show those heavier sections.
+5. Use `Run analysis` to run retrieval, confidence checking, and synthesis.
+6. Start with the direct answer and evidence matrix.
+7. Open sources to show snippets and citation counts.
+8. Generate reading path or open problems only when useful.
+9. Turn on diagnostics when explaining route, rewritten query, timing, or confidence signals.
 
 ## One-Minute Architecture Explanation
 
 ```text
-OpenAlex papers + full-text chunks
-→ OpenAI embeddings and BM25 index
-→ Qdrant paper and chunk collections
-→ rule-based query router
-→ unified retrieval and reranking
-→ confidence gate
-→ analyst brief, evidence matrix, reading path, open problems
+OpenAlex corpus + legal full-text PDFs
+→ abstract-level paper index + full-text chunk index
+→ query router
+→ paper retrieval / chunk retrieval / metadata filter
+→ reranking and citation-aware scoring
+→ CRAG confidence gate
+→ grounded brief, evidence matrix, reading path, open problems
 → FastAPI backend and Streamlit workspace
 ```
 
-## If Evidence Is Weak
+## Strong Closing Line
 
-If the evidence gate does not pass, the UI intentionally avoids showing a direct answer. In a demo, treat this as a strength: the system is designed to say when the indexed corpus is not strong enough, while still letting the user inspect retrieved sources.
+Research Synthesis Engine does not just search papers. It turns an indexed AI literature corpus into a confidence-gated analyst brief with inspectable evidence, source snippets, and a staged reading path.
