@@ -163,6 +163,7 @@ def make_open_problems(query="What reduces hallucinations?"):
 
 
 def patch_core_services(monkeypatch, retrieval_calls=None, confidence_decision="sufficient_evidence"):
+    api_main.RETRIEVAL_CACHE.clear()
     retrieval_calls = retrieval_calls if retrieval_calls is not None else []
 
     def fake_retrieval(query, **kwargs):
@@ -216,6 +217,17 @@ def test_retrieve_endpoint_uses_unified_search_once(monkeypatch):
     assert response.json()["question"] == "What reduces hallucinations?"
     assert len(calls) == 1
     assert calls[0][1]["top_k"] == 5
+
+
+def test_retrieve_endpoint_reuses_cached_retrieval_for_repeated_query(monkeypatch):
+    calls = patch_core_services(monkeypatch)
+
+    first = client.post("/retrieve", json={"question": "What reduces hallucinations?", "top_k": 5})
+    second = client.post("/retrieve", json={"question": "What reduces hallucinations?", "top_k": 5})
+
+    assert first.status_code == 200
+    assert second.status_code == 200
+    assert len(calls) == 1
 
 
 def test_confidence_endpoint_returns_assessment(monkeypatch):

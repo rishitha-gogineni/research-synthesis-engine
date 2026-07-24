@@ -258,12 +258,14 @@ A detailed metric policy and fixture breakdown lives in `docs/EVALUATION.md`.
 
 ## Performance Note
 
-The UI was changed to return the direct answer and evidence matrix first, then generate heavier sections on demand. On the hallucination demo question, this reduced the first `/guidance` response from about 21.3 seconds to about 8.8 seconds.
+The UI was changed to return the direct answer and evidence matrix first, then generate heavier sections on demand. On the hallucination demo question, this reduced the first `/guidance` response from about 21.3 seconds to about 8.8 seconds. The API also keeps a small in-memory retrieval cache for repeated questions, so repeated demo queries avoid redundant embedding and vector-search work within the cache TTL.
 
 | Mode | Initial Response |
 | --- | ---: |
 | Full guidance in one call | 21.3s |
 | Fast-first guidance | 8.8s |
+
+Context assembly uses MMR-style evidence selection before brief generation. This keeps the strongest source first while reducing repeated chunks in the prompt, which makes the direct answer and citations cleaner.
 
 ## Validation
 
@@ -278,7 +280,7 @@ full-text chunks: 4909
 chunk-level Qdrant points: 4909
 stored embedding dimensions: 1024
 full embedding dimensions from OpenAI: 3072
-tests: 237 passed
+tests: 240 passed
 ```
 
 These counts reflect the current local artifacts, index checks, and test suite.

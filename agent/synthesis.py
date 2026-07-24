@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 from pathlib import Path
 from typing import Any, Callable
 
@@ -26,6 +27,8 @@ from shared.schemas import (
 DEFAULT_SYNTHESIS_MODEL = "gpt-4o-mini"
 MAX_SOURCE_TEXT_CHARS = 900
 MAX_SOURCES = 12
+MMR_LAMBDA = 0.72
+MMR_CANDIDATE_POOL_MULTIPLIER = 3
 BriefGenerator = Callable[[str], str]
 
 
@@ -90,21 +93,69 @@ def evidence_source_from_result(result: Any, fallback_index: int) -> EvidenceSou
     )
 
 
+def source_tokens(source: EvidenceSource) -> set[str]:
+    text = " ".join([source.title, source.topic, source.evidence_text]).lower()
+    return {token for token in re.findall(r"[a-z][a-z0-9-]{2,}", text) if len(token) > 3}
+
+
+def jaccard_similarity(left: set[str], right: set[str]) -> float:
+    if not left or not right:
+        return 0.0
+    return len(left & right) / len(left | right)
+
+
+def select_mmr_sources(
+    sources: list[EvidenceSource],
+    *,
+    max_sources: int,
+    lambda_weight: float = MMR_LAMBDA,
+) -> list[EvidenceSource]:
+    """Select relevant but non-redundant sources for LLM context assembly."""
+    if max_sources <= 0:
+        return []
+    if len(sources) <= max_sources:
+        return sources
+
+    selected: list[EvidenceSource] = []
+    remaining = list(sources)
+    token_cache = {source.source_id: source_tokens(source) for source in remaining}
+
+    while remaining and len(selected) < max_sources:
+        if not selected:
+            selected.append(remaining.pop(0))
+            continue
+
+        def mmr_score(source: EvidenceSource) -> tuple[float, float]:
+            diversity_penalty = max(
+                jaccard_similarity(token_cache[source.source_id], token_cache[selected_source.source_id])
+                for selected_source in selected
+            )
+            score = (lambda_weight * source.score) - ((1.0 - lambda_weight) * diversity_penalty)
+            return score, source.score
+
+        best = max(remaining, key=mmr_score)
+        remaining.remove(best)
+        selected.append(best)
+
+    return selected
+
+
 def collect_evidence_sources(response: UnifiedSearchResponse, max_sources: int = MAX_SOURCES) -> list[EvidenceSource]:
     candidates = list(response.paper_results) + list(response.chunk_results)
     ranked = sorted(candidates, key=source_score, reverse=True)
 
     sources: list[EvidenceSource] = []
     seen: set[str] = set()
+    pool_size = max(max_sources, max_sources * MMR_CANDIDATE_POOL_MULTIPLIER)
     for index, result in enumerate(ranked, start=1):
         source = evidence_source_from_result(result, index)
         if source is None or source.source_id in seen:
             continue
         seen.add(source.source_id)
         sources.append(source)
-        if len(sources) >= max_sources:
+        if len(sources) >= pool_size:
             break
-    return sources
+    return select_mmr_sources(sources, max_sources=max_sources)
 
 
 def build_synthesis_prompt(query: str, sources: list[EvidenceSource]) -> str:

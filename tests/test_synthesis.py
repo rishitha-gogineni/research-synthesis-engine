@@ -11,8 +11,9 @@ from agent.synthesis import (
     collect_evidence_sources,
     ensure_direct_answer_citations,
     parse_brief_payload,
+    select_mmr_sources,
 )
-from shared.schemas import ConfidenceAssessment, QueryRoute, RetrievedChunk, RetrievedPaper, UnifiedSearchResponse
+from shared.schemas import ConfidenceAssessment, EvidenceSource, QueryRoute, RetrievedChunk, RetrievedPaper, UnifiedSearchResponse
 
 
 def make_route(route="hybrid_both", confidence=0.92):
@@ -89,6 +90,43 @@ def test_collect_evidence_sources_sorts_and_assigns_stable_ids():
     assert [source.source_id for source in sources] == ["chunk:c1", "paper:p1"]
     assert sources[0].score == 0.95
     assert sources[1].evidence_text.startswith("Surveys RAG architectures")
+
+
+def test_mmr_source_selection_reduces_repeated_context():
+    duplicate_a = EvidenceSource(
+        source_id="chunk:c1",
+        title="RAG grounding",
+        topic="RAG",
+        paper_id="p1",
+        chunk_id="c1",
+        citation_count=10,
+        evidence_text="retrieval grounding evidence reduces unsupported answers",
+        score=0.96,
+    )
+    duplicate_b = EvidenceSource(
+        source_id="chunk:c2",
+        title="RAG grounding",
+        topic="RAG",
+        paper_id="p1",
+        chunk_id="c2",
+        citation_count=10,
+        evidence_text="retrieval grounding evidence reduces unsupported answers",
+        score=0.94,
+    )
+    diverse = EvidenceSource(
+        source_id="chunk:c3",
+        title="Hallucination evaluation",
+        topic="LLM Evaluation & Hallucination Detection",
+        paper_id="p2",
+        chunk_id="c3",
+        citation_count=8,
+        evidence_text="benchmarks and metrics evaluate factual consistency",
+        score=0.86,
+    )
+
+    selected = select_mmr_sources([duplicate_a, duplicate_b, diverse], max_sources=2)
+
+    assert [source.source_id for source in selected] == ["chunk:c1", "chunk:c3"]
 
 
 def test_build_synthesis_prompt_restricts_model_to_retrieved_sources():

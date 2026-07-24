@@ -8,7 +8,9 @@ import os
 import re
 import time
 import uuid
+from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from threading import Lock
 from pathlib import Path
 from typing import Any, Callable
 
@@ -58,6 +60,53 @@ SUPPORTED_RESEARCH_TOPICS = [
 ]
 REQUEST_ID_PATTERN = re.compile(r"^[A-Za-z0-9_.:-]{8,128}$")
 LOGGER = logging.getLogger("research_synthesis_engine.api")
+QUERY_CACHE_TTL_SECONDS = int(os.getenv("RSE_QUERY_CACHE_TTL_SECONDS", "300"))
+QUERY_CACHE_MAX_ENTRIES = int(os.getenv("RSE_QUERY_CACHE_MAX_ENTRIES", "128"))
+
+
+class RetrievalCache:
+    """Small in-memory TTL cache for repeated route-aware retrieval calls."""
+
+    def __init__(self, *, max_entries: int = QUERY_CACHE_MAX_ENTRIES, ttl_seconds: int = QUERY_CACHE_TTL_SECONDS) -> None:
+        self.max_entries = max_entries
+        self.ttl_seconds = ttl_seconds
+        self._items: OrderedDict[str, tuple[float, dict[str, Any]]] = OrderedDict()
+        self._lock = Lock()
+
+    def get(self, key: str) -> UnifiedSearchResponse | None:
+        if self.ttl_seconds <= 0 or self.max_entries <= 0:
+            return None
+        now = time.time()
+        with self._lock:
+            item = self._items.get(key)
+            if item is None:
+                return None
+            stored_at, payload = item
+            if now - stored_at > self.ttl_seconds:
+                self._items.pop(key, None)
+                return None
+            self._items.move_to_end(key)
+            return UnifiedSearchResponse(**payload)
+
+    def set(self, key: str, response: UnifiedSearchResponse) -> None:
+        if self.ttl_seconds <= 0 or self.max_entries <= 0:
+            return
+        with self._lock:
+            self._items[key] = (time.time(), response.model_dump(mode="json"))
+            self._items.move_to_end(key)
+            while len(self._items) > self.max_entries:
+                self._items.popitem(last=False)
+
+    def clear(self) -> None:
+        with self._lock:
+            self._items.clear()
+
+    def size(self) -> int:
+        with self._lock:
+            return len(self._items)
+
+
+RETRIEVAL_CACHE = RetrievalCache()
 
 
 class RequestMetrics(BaseModel):
@@ -386,8 +435,28 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
     return JSONResponse(status_code=500, content=payload, headers={"X-Request-ID": request_id or ""})
 
 
+def retrieval_cache_key(request: ApiQueryRequest, *, query_override: str | None = None) -> str:
+    payload = {
+        "query": query_override or request.question,
+        "top_k": request.top_k,
+        "paper_top_k": request.paper_top_k,
+        "chunk_top_k": request.chunk_top_k,
+        "dense_top_k": request.dense_top_k,
+        "sparse_top_k": request.sparse_top_k,
+        "apply_reranking": request.apply_reranking,
+        # Test suites monkeypatch run_unified_search; including the callable identity avoids stale cross-test hits.
+        "retriever_identity": id(run_unified_search),
+    }
+    return json.dumps(payload, sort_keys=True, separators=(",", ":"))
+
+
 def retrieve_for_request(request: ApiQueryRequest, *, query_override: str | None = None) -> UnifiedSearchResponse:
-    return run_unified_search(
+    cache_key = retrieval_cache_key(request, query_override=query_override)
+    cached = RETRIEVAL_CACHE.get(cache_key)
+    if cached is not None:
+        return cached
+
+    response = run_unified_search(
         query_override or request.question,
         top_k=request.top_k,
         paper_top_k=request.paper_top_k,
@@ -396,6 +465,8 @@ def retrieve_for_request(request: ApiQueryRequest, *, query_override: str | None
         sparse_top_k=request.sparse_top_k,
         apply_reranking=request.apply_reranking,
     )
+    RETRIEVAL_CACHE.set(cache_key, response)
+    return response
 
 
 def candidate_year(candidate: Any) -> int | None:
@@ -475,6 +546,7 @@ def retrieval_debug(response: UnifiedSearchResponse, confidence: ConfidenceAsses
         "route_reason": response.route.reason,
         "matched_signals": response.route.matched_signals,
         "score_breakdowns": collect_score_breakdowns(response),
+        "retrieval_cache_entries": RETRIEVAL_CACHE.size(),
     }
     if confidence is not None:
         debug["confidence_signals"] = confidence.signals

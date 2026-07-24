@@ -1,7 +1,7 @@
 # Research Synthesis Engine - Revised Day-by-Day Build Plan
 
 Window: 28 days
-Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, Day 21.5 UI/trust/output polish, Day 22 context-aware query rewriting, Day 22.5 answer-quality/retrieval/UI cleanup, Day 24 research agent loop, Day 25 evaluation hardening, Day 26 agent API/UI integration, Day 27 latency/demo smoothness, Day 28 fast-first UI sections, Day 28.5 full-text recovery, and Day 29 README/evaluation polish, Day 30 final UI/evaluation hardening, and Day 31 golden dataset strengthening are complete.
+Current status: ingestion, paper-level retrieval, tool wrapper, full-text chunk indexing, query routing, unified retrieval, reranking, citation-aware scoring, retrieval evaluation, CRAG confidence assessment, research brief generation, evidence matrix generation, reading path generation, open-problems generation, the FastAPI backend, Day 20.5 API polish, the Day 21 Streamlit analyst workspace, Day 21.5 UI/trust/output polish, Day 22 context-aware query rewriting, Day 22.5 answer-quality/retrieval/UI cleanup, Day 24 research agent loop, Day 25 evaluation hardening, Day 26 agent API/UI integration, Day 27 latency/demo smoothness, Day 28 fast-first UI sections, Day 28.5 full-text recovery, and Day 29 README/evaluation polish, Day 30 final UI/evaluation hardening, and Day 31 golden dataset strengthening and Day 32 production-style retrieval polish are complete.
 
 ## Final Positioning
 
@@ -812,7 +812,7 @@ full-text papers: 152
 full-text chunks: 4909
 embedded full-text chunks: 4909
 Qdrant research_paper_chunks: 4909 points
-tests: 237 passed
+tests: 240 passed
 ```
 
 
@@ -834,7 +834,7 @@ Checkpoint:
 ```text
 README: architecture split into clear diagrams
 eval fixture: 35 queries, 22 exact-ID labeled
-tests: 237 passed
+tests: 240 passed
 ```
 
 
@@ -881,7 +881,25 @@ mrr: 0.86
 rewrite_keyword_hit_rate: 1.00
 confidence_decision_accuracy: 1.00
 crag_fallback_success_rate: 1.00
-tests: 238 passed
+tests: 240 passed
+```
+
+
+## Day 32: Production-Style Retrieval Polish - Complete
+
+Goal: add the highest-value scaling ideas from the RAG-at-scale reference without changing the project into a large production system.
+
+Implemented:
+- Added a small in-memory TTL retrieval cache in the FastAPI layer for repeated route-aware retrieval calls.
+- Kept generated answers uncached; only retrieval responses are reused.
+- Added MMR-style source selection before brief generation so prompt context is less repetitive.
+- Added focused tests for cache reuse and MMR diversity behavior.
+
+Checkpoint:
+```text
+retrieval cache: enabled by default, 300s TTL, 128 entries
+context assembly: MMR-style evidence selection
+tests: 240 passed
 ```
 
 # Current Immediate Next Step

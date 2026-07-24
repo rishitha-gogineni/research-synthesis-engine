@@ -558,3 +558,14 @@ Reasoning:
 - Labels are expanded only from local paper/chunk artifacts and inspected retrieval results; the goal is fairer evaluation, not easier questions.
 - The latest live evaluation over the 50-query fixture reports route accuracy 1.00, Recall@10 1.00, MRR 0.86, and confidence fallback success 1.00 on their documented subsets.
 
+## 2026-07-24: Add Lightweight Retrieval Cache And MMR Context Selection
+
+We will add two production-style RAG improvements inspired by scale-oriented architecture patterns: an in-memory API retrieval cache and MMR-style evidence selection for synthesis prompts.
+
+Reasoning:
+- Repeated UI/demo questions should not pay the full embedding and vector-search cost every time.
+- The cache stores only route-aware retrieval responses for a short TTL; it does not cache generated answers, prompts, secrets, or provider responses.
+- Retrieval filters are still applied after the cached base response, preserving current API behavior.
+- Synthesis prompts benefit from diverse evidence: repeated near-duplicate chunks waste context and can make answers feel redundant.
+- MMR keeps high-scoring sources while penalizing overlap with already selected evidence, improving context quality without changing the underlying retrieval index.
+
