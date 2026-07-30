@@ -12,6 +12,7 @@ from typing import Any
 
 DEFAULT_COLLECTION = "research_papers"
 DEFAULT_QDRANT_URL = "http://localhost:6333"
+DEFAULT_QDRANT_API_KEY_ENV = "QDRANT_API_KEY"
 VECTOR_SIZE = 1024
 
 
@@ -76,12 +77,12 @@ def build_points(records: list[dict[str, Any]]) -> list[Any]:
     ]
 
 
-def get_qdrant_client(url: str | None = None, local_path: Path | None = None) -> Any:
+def get_qdrant_client(url: str | None = None, local_path: Path | None = None, api_key: str | None = None) -> Any:
     from qdrant_client import QdrantClient
 
     if local_path is not None:
         return QdrantClient(path=str(local_path))
-    return QdrantClient(url=url)
+    return QdrantClient(url=url, api_key=api_key or os.getenv(DEFAULT_QDRANT_API_KEY_ENV) or None)
 
 
 def ensure_collection(client: Any, collection_name: str, vector_size: int, recreate: bool = False) -> None:
@@ -114,6 +115,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--input", type=Path, default=Path("data/embedded_papers.json"))
     parser.add_argument("--collection", default=DEFAULT_COLLECTION)
     parser.add_argument("--qdrant-url", default=None)
+    parser.add_argument("--qdrant-api-key", default=None)
     parser.add_argument("--local-path", type=Path, default=None, help="Use qdrant-client local storage instead of a server URL.")
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--recreate", action="store_true")
@@ -129,7 +131,7 @@ def main() -> None:
 
     qdrant_url = args.qdrant_url or os.getenv("QDRANT_URL") or DEFAULT_QDRANT_URL
     records = load_embedded_records(args.input)
-    client = get_qdrant_client(url=qdrant_url, local_path=args.local_path)
+    client = get_qdrant_client(url=qdrant_url, local_path=args.local_path, api_key=args.qdrant_api_key)
     ensure_collection(client, args.collection, VECTOR_SIZE, recreate=args.recreate)
     count = upsert_records(client, args.collection, records, args.batch_size)
     print(f"Qdrant indexing complete: {count} papers")

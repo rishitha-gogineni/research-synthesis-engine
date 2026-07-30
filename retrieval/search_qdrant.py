@@ -43,6 +43,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("query")
     parser.add_argument("--collection", default=DEFAULT_COLLECTION)
     parser.add_argument("--qdrant-url", default=None)
+    parser.add_argument("--qdrant-api-key", default=None)
     parser.add_argument("--local-path", type=Path, default=None)
     parser.add_argument("--model", default=DEFAULT_EMBEDDING_MODEL)
     parser.add_argument("--top-k", type=int, default=5)
@@ -62,7 +63,7 @@ def main() -> None:
 
     qdrant_url = args.qdrant_url or os.getenv("QDRANT_URL") or DEFAULT_QDRANT_URL
     openai_client = OpenAI(api_key=api_key)
-    qdrant_client = get_qdrant_client(url=qdrant_url, local_path=args.local_path)
+    qdrant_client = get_qdrant_client(url=qdrant_url, local_path=args.local_path, api_key=args.qdrant_api_key)
     query_vector = embed_query(openai_client, args.query, args.model)
 
     for result in search_qdrant(qdrant_client, args.collection, query_vector, args.top_k):

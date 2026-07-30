@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import argparse
 import os
+from collections import defaultdict
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from openai import OpenAI
 
@@ -20,6 +21,9 @@ DEFAULT_SPARSE_TOP_K = 20
 DEFAULT_FINAL_TOP_K = 10
 DEFAULT_DENSE_WEIGHT = 0.65
 DEFAULT_SPARSE_WEIGHT = 0.35
+DEFAULT_RRF_K = 60
+
+FusionMethod = Literal["weighted", "rrf"]
 
 
 def embed_query(client: OpenAI, query: str, model: str = DEFAULT_EMBEDDING_MODEL) -> list[float]:
@@ -112,14 +116,11 @@ def normalize_score(value: float | None, max_score: float) -> float:
     return max(float(value), 0.0) / max_score
 
 
-def merge_candidates(
+def _merge_candidate_payloads(
     dense_candidates: list[dict[str, Any]],
     sparse_candidates: list[dict[str, Any]],
-    final_top_k: int = DEFAULT_FINAL_TOP_K,
-    dense_weight: float = DEFAULT_DENSE_WEIGHT,
-    sparse_weight: float = DEFAULT_SPARSE_WEIGHT,
-) -> list[dict[str, Any]]:
-    """Merge dense and sparse candidates into one ranked list."""
+) -> dict[str, dict[str, Any]]:
+    """Merge dense/sparse candidate payloads by key, tracking which retriever(s) matched."""
 
     merged: dict[str, dict[str, Any]] = {}
 
@@ -138,6 +139,20 @@ def merge_candidates(
         else:
             merged[key] = {**candidate, "matched_by": ["sparse"]}
 
+    return merged
+
+
+def merge_candidates_weighted(
+    dense_candidates: list[dict[str, Any]],
+    sparse_candidates: list[dict[str, Any]],
+    final_top_k: int = DEFAULT_FINAL_TOP_K,
+    dense_weight: float = DEFAULT_DENSE_WEIGHT,
+    sparse_weight: float = DEFAULT_SPARSE_WEIGHT,
+) -> list[dict[str, Any]]:
+    """Merge dense and sparse candidates using min-max normalized weighted scores."""
+
+    merged = _merge_candidate_payloads(dense_candidates, sparse_candidates)
+
     max_dense = max((candidate.get("dense_score") or 0.0 for candidate in merged.values()), default=0.0)
     max_sparse = max((candidate.get("sparse_score") or 0.0 for candidate in merged.values()), default=0.0)
 
@@ -145,6 +160,7 @@ def merge_candidates(
         dense_part = normalize_score(candidate.get("dense_score"), max_dense)
         sparse_part = normalize_score(candidate.get("sparse_score"), max_sparse)
         candidate["hybrid_score"] = round((dense_weight * dense_part) + (sparse_weight * sparse_part), 6)
+        candidate["fusion_method"] = "weighted"
 
     return sorted(
         merged.values(),
@@ -155,6 +171,76 @@ def merge_candidates(
         ),
         reverse=True,
     )[:final_top_k]
+
+
+def merge_candidates_rrf(
+    dense_candidates: list[dict[str, Any]],
+    sparse_candidates: list[dict[str, Any]],
+    final_top_k: int = DEFAULT_FINAL_TOP_K,
+    rrf_k: int = DEFAULT_RRF_K,
+) -> list[dict[str, Any]]:
+    """Merge dense and sparse candidates with Reciprocal Rank Fusion.
+
+    RRF scores each candidate by 1 / (rrf_k + rank) in each ranked list it
+    appears in, then sums those contributions. Unlike the weighted min-max
+    blend, RRF only cares about rank position, so it is not sensitive to the
+    fact that BM25 scores and cosine similarities live on completely
+    different scales.
+    """
+
+    if rrf_k <= 0:
+        raise ValueError("rrf_k must be greater than 0")
+
+    merged = _merge_candidate_payloads(dense_candidates, sparse_candidates)
+    rrf_scores: dict[str, float] = defaultdict(float)
+
+    for rank, candidate in enumerate(dense_candidates, start=1):
+        rrf_scores[candidate_key(candidate)] += 1.0 / (rrf_k + rank)
+    for rank, candidate in enumerate(sparse_candidates, start=1):
+        rrf_scores[candidate_key(candidate)] += 1.0 / (rrf_k + rank)
+
+    for key, candidate in merged.items():
+        candidate["hybrid_score"] = round(rrf_scores[key], 6)
+        candidate["fusion_method"] = "rrf"
+
+    return sorted(
+        merged.values(),
+        key=lambda candidate: (
+            candidate["hybrid_score"],
+            candidate.get("citation_count") or 0,
+            candidate.get("dense_score") or 0.0,
+        ),
+        reverse=True,
+    )[:final_top_k]
+
+
+def merge_candidates(
+    dense_candidates: list[dict[str, Any]],
+    sparse_candidates: list[dict[str, Any]],
+    final_top_k: int = DEFAULT_FINAL_TOP_K,
+    dense_weight: float = DEFAULT_DENSE_WEIGHT,
+    sparse_weight: float = DEFAULT_SPARSE_WEIGHT,
+    fusion_method: FusionMethod = "weighted",
+    rrf_k: int = DEFAULT_RRF_K,
+) -> list[dict[str, Any]]:
+    """Merge dense and sparse candidates into one ranked list.
+
+    `fusion_method="weighted"` (default) reproduces the original min-max
+    weighted blend so existing callers and evaluation numbers do not change.
+    `fusion_method="rrf"` switches to rank-based Reciprocal Rank Fusion.
+    """
+
+    if fusion_method == "rrf":
+        return merge_candidates_rrf(dense_candidates, sparse_candidates, final_top_k=final_top_k, rrf_k=rrf_k)
+    if fusion_method == "weighted":
+        return merge_candidates_weighted(
+            dense_candidates,
+            sparse_candidates,
+            final_top_k=final_top_k,
+            dense_weight=dense_weight,
+            sparse_weight=sparse_weight,
+        )
+    raise ValueError(f"unknown fusion_method: {fusion_method!r}")
 
 
 def retrieve_papers(
@@ -168,6 +254,7 @@ def retrieve_papers(
     dense_top_k: int = DEFAULT_DENSE_TOP_K,
     sparse_top_k: int = DEFAULT_SPARSE_TOP_K,
     final_top_k: int = DEFAULT_FINAL_TOP_K,
+    fusion_method: FusionMethod = "weighted",
 ) -> list[dict[str, Any]]:
     """Retrieve candidate papers for a free-text research question."""
 
@@ -179,7 +266,7 @@ def retrieve_papers(
     query_vector = embed_query(openai_client, query, model)
     dense_candidates = search_dense(qdrant_client, collection_name, query_vector, dense_top_k)
     sparse_candidates = [bm25_result_to_candidate(result) for result in search_bm25(bm25_artifact, query, sparse_top_k)]
-    return merge_candidates(dense_candidates, sparse_candidates, final_top_k=final_top_k)
+    return merge_candidates(dense_candidates, sparse_candidates, final_top_k=final_top_k, fusion_method=fusion_method)
 
 
 def parse_args() -> argparse.Namespace:
@@ -187,12 +274,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("query", help="Research question to search for.")
     parser.add_argument("--collection", default=DEFAULT_COLLECTION)
     parser.add_argument("--qdrant-url", default=None)
+    parser.add_argument("--qdrant-api-key", default=None)
     parser.add_argument("--local-path", type=Path, default=None)
     parser.add_argument("--bm25-index", type=Path, default=DEFAULT_BM25_PATH)
     parser.add_argument("--model", default=DEFAULT_EMBEDDING_MODEL)
     parser.add_argument("--dense-top-k", type=int, default=DEFAULT_DENSE_TOP_K)
     parser.add_argument("--sparse-top-k", type=int, default=DEFAULT_SPARSE_TOP_K)
     parser.add_argument("--final-top-k", type=int, default=DEFAULT_FINAL_TOP_K)
+    parser.add_argument("--fusion-method", choices=["weighted", "rrf"], default="weighted")
     parser.add_argument("--env-file", type=Path, default=Path(".env"))
     return parser.parse_args()
 
@@ -207,7 +296,7 @@ def main() -> None:
 
     qdrant_url = args.qdrant_url or os.getenv("QDRANT_URL") or DEFAULT_QDRANT_URL
     openai_client = OpenAI(api_key=api_key)
-    qdrant_client = get_qdrant_client(url=qdrant_url, local_path=args.local_path)
+    qdrant_client = get_qdrant_client(url=qdrant_url, local_path=args.local_path, api_key=args.qdrant_api_key)
     bm25_artifact = load_bm25_artifact(args.bm25_index)
 
     results = retrieve_papers(
@@ -220,6 +309,7 @@ def main() -> None:
         dense_top_k=args.dense_top_k,
         sparse_top_k=args.sparse_top_k,
         final_top_k=args.final_top_k,
+        fusion_method=args.fusion_method,
     )
 
     for index, result in enumerate(results, start=1):

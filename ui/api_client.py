@@ -38,7 +38,20 @@ EVALUATION_SUMMARY = {
 
 
 def api_base_url() -> str:
-    return (os.getenv("RSE_API_URL") or DEFAULT_API_URL).rstrip("/")
+    configured_url = os.getenv("RSE_API_URL")
+    if configured_url:
+        return configured_url.rstrip("/")
+
+    try:
+        import streamlit as st
+
+        secret_url = st.secrets.get("RSE_API_URL")
+        if secret_url:
+            return str(secret_url).rstrip("/")
+    except Exception:
+        pass
+
+    return DEFAULT_API_URL
 
 
 def new_request_id() -> str:

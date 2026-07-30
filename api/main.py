@@ -64,6 +64,16 @@ QUERY_CACHE_TTL_SECONDS = int(os.getenv("RSE_QUERY_CACHE_TTL_SECONDS", "300"))
 QUERY_CACHE_MAX_ENTRIES = int(os.getenv("RSE_QUERY_CACHE_MAX_ENTRIES", "128"))
 
 
+def env_bool(name: str, default: bool) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+DEFAULT_APPLY_RERANKING = env_bool("RSE_APPLY_RERANKING", True)
+
+
 class RetrievalCache:
     """Small in-memory TTL cache for repeated route-aware retrieval calls."""
 
@@ -151,7 +161,7 @@ class ApiQueryRequest(BaseModel):
     chunk_top_k: int | None = Field(default=None, ge=1, le=50)
     dense_top_k: int = Field(default=20, ge=1, le=100)
     sparse_top_k: int = Field(default=20, ge=1, le=100)
-    apply_reranking: bool = True
+    apply_reranking: bool = DEFAULT_APPLY_RERANKING
     max_papers: int = Field(default=8, ge=1, le=20)
     max_problems: int = Field(default=DEFAULT_MAX_PROBLEMS, ge=1, le=20)
     research_areas: list[str] | None = None
@@ -728,7 +738,7 @@ def dependency_status() -> dict[str, str]:
         "chunk_collection": "unavailable",
     }
     try:
-        client = get_qdrant_client(url=qdrant_url)
+        client = get_qdrant_client(url=qdrant_url, api_key=os.getenv("QDRANT_API_KEY") or None)
         paper_available = bool(client.collection_exists(DEFAULT_PAPER_COLLECTION))
         chunk_available = bool(client.collection_exists(DEFAULT_CHUNK_COLLECTION))
         dependencies["qdrant"] = "available"

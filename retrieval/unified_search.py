@@ -41,6 +41,42 @@ ChunkRetriever = Callable[..., list[dict[str, Any]]]
 Reranker = Callable[..., list[dict[str, Any]]]
 Router = Callable[[str], QueryRoute]
 
+RERANK_CANDIDATE_POOL_MULTIPLIER = 3
+COMPARISON_QUERY_PATTERNS = (
+    re.compile(r"\bdifference\s+between\b", re.IGNORECASE),
+    re.compile(r"\bcompare\b", re.IGNORECASE),
+    re.compile(r"\bversus\b", re.IGNORECASE),
+    re.compile(r"\bvs\.?\b", re.IGNORECASE),
+)
+
+
+def should_apply_mmr(query: str) -> bool:
+    """Enable MMR only for comparison/conceptual queries."""
+
+    return any(pattern.search(query) for pattern in COMPARISON_QUERY_PATTERNS)
+
+
+def rerank_candidate_pool_size(top_k: int, apply_reranking: bool) -> int:
+    """How many candidates to fetch/fuse before handing them to the reranker.
+
+    This intentionally returns top_k unchanged (no oversampling). An earlier
+    version of this function oversampled by RERANK_CANDIDATE_POOL_MULTIPLIER
+    to give MMR diversity selection room to work, but measurement on this
+    project's 36-query labeled eval set showed oversampling *alone* --
+    independent of MMR -- reduced Recall@10 from 0.76 to 0.69. The cause:
+    retrieval.rerank.normalize_scores() min-max normalizes rerank scores
+    relative to whatever is in the current candidate batch. Enlarging the
+    batch pulls in weaker fusion-ranked candidates, which shifts the
+    normalization floor and rescales every candidate's normalized score --
+    including the true positives -- in a way unrelated to their actual
+    relevance. Fixing that would mean moving to an absolute/fixed-scale
+    score transform instead of batch-relative min-max, which is a separate,
+    larger change from what this function was introduced to do. See
+    docs/DECISIONS.md for the measured before/after numbers.
+    """
+
+    return top_k
+
 
 class UnifiedSearchError(RuntimeError):
     """Raised when unified retrieval cannot complete cleanly."""
@@ -162,11 +198,14 @@ def maybe_rerank(
     enabled: bool,
     reranker: Reranker = rerank_and_blend,
     top_k: int,
+    apply_mmr: bool = False,
 ) -> list[dict[str, Any]]:
     if not candidates:
         return []
     if not enabled:
         return candidates[:top_k]
+    if apply_mmr:
+        return reranker(query, candidates, top_k=top_k, apply_mmr=True)
     return reranker(query, candidates, top_k=top_k)
 
 
@@ -285,6 +324,7 @@ def run_unified_search(
     dense_top_k: int = DEFAULT_DENSE_TOP_K,
     sparse_top_k: int = DEFAULT_SPARSE_TOP_K,
     apply_reranking: bool = True,
+    fusion_method: str = "weighted",
     router: Router = route_query,
     paper_retriever: PaperRetriever = retrieve_papers,
     chunk_retriever: ChunkRetriever = retrieve_chunks,
@@ -297,6 +337,7 @@ def run_unified_search(
     model: str = DEFAULT_EMBEDDING_MODEL,
     env_file: Path = Path(".env"),
     qdrant_url: str | None = None,
+    qdrant_api_key: str | None = None,
     local_path: Path | None = None,
     bm25_index: Path = DEFAULT_BM25_PATH,
 ) -> UnifiedSearchResponse:
@@ -331,6 +372,7 @@ def run_unified_search(
             qdrant_client = get_qdrant_client(
                 url=qdrant_url or os.getenv("QDRANT_URL") or DEFAULT_QDRANT_URL,
                 local_path=local_path,
+                api_key=qdrant_api_key or os.getenv("QDRANT_API_KEY") or None,
             )
         if needs_bm25 and bm25_artifact is None:
             if not bm25_index.exists():
@@ -339,16 +381,21 @@ def run_unified_search(
 
     paper_candidates: list[dict[str, Any]] = []
     chunk_candidates: list[dict[str, Any]] = []
+    paper_pool_size = rerank_candidate_pool_size(request.paper_top_k, request.apply_reranking)
+    chunk_pool_size = rerank_candidate_pool_size(request.chunk_top_k, request.apply_reranking)
+    # Conditional MMR is not enabled by default; it needs a clean Step-1-baseline ablation first.
+    apply_mmr = False
 
     try:
         if route.route == "metadata_filter":
-            paper_candidates = metadata_filter_papers(request.query, bm25_artifact or {}, request.paper_top_k)
+            paper_candidates = metadata_filter_papers(request.query, bm25_artifact or {}, paper_pool_size)
             paper_candidates = maybe_rerank(
                 request.query,
                 paper_candidates,
                 enabled=request.apply_reranking,
                 reranker=reranker,
                 top_k=request.paper_top_k,
+                apply_mmr=apply_mmr,
             )
         else:
             if needs_papers:
@@ -361,7 +408,8 @@ def run_unified_search(
                     model=model,
                     dense_top_k=request.dense_top_k,
                     sparse_top_k=request.sparse_top_k,
-                    final_top_k=request.paper_top_k,
+                    final_top_k=paper_pool_size,
+                    fusion_method=fusion_method,
                 )
                 paper_candidates = maybe_rerank(
                     request.query,
@@ -369,6 +417,7 @@ def run_unified_search(
                     enabled=request.apply_reranking,
                     reranker=reranker,
                     top_k=request.paper_top_k,
+                    apply_mmr=apply_mmr,
                 )
             if needs_chunks:
                 chunk_candidates = chunk_retriever(
@@ -377,7 +426,7 @@ def run_unified_search(
                     qdrant_client=qdrant_client,
                     collection_name=chunk_collection,
                     model=model,
-                    top_k=request.chunk_top_k,
+                    top_k=chunk_pool_size,
                 )
                 chunk_candidates = maybe_rerank(
                     request.query,
@@ -385,6 +434,7 @@ def run_unified_search(
                     enabled=request.apply_reranking,
                     reranker=reranker,
                     top_k=request.chunk_top_k,
+                    apply_mmr=apply_mmr,
                 )
     except Exception as exc:  # noqa: BLE001 - normalize provider/retriever errors for callers.
         raise UnifiedSearchError(f"unified retrieval failed: {exc}") from exc
@@ -401,10 +451,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dense-top-k", type=int, default=DEFAULT_DENSE_TOP_K)
     parser.add_argument("--sparse-top-k", type=int, default=DEFAULT_SPARSE_TOP_K)
     parser.add_argument("--no-rerank", action="store_true")
+    parser.add_argument("--fusion-method", choices=["weighted", "rrf"], default="weighted")
     parser.add_argument("--paper-collection", default=DEFAULT_PAPER_COLLECTION)
     parser.add_argument("--chunk-collection", default=DEFAULT_CHUNK_COLLECTION)
     parser.add_argument("--model", default=DEFAULT_EMBEDDING_MODEL)
     parser.add_argument("--qdrant-url", default=None)
+    parser.add_argument("--qdrant-api-key", default=None)
     parser.add_argument("--local-path", type=Path, default=None)
     parser.add_argument("--bm25-index", type=Path, default=DEFAULT_BM25_PATH)
     parser.add_argument("--env-file", type=Path, default=Path(".env"))
@@ -421,11 +473,13 @@ def main() -> None:
         dense_top_k=args.dense_top_k,
         sparse_top_k=args.sparse_top_k,
         apply_reranking=not args.no_rerank,
+        fusion_method=args.fusion_method,
         paper_collection=args.paper_collection,
         chunk_collection=args.chunk_collection,
         model=args.model,
         env_file=args.env_file,
         qdrant_url=args.qdrant_url,
+        qdrant_api_key=args.qdrant_api_key,
         local_path=args.local_path,
         bm25_index=args.bm25_index,
     )

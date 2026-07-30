@@ -6,4 +6,10 @@ __pycache__/
 .pytest_cache/
 data/*
 !data/.gitkeep
+!data/bm25_index.pkl
+!data/raw_papers.json
+!data/enriched_papers_final.json
+!data/full_text_sources.json
+!data/full_text_papers.json
+!data/full_text_chunks.json
 

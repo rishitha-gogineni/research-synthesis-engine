@@ -79,6 +79,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--input", type=Path, default=DEFAULT_INPUT)
     parser.add_argument("--collection", default=DEFAULT_COLLECTION)
     parser.add_argument("--qdrant-url", default=None)
+    parser.add_argument("--qdrant-api-key", default=None)
     parser.add_argument("--local-path", type=Path, default=None)
     parser.add_argument("--batch-size", type=int, default=128)
     parser.add_argument("--recreate", action="store_true")
@@ -94,7 +95,7 @@ def main() -> None:
 
     qdrant_url = args.qdrant_url or os.getenv("QDRANT_URL") or DEFAULT_QDRANT_URL
     records = load_embedded_chunks(args.input)
-    client = get_qdrant_client(url=qdrant_url, local_path=args.local_path)
+    client = get_qdrant_client(url=qdrant_url, local_path=args.local_path, api_key=args.qdrant_api_key)
     ensure_collection(client, args.collection, VECTOR_SIZE, recreate=args.recreate)
     count = upsert_chunks(client, args.collection, records, args.batch_size)
     print(f"Qdrant chunk indexing complete: {count} chunks")
