@@ -155,7 +155,8 @@ def error_message(payload: dict[str, Any]) -> str | None:
 
 
 def evidence_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
-    rows = payload.get("evidence_matrix", {}).get("rows", []) or []
+    evidence_matrix = payload.get("evidence_matrix") or {}
+    rows = evidence_matrix.get("rows", []) or []
     return [
         {
             "Claim": row.get("claim"),

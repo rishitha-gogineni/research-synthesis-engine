@@ -240,6 +240,21 @@ def test_section_counts_summarize_result_sections():
     assert counts["Open Problems"] == "1 found"
     assert counts["Sources"] == "1 papers / 1 chunks"
 
+def test_section_helpers_handle_null_optional_sections_for_low_confidence_response():
+    payload = sample_guidance_payload()
+    payload["confidence"] = {"decision": "insufficient_evidence"}
+    payload["evidence_matrix"] = None
+    payload["reading_path"] = None
+    payload["open_problems"] = None
+
+    assert api_client.evidence_rows(payload) == []
+    counts = api_client.section_counts(payload)
+
+    assert counts["Evidence"] == "0 claims"
+    assert counts["Reading Path"] == "0 stages"
+    assert counts["Open Problems"] == "0 found"
+
+
 def test_trust_summary_and_answerable_gate_use_confidence_decision():
     payload = sample_guidance_payload()
 
