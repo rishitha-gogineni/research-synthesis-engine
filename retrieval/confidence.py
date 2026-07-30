@@ -21,6 +21,36 @@ CLARIFY_ROUTE_CONFIDENCE_THRESHOLD = 0.6
 MIN_STRONG_RESULTS = 2
 QUERY_SUPPORT_MINIMUM = 0.18
 QUERY_SPECIFICITY_MINIMUM = 1
+AI_DOMAIN_PATTERNS = (
+    re.compile(r"\bai\b", re.IGNORECASE),
+    re.compile(r"\bartificial\s+intelligence\b", re.IGNORECASE),
+    re.compile(r"\bmachine\s+learning\b", re.IGNORECASE),
+    re.compile(r"\bdeep\s+learning\b", re.IGNORECASE),
+    re.compile(r"\bllms?\b", re.IGNORECASE),
+    re.compile(r"\blarge\s+language\s+models?\b", re.IGNORECASE),
+    re.compile(r"\brag\b", re.IGNORECASE),
+    re.compile(r"\bretrieval[-\s]+augmented\s+generation\b", re.IGNORECASE),
+    re.compile(r"\bhallucinations?\b", re.IGNORECASE),
+    re.compile(r"\btransformers?\b", re.IGNORECASE),
+    re.compile(r"\battention\b", re.IGNORECASE),
+    re.compile(r"\bagents?\b", re.IGNORECASE),
+    re.compile(r"\bagentic\b", re.IGNORECASE),
+    re.compile(r"\btools?\b", re.IGNORECASE),
+    re.compile(r"\blora\b", re.IGNORECASE),
+    re.compile(r"\bpeft\b", re.IGNORECASE),
+    re.compile(r"\bfine[-\s]+tuning\b", re.IGNORECASE),
+    re.compile(r"\bfinetuning\b", re.IGNORECASE),
+    re.compile(r"\bbitfit\b", re.IGNORECASE),
+    re.compile(r"\badapters?\b", re.IGNORECASE),
+    re.compile(r"\bchatgpt\b", re.IGNORECASE),
+    re.compile(r"\bprompts?\b", re.IGNORECASE),
+    re.compile(r"\bprompting\b", re.IGNORECASE),
+    re.compile(r"\bbenchmarks?\b", re.IGNORECASE),
+    re.compile(r"\bevaluations?\b", re.IGNORECASE),
+    re.compile(r"\bdatasets?\b", re.IGNORECASE),
+    re.compile(r"\bembeddings?\b", re.IGNORECASE),
+    re.compile(r"\bvector\s+search\b", re.IGNORECASE),
+)
 QUERY_STOPWORDS = {
     "about", "after", "against", "answer", "answers", "are", "can", "compare", "corpus",
     "does", "explain", "from", "give", "hardware", "highly", "implementation", "implementations",
@@ -69,6 +99,17 @@ def query_terms(query: str) -> list[str]:
         if normalized not in terms:
             terms.append(normalized)
     return terms
+
+
+def query_domain_anchors(query: str) -> list[str]:
+    anchors: list[str] = []
+    for pattern in AI_DOMAIN_PATTERNS:
+        match = pattern.search(query)
+        if match:
+            value = match.group(0).lower()
+            if value not in anchors:
+                anchors.append(value)
+    return anchors
 
 
 def candidate_text(candidate: Any) -> str:
@@ -152,6 +193,7 @@ def confidence_components(response: UnifiedSearchResponse) -> dict[str, Any]:
     agreement_score, agreement_signals = score_topic_agreement(response)
     terms = query_terms(response.query)
     query_support_score, query_support_signals = score_query_support(response, terms)
+    domain_anchors = query_domain_anchors(response.query)
     return {
         "result_count": len(results),
         "top_score": scores[0] if scores else 0.0,
@@ -162,6 +204,7 @@ def confidence_components(response: UnifiedSearchResponse) -> dict[str, Any]:
         "query_terms": terms,
         "query_specificity": len(terms),
         "query_support_score": query_support_score,
+        "query_domain_anchors": domain_anchors,
         "agreement_signals": agreement_signals,
         "query_support_signals": query_support_signals,
     }
@@ -185,6 +228,7 @@ def decide(response: UnifiedSearchResponse, components: dict[str, Any], confiden
     route_confidence = components["route_confidence"]
     query_specificity = components["query_specificity"]
     query_support_score = components["query_support_score"]
+    query_domain_anchors = components["query_domain_anchors"]
 
     if result_count == 0:
         return (
@@ -203,6 +247,12 @@ def decide(response: UnifiedSearchResponse, components: dict[str, Any], confiden
             "ask_clarifying_question",
             "The question does not contain enough specific research terms to verify retrieved evidence.",
             "Ask the user to name the paper, method, dataset, or research topic they want analyzed.",
+        )
+    if not query_domain_anchors:
+        return (
+            "insufficient_evidence",
+            "The question does not contain an AI research topic, method, model, or evaluation anchor covered by this corpus.",
+            "Do not generate an answer; tell the user this question appears outside the indexed AI research corpus.",
         )
     if query_support_score < QUERY_SUPPORT_MINIMUM:
         return (
@@ -243,6 +293,7 @@ def assess_confidence(response: UnifiedSearchResponse) -> ConfidenceAssessment:
         f"agreement_score={components['agreement_score']:.2f}",
         f"query_support_score={components['query_support_score']:.2f}",
         f"query_specificity={components['query_specificity']}",
+        "query_domain_anchors=" + (", ".join(components["query_domain_anchors"]) if components["query_domain_anchors"] else "none"),
         *components["agreement_signals"],
         *components["query_support_signals"],
     ]

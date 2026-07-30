@@ -174,6 +174,28 @@ def test_generic_system_phrasing_does_not_make_off_corpus_query_supported():
     assert any("matched query terms: none" in signal for signal in assessment.signals)
 
 
+def test_off_scope_rewritten_query_without_ai_anchor_is_insufficient():
+    response = make_response(
+        query="marine biology and coral bleaching",
+        route="hybrid_both",
+        route_confidence=0.55,
+        papers=[
+            make_paper("p1", topic="AI Agents & Tool Use", score=0.95),
+            make_paper("p2", topic="LLM Evaluation & Hallucination Detection", score=0.9),
+        ],
+        chunks=[
+            make_chunk("c1", paper_id="p1", topic="AI Agents & Tool Use", score=0.88),
+            make_chunk("c2", paper_id="p1", topic="AI Agents & Tool Use", score=0.86),
+        ],
+    )
+
+    assessment = assess_confidence(response)
+
+    assert assessment.decision == "insufficient_evidence"
+    assert any("query_domain_anchors=none" in signal for signal in assessment.signals)
+    assert "outside" in assessment.recommended_action.lower()
+
+
 def test_load_response_reads_unified_response_json(tmp_path):
     response = make_response(papers=[make_paper("p1")])
     path = tmp_path / "response.json"
