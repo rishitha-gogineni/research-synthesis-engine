@@ -180,6 +180,42 @@ def test_post_api_returns_structured_error_for_http_error(monkeypatch):
     assert body["_error_status"] == 503
     assert api_client.error_message(body).startswith("QDRANT_UNAVAILABLE")
 
+def test_post_api_collapses_html_error_pages(monkeypatch):
+    class FakeResponse:
+        status_code = 502
+        headers = {}
+        text = "<!DOCTYPE html><html><head><title>502</title></head><body>bad gateway</body></html>"
+
+        def json(self):
+            raise ValueError("not json")
+
+    monkeypatch.setattr(api_client.requests, "post", lambda *args, **kwargs: FakeResponse())
+
+    body, request_id = api_client.post_api("/guidance", {"question": "test"}, request_id="request-1")
+
+    assert request_id is None
+    assert body["_error_status"] == 502
+    assert body["error"]["message"] == "API returned HTTP 502 with a non-JSON error page."
+
+
+def test_get_api_collapses_html_error_pages(monkeypatch):
+    class FakeResponse:
+        status_code = 502
+        headers = {}
+        text = "<html><body>bad gateway</body></html>"
+
+        def json(self):
+            raise ValueError("not json")
+
+    monkeypatch.setattr(api_client.requests, "get", lambda *args, **kwargs: FakeResponse())
+
+    body, request_id = api_client.get_api("/health")
+
+    assert request_id is None
+    assert body["_error_status"] == 502
+    assert body["error"]["message"] == "API returned HTTP 502 with a non-JSON error page."
+
+
 def test_theme_rows_flatten_brief_themes():
     payload = sample_guidance_payload()
     payload["brief"] = {

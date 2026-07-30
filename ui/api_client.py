@@ -115,6 +115,13 @@ def evaluation_metric_rows() -> list[dict[str, Any]]:
     ]
 
 
+def non_json_error_message(response: requests.Response) -> str:
+    preview = (response.text or "").strip()
+    if preview.lower().startswith("<!doctype") or "<html" in preview.lower():
+        return f"API returned HTTP {response.status_code} with a non-JSON error page."
+    return preview[:500] or "API returned a non-JSON response."
+
+
 def post_api(endpoint: str, payload: dict[str, Any], *, request_id: str | None = None, timeout: int = 120) -> tuple[dict[str, Any], str | None]:
     url = f"{api_base_url()}{endpoint}"
     headers = {"Content-Type": "application/json"}
@@ -125,7 +132,7 @@ def post_api(endpoint: str, payload: dict[str, Any], *, request_id: str | None =
     try:
         body = response.json()
     except ValueError:
-        body = {"error": {"code": "INVALID_RESPONSE", "message": response.text or "API returned a non-JSON response.", "request_id": response_id}}
+        body = {"error": {"code": "INVALID_RESPONSE", "message": non_json_error_message(response), "request_id": response_id}}
     if response.status_code >= 400:
         return {"_error_status": response.status_code, **body}, response_id
     return body, response_id
@@ -137,7 +144,7 @@ def get_api(endpoint: str, *, timeout: int = 20) -> tuple[dict[str, Any], str | 
     try:
         body = response.json()
     except ValueError:
-        body = {"error": {"code": "INVALID_RESPONSE", "message": response.text or "API returned a non-JSON response.", "request_id": response_id}}
+        body = {"error": {"code": "INVALID_RESPONSE", "message": non_json_error_message(response), "request_id": response_id}}
     if response.status_code >= 400:
         return {"_error_status": response.status_code, **body}, response_id
     return body, response_id
