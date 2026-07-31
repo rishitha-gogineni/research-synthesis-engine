@@ -126,7 +126,11 @@ def test_error_message_formats_structured_api_errors():
 def test_table_helpers_flatten_guidance_response():
     payload = sample_guidance_payload()
 
-    assert api_client.evidence_rows(payload)[0]["Claim"] == "Retrieval grounds answers."
+    evidence = api_client.evidence_rows(payload)[0]
+    assert evidence["Claim"] == "Retrieval grounds answers."
+    assert list(evidence) == ["Claim", "Evidence", "Sources"]
+    assert "Result: Fewer unsupported claims." in evidence["Evidence"]
+    assert "Dataset: HaluEval" in evidence["Evidence"]
     assert api_client.reading_path_rows(payload)[0]["Stage"] == "foundational"
     assert api_client.open_problem_rows(payload)[0]["Problem"] == "Evaluation coverage"
     papers, chunks = api_client.source_rows(payload)
@@ -325,6 +329,23 @@ def test_weak_evidence_guidance_handles_no_retrieved_sources():
     guidance = api_client.weak_evidence_guidance(payload)
 
     assert guidance[0] == "No matching papers or full-text chunks were retrieved for this question."
+
+
+def test_metadata_listing_uses_ranked_paper_language_and_hides_empty_tabs():
+    payload = sample_guidance_payload()
+    payload["confidence"] = {"decision": "broaden_search"}
+    payload["retrieval"]["route"] = {"route": "metadata_filter", "reason": "ranking request"}
+    payload["retrieval"]["chunk_result_count"] = 0
+    payload["retrieval"]["chunk_results"] = []
+    payload["evidence_matrix"] = {"rows": []}
+    payload["reading_path"] = {"stages": []}
+    payload["open_problems"] = {"problems": []}
+
+    assert api_client.weak_evidence_title(payload) == "Ranked paper list shown"
+    assert "metadata search" in api_client.weak_evidence_intro(payload)
+    assert api_client.weak_evidence_guidance(payload)[0] == "Returned 1 ranked papers that match the metadata request."
+    assert api_client.top_evidence_heading(payload) == "Ranked Papers"
+    assert api_client.visible_section_labels(payload) == ["Sources · 1 papers / 0 chunks"]
 
 
 

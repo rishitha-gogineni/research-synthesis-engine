@@ -161,18 +161,36 @@ def error_message(payload: dict[str, Any]) -> str | None:
     return f"{code}: {message}{suffix}"
 
 
+def _is_meaningful_evidence(value: Any) -> bool:
+    if not isinstance(value, str):
+        return False
+    normalized = value.strip().lower()
+    return bool(normalized) and not normalized.startswith("not stated") and normalized != "not specified"
+
+
+def _compact_evidence_summary(row: dict[str, Any]) -> str:
+    parts = []
+    field_labels = (
+        ("key_result", "Result"),
+        ("methodology", "Method"),
+        ("dataset", "Dataset"),
+        ("limitation", "Limitation"),
+    )
+    for field, label in field_labels:
+        value = row.get(field)
+        if _is_meaningful_evidence(value):
+            parts.append(f"{label}: {value.strip()}")
+    return " | ".join(parts) or "Evidence details were not stated in the retrieved source."
+
+
 def evidence_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
     evidence_matrix = payload.get("evidence_matrix") or {}
     rows = evidence_matrix.get("rows", []) or []
     return [
         {
             "Claim": row.get("claim"),
+            "Evidence": _compact_evidence_summary(row),
             "Sources": ", ".join(row.get("source_ids", [])),
-            "Methodology": row.get("methodology"),
-            "Dataset": row.get("dataset"),
-            "Key Result": row.get("key_result"),
-            "Limitation": row.get("limitation"),
-            "Strength": row.get("evidence_strength"),
         }
         for row in rows
     ]
@@ -355,6 +373,29 @@ def is_answerable(payload: dict[str, Any]) -> bool:
     return confidence_decision(payload) == "sufficient_evidence"
 
 
+def retrieval_route(payload: dict[str, Any]) -> str:
+    retrieval = payload.get("retrieval") or {}
+    route = retrieval.get("route") or {}
+    return route.get("route") or "unknown"
+
+
+def is_metadata_listing(payload: dict[str, Any]) -> bool:
+    summary = trust_summary(payload)
+    return summary["route"] == "metadata_filter" and summary["paper_count"] > 0
+
+
+def weak_evidence_title(payload: dict[str, Any]) -> str:
+    if is_metadata_listing(payload):
+        return "Ranked paper list shown"
+    return "No grounded answer shown"
+
+
+def weak_evidence_intro(payload: dict[str, Any]) -> str:
+    if is_metadata_listing(payload):
+        return "This request was handled as a metadata search, so the system returned matching papers instead of generating a synthesis."
+    return "The system found evidence, but it did not meet the confidence threshold for a direct answer."
+
+
 def trust_summary(payload: dict[str, Any]) -> dict[str, Any]:
     retrieval = payload.get("retrieval") or {}
     route = retrieval.get("route") or {}
@@ -375,6 +416,10 @@ def trust_summary(payload: dict[str, Any]) -> dict[str, Any]:
 def weak_evidence_guidance(payload: dict[str, Any]) -> list[str]:
     summary = trust_summary(payload)
     suggestions = []
+    if is_metadata_listing(payload):
+        suggestions.append(f"Returned {summary['paper_count']} ranked papers that match the metadata request.")
+        suggestions.append("Use this result as a ranked bibliography, then open the Sources tab for the full table.")
+        return suggestions
     if summary["paper_count"] == 0 and summary["chunk_count"] == 0:
         suggestions.append("No matching papers or full-text chunks were retrieved for this question.")
     else:
@@ -390,6 +435,12 @@ def route_label(route: str | None) -> str:
     return (route or "unknown").replace("_", " ")
 
 
+def top_evidence_heading(payload: dict[str, Any]) -> str:
+    if retrieval_route(payload) == "metadata_filter":
+        return "Ranked Papers"
+    return "Top Supporting Evidence"
+
+
 def section_counts(payload: dict[str, Any]) -> dict[str, str]:
     """Short count strings shown next to each expander label, e.g. '5 claims'."""
     retrieval = payload.get("retrieval") or {}
@@ -402,6 +453,24 @@ def section_counts(payload: dict[str, Any]) -> dict[str, str]:
         "Open Problems": f"{len(open_problems.get('problems', []) or [])} found",
         "Sources": f"{retrieval.get('paper_result_count', 0)} papers / {retrieval.get('chunk_result_count', 0)} chunks",
     }
+
+
+def visible_section_labels(payload: dict[str, Any], *, include_diagnostics: bool = False) -> list[str]:
+    """Return only result tabs with content, keeping diagnostics opt-in."""
+    counts = section_counts(payload)
+    labels: list[str] = []
+    if evidence_rows(payload):
+        labels.append(f"Evidence Matrix · {counts['Evidence']}")
+    if reading_path_rows(payload):
+        labels.append(f"Reading Path · {counts['Reading Path']}")
+    if open_problem_rows(payload):
+        labels.append(f"Open Problems · {counts['Open Problems']}")
+    paper_rows, chunk_rows = source_rows(payload)
+    if paper_rows or chunk_rows:
+        labels.append(f"Sources · {counts['Sources']}")
+    if include_diagnostics:
+        labels.append("Diagnostics")
+    return labels
 
 
 def query_intent(question: str) -> str:

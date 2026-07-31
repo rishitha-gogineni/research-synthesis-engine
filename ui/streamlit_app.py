@@ -38,9 +38,13 @@ from ui.api_client import (
     source_rows,
     summary_items,
     theme_rows,
+    top_evidence_heading,
     top_supporting_evidence,
     trust_summary,
+    visible_section_labels,
     weak_evidence_guidance,
+    weak_evidence_intro,
+    weak_evidence_title,
 )
 
 
@@ -291,12 +295,14 @@ def render_evidence_gate(payload: dict):
 
 
 def render_weak_evidence_state(payload: dict):
+    title = html.escape(weak_evidence_title(payload))
+    intro = html.escape(weak_evidence_intro(payload))
     items = "".join(f"<li>{html.escape(item)}</li>" for item in weak_evidence_guidance(payload))
     st.markdown(
         f"""
         <div class='rse-empty-state'>
-            <h3>No grounded answer shown</h3>
-            <p>The system found evidence, but it did not meet the confidence threshold for a direct answer.</p>
+            <h3>{title}</h3>
+            <p>{intro}</p>
             <ul>{items}</ul>
         </div>
         """,
@@ -707,24 +713,26 @@ def render_results_page(health: dict, stats: dict):
     render_summary(result, st.session_state.get("request_id"))
     render_brief(result)
 
-    st.subheader("Top Supporting Evidence")
+    st.subheader(top_evidence_heading(result))
     render_top_evidence(result)
 
-    counts = section_counts(result)
-    tab_specs = [
-        (f"Evidence Matrix · {counts.get('Evidence', '0 claims')}", render_evidence),
-        (f"Reading Path · {counts.get('Reading Path', '0 stages')}", render_reading_path),
-        (f"Open Problems · {counts.get('Open Problems', '0 found')}", render_open_problems),
-        (f"Sources · {counts.get('Sources', '0 papers / 0 chunks')}", render_sources),
-    ]
-    if st.session_state.get("show_diagnostics"):
-        tab_specs.append(("Diagnostics", render_diagnostics))
-    tabs = st.tabs([label for label, _ in tab_specs])
-    for tab, (_, renderer) in zip(tabs, tab_specs):
-        with tab:
-            renderer(result)
+    renderer_by_prefix = {
+        "Evidence Matrix": render_evidence,
+        "Reading Path": render_reading_path,
+        "Open Problems": render_open_problems,
+        "Sources": render_sources,
+        "Diagnostics": render_diagnostics,
+    }
+    tab_labels = visible_section_labels(result, include_diagnostics=bool(st.session_state.get("show_diagnostics")))
+    if tab_labels:
+        tabs = st.tabs(tab_labels)
+        for tab, label in zip(tabs, tab_labels):
+            renderer = next(renderer for prefix, renderer in renderer_by_prefix.items() if label.startswith(prefix))
+            with tab:
+                renderer(result)
 
     st.subheader("Ask a follow-up")
+    st.caption("Follow-ups use the previous question and answer as context. Use Clear memory in the sidebar to start fresh.")
     st.text_area(
         "Follow-up question",
         key="followup_question",
