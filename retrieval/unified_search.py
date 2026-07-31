@@ -15,6 +15,7 @@ from pydantic import ValidationError
 from full_text.index_chunks_qdrant import DEFAULT_COLLECTION as DEFAULT_CHUNK_COLLECTION
 from ingestion.embed import DEFAULT_EMBEDDING_MODEL
 from retrieval.build_bm25 import load_bm25_artifact
+from retrieval.corpus_index import CorpusIndex, classify_question_pattern, load_corpus_index
 from retrieval.hybrid_search import (
     DEFAULT_BM25_PATH,
     DEFAULT_DENSE_TOP_K,
@@ -253,48 +254,18 @@ def infer_topic_filter(query: str, papers: list[dict[str, Any]]) -> str | None:
     return None
 
 
-def metadata_filter_papers(query: str, bm25_artifact: dict[str, Any], top_k: int) -> list[dict[str, Any]]:
-    papers = bm25_artifact.get("papers", [])
-    after_year, before_year = parse_year_filters(query)
-    topic_filter = infer_topic_filter(query, papers)
+def metadata_filter_papers(
+    query: str,
+    bm25_artifact: dict[str, Any] | None,
+    top_k: int,
+    *,
+    corpus_index: CorpusIndex | None = None,
+) -> list[dict[str, Any]]:
+    if corpus_index is not None:
+        return corpus_index.ranked_papers(query, top_k=top_k)
 
-    candidates: list[dict[str, Any]] = []
-    for paper in papers:
-        metadata = paper.get("metadata", {})
-        year = paper.get("year") or metadata.get("year")
-        topic = paper.get("topic") or metadata.get("topic")
-        if after_year is not None and (year is None or int(year) <= after_year):
-            continue
-        if before_year is not None and (year is None or int(year) >= before_year):
-            continue
-        if topic_filter and topic != topic_filter:
-            continue
-        candidates.append(
-            {
-                "paper_id": paper.get("paper_id"),
-                "title": paper.get("title") or metadata.get("title"),
-                "topic": topic,
-                "year": year,
-                "citation_count": paper.get("citation_count", metadata.get("citation_count", 0)),
-                "authors": metadata.get("authors", []),
-                "abstract": metadata.get("abstract"),
-                "arxiv_id": metadata.get("arxiv_id"),
-                "url": metadata.get("url"),
-                "main_contribution": metadata.get("main_contribution"),
-                "methodology": metadata.get("methodology"),
-                "dataset_used": metadata.get("dataset_used"),
-                "key_result": metadata.get("key_result"),
-                "limitations": metadata.get("limitations"),
-                "hybrid_score": 0.0,
-                "matched_by": ["metadata_filter"],
-            }
-        )
-
-    return sorted(
-        candidates,
-        key=lambda candidate: (candidate.get("citation_count") or 0, candidate.get("year") or 0),
-        reverse=True,
-    )[:top_k]
+    index = CorpusIndex.from_bm25_artifact(bm25_artifact or {})
+    return index.ranked_papers(query, top_k=top_k, matched_by=["metadata_filter"])
 
 
 def build_unified_response(
@@ -340,6 +311,7 @@ def run_unified_search(
     qdrant_api_key: str | None = None,
     local_path: Path | None = None,
     bm25_index: Path = DEFAULT_BM25_PATH,
+    corpus_index: CorpusIndex | None = None,
 ) -> UnifiedSearchResponse:
     try:
         request = UnifiedSearchRequest(
@@ -354,12 +326,39 @@ def run_unified_search(
     except ValidationError as exc:
         raise UnifiedSearchError(str(exc)) from exc
 
+    question_pattern = classify_question_pattern(request.query)
     route = router(request.query)
+
+    if question_pattern == "ranked_list" and route.route != "metadata_filter":
+        route = QueryRoute(
+            query=request.query,
+            route="metadata_filter",
+            reason="The question asks for a ranked or filtered paper list, so the corpus metadata index is the fastest reliable path.",
+            confidence=max(route.confidence, 0.82),
+            matched_signals=[*route.matched_signals, "pattern: ranked_list fast path"],
+        )
+
+    if question_pattern == "paper_lookup":
+        lookup_index = corpus_index or load_corpus_index()
+        match = lookup_index.resolve_paper(request.query)
+        if match is not None:
+            paper_candidate = lookup_index.paper_candidate(match.paper_id, ["paper_lookup", "corpus_index"])
+            paper_candidates = [paper_candidate] if paper_candidate else []
+            chunk_candidates = lookup_index.chunk_candidates_for_paper(match.paper_id, top_k=request.chunk_top_k)
+            lookup_route = QueryRoute(
+                query=request.query,
+                route="hybrid_both",
+                reason="The question names a specific paper in the local corpus, so retrieval uses a direct title lookup plus that paper's local chunks.",
+                confidence=0.92,
+                matched_signals=[f"paper_lookup: {match.reason}", f"paper_id: {match.paper_id}"],
+            )
+            return build_unified_response(request, lookup_route, paper_candidates, chunk_candidates)
+
     needs_papers = route.route in {"paper_level", "hybrid_both", "metadata_filter"}
     needs_chunks = route.route in {"chunk_level", "hybrid_both"}
 
     needs_vector_clients = route.route != "metadata_filter" and (needs_papers or needs_chunks)
-    needs_bm25 = needs_papers
+    needs_bm25 = needs_papers and (route.route != "metadata_filter" or (corpus_index is None and bm25_artifact is None and bm25_index != DEFAULT_BM25_PATH))
 
     if (needs_vector_clients and (openai_client is None or qdrant_client is None)) or (needs_bm25 and bm25_artifact is None):
         load_env_file(env_file)
@@ -388,7 +387,8 @@ def run_unified_search(
 
     try:
         if route.route == "metadata_filter":
-            paper_candidates = metadata_filter_papers(request.query, bm25_artifact or {}, paper_pool_size)
+            lookup_index = corpus_index or (None if bm25_artifact is not None else load_corpus_index())
+            paper_candidates = metadata_filter_papers(request.query, bm25_artifact or {}, paper_pool_size, corpus_index=lookup_index)
             paper_candidates = maybe_rerank(
                 request.query,
                 paper_candidates,
