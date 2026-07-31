@@ -486,6 +486,19 @@ def query_intent(question: str) -> str:
     return "overview"
 
 
+def main_brief_limitations(payload: dict[str, Any]) -> list[str]:
+    """Limitations belong in the main view only when the user asks for them."""
+    question = payload.get("question") or payload.get("standalone_query") or ""
+    if query_intent(str(question)) != "limitations":
+        return []
+    brief = payload.get("brief") or {}
+    limitations = []
+    for item in brief.get("limitations", []) or []:
+        if _is_meaningful_evidence(item):
+            limitations.append(item)
+    return limitations
+
+
 def ordered_sections(question: str) -> list[str]:
     intent = query_intent(question)
     if intent == "reading":

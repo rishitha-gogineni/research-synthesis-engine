@@ -26,6 +26,7 @@ from ui.api_client import (
     evaluation_metric_rows,
     evidence_rows,
     get_api,
+    main_brief_limitations,
     metric_rows,
     new_request_id,
     open_problem_rows,
@@ -344,9 +345,9 @@ def render_brief(payload: dict):
         st.subheader("Evidence Highlights")
         for item in bullets:
             st.write(f"- {item}")
-    limitations = brief.get("limitations") or []
+    limitations = main_brief_limitations(payload)
     if limitations:
-        st.subheader("What The Evidence Does Not Establish")
+        st.subheader("Evidence Limits")
         for item in limitations:
             st.write(f"- {item}")
 

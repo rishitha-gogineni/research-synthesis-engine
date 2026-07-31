@@ -262,6 +262,19 @@ def test_ordered_sections_adapts_to_question_intent():
     assert api_client.ordered_sections("Which datasets evaluate hallucination?")[1] == "Evidence"
     assert api_client.ordered_sections("What are attention mechanisms in transformers?")[:2] == ["Brief", "Top Evidence"]
 
+def test_main_brief_limitations_only_show_for_limitation_questions():
+    payload = sample_guidance_payload()
+    payload["question"] = "Compare LoRA and BitFit for parameter-efficient fine-tuning."
+    payload["brief"] = {"limitations": ["The retrieved evidence does not provide a direct comparison under identical conditions."]}
+
+    assert api_client.main_brief_limitations(payload) == []
+
+    payload["question"] = "What limitations are discussed in LoRA papers?"
+
+    assert api_client.main_brief_limitations(payload) == [
+        "The retrieved evidence does not provide a direct comparison under identical conditions."
+    ]
+
 def test_confidence_style_and_route_label_are_display_ready():
     assert api_client.confidence_style("sufficient_evidence") == ("success", "High confidence")
     assert api_client.confidence_style("insufficient_evidence") == ("danger", "Insufficient evidence")
