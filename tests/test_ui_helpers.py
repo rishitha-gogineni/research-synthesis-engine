@@ -376,11 +376,18 @@ def test_metadata_listing_uses_ranked_paper_language_and_hides_empty_tabs():
     payload["reading_path"] = {"stages": []}
     payload["open_problems"] = {"problems": []}
 
+    evidence_check = api_client.evidence_check_summary(payload)
+
     assert api_client.weak_evidence_title(payload) == "Ranked paper list shown"
     assert "metadata search" in api_client.weak_evidence_intro(payload)
     assert api_client.weak_evidence_guidance(payload)[0] == "Returned 1 ranked papers that match the metadata request."
     assert api_client.top_evidence_heading(payload) == "Ranked Papers"
     assert api_client.visible_section_labels(payload) == ["Sources · 1 papers / 0 chunks"]
+    assert evidence_check["kicker"] == "Retrieval check"
+    assert evidence_check["title"] == "Ranked bibliography returned"
+    assert evidence_check["status_label"] == "Result"
+    assert evidence_check["status_value"] == "Ranked list"
+    assert evidence_check["title"] != "Evidence gate did not pass"
 
 
 

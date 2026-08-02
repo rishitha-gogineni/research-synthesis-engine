@@ -22,6 +22,7 @@ from ui.api_client import (
     build_guidance_payload,
     confidence_style,
     error_message,
+    evidence_check_summary,
     format_direct_answer,
     is_answerable,
     evaluation_metric_rows,
@@ -277,19 +278,20 @@ def render_question_context(payload: dict):
 
 
 def render_evidence_gate(payload: dict):
-    summary = trust_summary(payload)
-    passed = is_answerable(payload)
-    title = "Evidence gate passed" if passed else "Evidence gate did not pass"
-    route = route_label(summary.get("route"))
-    reason = html.escape(str(summary.get("reason") or "No routing reason returned."))
-    label = html.escape(str(summary.get("label") or "unknown"))
-    counts = f"{summary.get('paper_count', 0)} papers · {summary.get('chunk_count', 0)} chunks"
+    summary = evidence_check_summary(payload)
+    kicker = html.escape(summary["kicker"])
+    title = html.escape(summary["title"])
+    status_label = html.escape(summary["status_label"])
+    status_value = html.escape(summary["status_value"])
+    route = html.escape(summary["route"])
+    counts = html.escape(summary["counts"])
+    reason = html.escape(summary["reason"])
     st.markdown(
         f"""
         <div class='rse-trust-card'>
-            <div class='rse-kicker'>Evidence check</div>
+            <div class='rse-kicker'>{kicker}</div>
             <div class='rse-trust-title'>{title}</div>
-            <div class='rse-trust-meta'>Confidence: <strong>{label}</strong> · Route: <strong>{route}</strong> · Retrieved: <strong>{counts}</strong><br/>{reason}</div>
+            <div class='rse-trust-meta'>{status_label}: <strong>{status_value}</strong> · Route: <strong>{route}</strong> · Retrieved: <strong>{counts}</strong><br/>{reason}</div>
         </div>
         """,
         unsafe_allow_html=True,

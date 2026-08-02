@@ -464,6 +464,30 @@ def weak_evidence_guidance(payload: dict[str, Any]) -> list[str]:
     return suggestions
 
 
+def evidence_check_summary(payload: dict[str, Any]) -> dict[str, str]:
+    """Display copy for the trust/evidence card in the result view."""
+    summary = trust_summary(payload)
+    if is_metadata_listing(payload):
+        return {
+            "kicker": "Retrieval check",
+            "title": "Ranked bibliography returned",
+            "status_label": "Result",
+            "status_value": "Ranked list",
+            "route": route_label(summary.get("route")),
+            "counts": f"{summary.get('paper_count', 0)} papers · {summary.get('chunk_count', 0)} chunks",
+            "reason": summary.get("reason") or "Metadata filters matched papers in the local corpus.",
+        }
+    return {
+        "kicker": "Evidence check",
+        "title": "Evidence gate passed" if is_answerable(payload) else "Evidence gate did not pass",
+        "status_label": "Confidence",
+        "status_value": summary.get("label") or "unknown",
+        "route": route_label(summary.get("route")),
+        "counts": f"{summary.get('paper_count', 0)} papers · {summary.get('chunk_count', 0)} chunks",
+        "reason": summary.get("reason") or "No routing reason returned.",
+    }
+
+
 def route_label(route: str | None) -> str:
     return (route or "unknown").replace("_", " ")
 
