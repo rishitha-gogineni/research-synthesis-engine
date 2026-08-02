@@ -384,6 +384,37 @@ def test_metadata_listing_uses_ranked_paper_language_and_hides_empty_tabs():
 
 
 
+def test_visible_sections_hide_distracting_optional_tabs_for_comparison_queries():
+    payload = sample_guidance_payload()
+    payload["question"] = "Compare LoRA and BitFit for parameter-efficient fine-tuning."
+
+    assert api_client.payload_intent(payload) == "comparison"
+    assert api_client.visible_section_labels(payload) == [
+        "Evidence Matrix · 1 claims",
+        "Sources · 1 papers / 1 chunks",
+    ]
+
+
+def test_visible_sections_focus_specific_paper_explanations_on_sources():
+    payload = sample_guidance_payload()
+    payload["question"] = "Explain the BitFit paper."
+    payload["retrieval"]["route"] = {
+        "route": "hybrid_both",
+        "reason": "The question names a specific paper in the local corpus.",
+        "matched_signals": ["direct_title_lookup"],
+    }
+
+    assert api_client.payload_intent(payload) == "paper_explanation"
+    assert api_client.visible_section_labels(payload) == ["Sources · 1 papers / 1 chunks"]
+
+
+def test_visible_sections_keep_reading_path_first_for_reading_queries():
+    payload = sample_guidance_payload()
+    payload["question"] = "Which LoRA and PEFT papers should I read first?"
+
+    assert api_client.visible_section_labels(payload)[0] == "Reading Path · 1 stages"
+
+
 def test_build_guidance_payload_includes_chat_history_when_present():
     history = [{"role": "user", "content": "Explain LoRA."}]
 

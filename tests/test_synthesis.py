@@ -6,6 +6,7 @@ import pytest
 
 from agent.synthesis import (
     SynthesisError,
+    answer_template_instructions,
     build_research_brief,
     build_synthesis_prompt,
     collect_evidence_sources,
@@ -89,7 +90,38 @@ def test_collect_evidence_sources_sorts_and_assigns_stable_ids():
 
     assert [source.source_id for source in sources] == ["chunk:c1", "paper:p1"]
     assert sources[0].score == 0.95
-    assert sources[1].evidence_text.startswith("Surveys RAG architectures")
+
+
+def test_collect_evidence_sources_compresses_long_chunk_text_around_the_query():
+    filler_sentence = "This is unrelated filler background sentence padding the passage out further. "
+    long_text = (filler_sentence * 40) + "The dataset used for evaluation is TruthfulQA, a hallucination benchmark."
+    assert len(long_text) > 900  # confirm this actually exceeds MAX_SOURCE_TEXT_CHARS
+
+    chunk = RetrievedChunk(
+        chunk_id="c-long",
+        paper_id="p1",
+        title="A Paper With A Long Chunk",
+        topic="Retrieval-Augmented Generation (RAG)",
+        year=2023,
+        citation_count=10,
+        text=long_text,
+        section_hint="experiments",
+        blended_score=0.9,
+        rerank_score=0.9,
+        dense_score=0.9,
+    )
+    response = UnifiedSearchResponse(
+        query="What dataset was used for evaluation?",
+        route=make_route(),
+        paper_result_count=0,
+        chunk_result_count=1,
+        paper_results=[],
+        chunk_results=[chunk],
+    )
+
+    sources = collect_evidence_sources(response)
+
+    assert any("TruthfulQA" in source.evidence_text for source in sources)
 
 
 def test_mmr_source_selection_reduces_repeated_context():
@@ -139,6 +171,24 @@ def test_build_synthesis_prompt_restricts_model_to_retrieved_sources():
     assert "Return only valid JSON" in prompt
     assert "2-3 concise paragraphs" in prompt
     assert "3-5 named research themes" in prompt
+
+
+def test_synthesis_prompt_uses_specific_paper_explanation_template():
+    sources = collect_evidence_sources(make_response(papers=[make_paper()], chunks=[make_chunk()]))
+
+    prompt = build_synthesis_prompt("Explain the BitFit paper.", sources)
+
+    assert "Question-type template: specific paper explanation" in prompt
+    assert "state what the paper proposes and why it matters" in prompt
+    assert "Do not turn this into a broad literature survey" in prompt
+    assert "Question-type template: conceptual overview" not in prompt
+
+
+def test_answer_template_for_comparison_mentions_head_to_head_evidence():
+    instructions = answer_template_instructions("Compare LoRA and BitFit for parameter-efficient fine-tuning.")
+
+    assert "Question-type template: comparison" in instructions
+    assert "head-to-head evidence" in instructions
 
 
 def test_synthesis_prompt_guides_agent_vs_chatbot_contrast_answers():

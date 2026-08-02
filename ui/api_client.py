@@ -488,19 +488,42 @@ def section_counts(payload: dict[str, Any]) -> dict[str, str]:
     }
 
 
+def _payload_question(payload: dict[str, Any]) -> str:
+    return str(payload.get("standalone_query") or payload.get("question") or "")
+
+
 def visible_section_labels(payload: dict[str, Any], *, include_diagnostics: bool = False) -> list[str]:
-    """Return only result tabs with content, keeping diagnostics opt-in."""
+    """Return result tabs in the order that best fits the user's question."""
     counts = section_counts(payload)
-    labels: list[str] = []
-    if evidence_rows(payload):
-        labels.append(f"Evidence Matrix · {counts['Evidence']}")
-    if reading_path_rows(payload):
-        labels.append(f"Reading Path · {counts['Reading Path']}")
-    if open_problem_rows(payload):
-        labels.append(f"Open Problems · {counts['Open Problems']}")
     paper_rows, chunk_rows = source_rows(payload)
-    if paper_rows or chunk_rows:
-        labels.append(f"Sources · {counts['Sources']}")
+    available = {
+        "Evidence": bool(evidence_rows(payload)),
+        "Reading Path": bool(reading_path_rows(payload)),
+        "Open Problems": bool(open_problem_rows(payload)),
+        "Sources": bool(paper_rows or chunk_rows),
+    }
+
+    intent = payload_intent(payload)
+    if is_metadata_listing(payload):
+        allowed = {"Sources"}
+    elif intent == "paper_explanation":
+        allowed = {"Sources"}
+    elif intent == "reading":
+        allowed = {"Reading Path", "Sources", "Evidence"}
+    elif intent == "limitations":
+        allowed = {"Open Problems", "Sources", "Evidence"}
+    elif intent in {"comparison", "evaluation"}:
+        allowed = {"Evidence", "Sources"}
+    else:
+        allowed = {"Evidence", "Sources"}
+
+    label_for = {
+        "Evidence": f"Evidence Matrix · {counts['Evidence']}",
+        "Reading Path": f"Reading Path · {counts['Reading Path']}",
+        "Open Problems": f"Open Problems · {counts['Open Problems']}",
+        "Sources": f"Sources · {counts['Sources']}",
+    }
+    labels = [label_for[section] for section in ordered_sections(_payload_question(payload)) if available.get(section) and section in allowed]
     if include_diagnostics:
         labels.append("Diagnostics")
     return labels
@@ -508,15 +531,35 @@ def visible_section_labels(payload: dict[str, Any], *, include_diagnostics: bool
 
 def query_intent(question: str) -> str:
     lowered = question.lower()
+    if any(token in lowered for token in ("explain the", "explain this", "explain that", "summarize the", "summarize this")) and "paper" in lowered:
+        return "paper_explanation"
+    if any(token in lowered for token in ("highly cited", "most cited", "top cited", "published after", "published before", "after 20", "before 20", "survey papers", "top papers")):
+        return "metadata"
     if any(token in lowered for token in ("read", "reading", "start", "first", "path", "papers should")):
         return "reading"
     if any(token in lowered for token in ("limitation", "limitations", "open problem", "future work", "unsolved", "challenge")):
         return "limitations"
-    if any(token in lowered for token in ("dataset", "benchmark", "metric", "evaluate", "evaluation")):
+    if any(token in lowered for token in ("dataset", "benchmark", "metric", "evaluate", "evaluation", "experiment", "experiments", "methodology", "method")):
         return "evaluation"
     if any(token in lowered for token in ("compare", "versus", " vs ", "difference", "tradeoff")):
         return "comparison"
     return "overview"
+
+
+def payload_intent(payload: dict[str, Any]) -> str:
+    summary = trust_summary(payload)
+    question_intent = query_intent(_payload_question(payload))
+    if question_intent != "overview":
+        return question_intent
+    signals = {str(signal).lower() for signal in summary.get("matched_signals", [])}
+    reason = str(summary.get("reason", "")).lower()
+    if summary["route"] == "metadata_filter":
+        return "metadata"
+    if "paper" in reason and ("direct" in reason or "specific" in reason or "title" in reason):
+        return "paper_explanation"
+    if any("paper_lookup" in signal or "title" in signal for signal in signals):
+        return "paper_explanation"
+    return question_intent
 
 
 def main_brief_limitations(payload: dict[str, Any]) -> list[str]:
@@ -534,6 +577,10 @@ def main_brief_limitations(payload: dict[str, Any]) -> list[str]:
 
 def ordered_sections(question: str) -> list[str]:
     intent = query_intent(question)
+    if intent == "metadata":
+        return ["Top Evidence", "Sources", "Brief", "Evidence", "Reading Path", "Open Problems", "Diagnostics"]
+    if intent == "paper_explanation":
+        return ["Brief", "Top Evidence", "Sources", "Evidence", "Reading Path", "Open Problems", "Diagnostics"]
     if intent == "reading":
         return ["Reading Path", "Brief", "Top Evidence", "Sources", "Evidence", "Open Problems", "Diagnostics"]
     if intent == "limitations":

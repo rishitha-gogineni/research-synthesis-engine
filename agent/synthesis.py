@@ -14,6 +14,7 @@ from pydantic import ValidationError
 
 from retrieval.confidence import assess_confidence, load_response
 from retrieval.index_qdrant import load_env_file
+from retrieval.rerank import compress_text_for_query
 from retrieval.unified_search import run_unified_search
 from shared.schemas import (
     BriefTheme,
@@ -50,8 +51,10 @@ def source_score(result: Any) -> float:
     return 0.0
 
 
-def source_text_from_result(result: Any) -> str:
+def source_text_from_result(result: Any, query: str | None = None) -> str:
     if text := clean_text(getattr(result, "text", None)):
+        if query and query.strip() and len(text) > MAX_SOURCE_TEXT_CHARS:
+            return compress_text_for_query(text, query, budget_chars=MAX_SOURCE_TEXT_CHARS)
         return text[:MAX_SOURCE_TEXT_CHARS]
 
     parts = [
@@ -66,8 +69,8 @@ def source_text_from_result(result: Any) -> str:
     return joined[:MAX_SOURCE_TEXT_CHARS]
 
 
-def evidence_source_from_result(result: Any, fallback_index: int) -> EvidenceSource | None:
-    evidence_text = source_text_from_result(result)
+def evidence_source_from_result(result: Any, fallback_index: int, query: str | None = None) -> EvidenceSource | None:
+    evidence_text = source_text_from_result(result, query=query)
     if not evidence_text:
         return None
 
@@ -148,7 +151,7 @@ def collect_evidence_sources(response: UnifiedSearchResponse, max_sources: int =
     seen: set[str] = set()
     pool_size = max(max_sources, max_sources * MMR_CANDIDATE_POOL_MULTIPLIER)
     for index, result in enumerate(ranked, start=1):
-        source = evidence_source_from_result(result, index)
+        source = evidence_source_from_result(result, index, query=response.query)
         if source is None or source.source_id in seen:
             continue
         seen.add(source.source_id)
@@ -156,6 +159,59 @@ def collect_evidence_sources(response: UnifiedSearchResponse, max_sources: int =
         if len(sources) >= pool_size:
             break
     return select_mmr_sources(sources, max_sources=max_sources)
+
+
+def synthesis_question_type(query: str) -> str:
+    lowered = query.lower()
+    if any(token in lowered for token in ("explain the", "explain this", "explain that", "summarize the", "summarize this")) and "paper" in lowered:
+        return "paper_explanation"
+    if any(token in lowered for token in ("highly cited", "most cited", "top cited", "published after", "published before", "survey papers", "top papers")):
+        return "metadata_listing"
+    if any(token in lowered for token in ("read", "reading", "start", "first", "path", "papers should")):
+        return "reading_path"
+    if any(token in lowered for token in ("limitation", "limitations", "open problem", "future work", "unsolved", "challenge")):
+        return "open_problem"
+    if any(token in lowered for token in ("dataset", "benchmark", "metric", "evaluate", "evaluation", "experiment", "experiments", "methodology", "method")):
+        return "evidence_detail"
+    if any(token in lowered for token in ("compare", "versus", " vs ", "difference", "tradeoff")):
+        return "comparison"
+    return "overview"
+
+
+def answer_template_instructions(query: str) -> str:
+    question_type = synthesis_question_type(query)
+    templates = {
+        "paper_explanation": """Question-type template: specific paper explanation
+- Direct answer paragraph 1: state what the paper proposes and why it matters.
+- Direct answer paragraph 2: explain how the method or study works, including experiments or evaluation only when the retrieved evidence states them.
+- Optional paragraph 3: summarize the main result or limitation if the evidence supports it.
+- Do not turn this into a broad literature survey unless the user asks for comparison or context.""",
+        "comparison": """Question-type template: comparison
+- Direct answer paragraph 1: define both items and state the most important difference.
+- Direct answer paragraph 2: compare mechanism, evidence, and practical tradeoff side by side.
+- Name any missing direct head-to-head evidence explicitly instead of forcing a conclusion.""",
+        "evidence_detail": """Question-type template: methods, datasets, experiments, or evaluation
+- Direct answer paragraph 1: answer the requested method, dataset, benchmark, metric, or experiment question directly.
+- Direct answer paragraph 2: connect the answer to the strongest paper or chunk evidence.
+- If datasets or metrics are not stated in the retrieved evidence, say that clearly.""",
+        "reading_path": """Question-type template: reading guidance
+- Direct answer paragraph 1: explain the recommended learning order in plain language.
+- Direct answer paragraph 2: identify foundation papers first, then method or benchmark papers, then limitations or survey papers.
+- Avoid claiming one paper is universally best unless the retrieved evidence supports that ranking.""",
+        "open_problem": """Question-type template: limitations and open problems
+- Direct answer paragraph 1: name the main unresolved issues found in the retrieved evidence.
+- Direct answer paragraph 2: explain why those gaps matter for future research or evaluation.
+- Do not list generic limitations that are not grounded in the provided sources.""",
+        "metadata_listing": """Question-type template: ranked bibliography
+- Direct answer paragraph 1: summarize the ranked set of papers, including year/citation patterns when present.
+- Direct answer paragraph 2: explain why the top papers are relevant to the user's filter.
+- Do not invent detailed experimental claims from metadata-only evidence.""",
+        "overview": """Question-type template: conceptual overview
+- Direct answer paragraph 1: give the main conceptual answer in plain language.
+- Direct answer paragraph 2: connect the concept to 2-3 strongest retrieved sources.
+- Keep extra caveats short unless the user explicitly asks for limitations.""",
+    }
+    return templates[question_type]
 
 
 def build_synthesis_prompt(query: str, sources: list[EvidenceSource]) -> str:
@@ -186,6 +242,8 @@ Retrieved sources:
 {joined_sources}
 
 Write for a student or research analyst who needs a useful synthesis, not just a list of papers.
+
+{answer_template_instructions(query)}
 
 Direct-answer requirements:
 - Answer the exact user question in 2-3 concise paragraphs.
