@@ -187,10 +187,30 @@ def score_route_confidence(response: UnifiedSearchResponse) -> float:
     return clamp(float(response.route.confidence))
 
 
+def is_resolved_paper_lookup(response: UnifiedSearchResponse) -> tuple[bool, list[str]]:
+    signals: list[str] = []
+    matched_signals = [str(signal).lower() for signal in response.route.matched_signals]
+    if not any(signal.startswith("paper_lookup") for signal in matched_signals):
+        return False, ["paper_lookup=0.00: route was not resolved by title lookup"]
+
+    paper_ids = result_ids(list(response.paper_results), "paper_id")
+    chunk_paper_ids = result_ids(list(response.chunk_results), "paper_id")
+    if not paper_ids:
+        return False, ["paper_lookup=0.00: no resolved paper result"]
+    if chunk_paper_ids and paper_ids & chunk_paper_ids:
+        signals.append("paper_lookup=1.00: resolved paper and chunks share a paper id")
+        return True, signals
+    if response.paper_results and not response.chunk_results:
+        signals.append("paper_lookup=0.70: resolved paper found without local chunks")
+        return True, signals
+    return False, ["paper_lookup=0.20: resolved paper and chunks do not agree"]
+
+
 def confidence_components(response: UnifiedSearchResponse) -> dict[str, Any]:
     results = all_results(response)
     scores = sorted((candidate_score(result) for result in results), reverse=True)
     agreement_score, agreement_signals = score_topic_agreement(response)
+    lookup_resolved, lookup_signals = is_resolved_paper_lookup(response)
     terms = query_terms(response.query)
     query_support_score, query_support_signals = score_query_support(response, terms)
     domain_anchors = query_domain_anchors(response.query)
@@ -205,6 +225,8 @@ def confidence_components(response: UnifiedSearchResponse) -> dict[str, Any]:
         "query_specificity": len(terms),
         "query_support_score": query_support_score,
         "query_domain_anchors": domain_anchors,
+        "paper_lookup_resolved": lookup_resolved,
+        "paper_lookup_signals": lookup_signals,
         "agreement_signals": agreement_signals,
         "query_support_signals": query_support_signals,
     }
@@ -260,6 +282,12 @@ def decide(response: UnifiedSearchResponse, components: dict[str, Any], confiden
             "Retrieved results do not contain the specific terms needed to support the user question.",
             "Do not generate an answer; tell the user the indexed corpus does not provide enough evidence for this question.",
         )
+    if components.get("paper_lookup_resolved"):
+        return (
+            "sufficient_evidence",
+            "The query resolved to a specific paper and the retrieved evidence is from that paper.",
+            "Proceed to paper-focused synthesis using the resolved paper and its local chunks.",
+        )
     if result_count < MIN_STRONG_RESULTS or top_score < 0.35 or confidence_score < BROADEN_THRESHOLD:
         return (
             "broaden_search",
@@ -294,6 +322,7 @@ def assess_confidence(response: UnifiedSearchResponse) -> ConfidenceAssessment:
         f"query_support_score={components['query_support_score']:.2f}",
         f"query_specificity={components['query_specificity']}",
         "query_domain_anchors=" + (", ".join(components["query_domain_anchors"]) if components["query_domain_anchors"] else "none"),
+        *components["paper_lookup_signals"],
         *components["agreement_signals"],
         *components["query_support_signals"],
     ]

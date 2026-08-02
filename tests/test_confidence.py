@@ -196,6 +196,48 @@ def test_off_scope_rewritten_query_without_ai_anchor_is_insufficient():
     assert "outside" in assessment.recommended_action.lower()
 
 
+
+def test_resolved_paper_lookup_with_matching_chunks_is_sufficient_without_vector_scores():
+    bitfit_paper = RetrievedPaper(
+        paper_id="paper:https://openalex.org/W3176828726",
+        title="BitFit: Simple Parameter-efficient Fine-tuning for Transformer-based Masked Language-models",
+        topic="Fine-tuning (LoRA / PEFT)",
+        abstract="Introduction of BitFit, a sparse-finetuning method for transformer-based models.",
+        citation_count=677,
+        hybrid_score=0.0,
+        matched_by=["paper_lookup", "corpus_index"],
+    )
+    bitfit_chunk = RetrievedChunk(
+        chunk_id="chunk-1",
+        paper_id="paper:https://openalex.org/W3176828726",
+        title="BitFit: Simple Parameter-efficient Fine-tuning for Transformer-based Masked Language-models",
+        topic="Fine-tuning (LoRA / PEFT)",
+        text="BitFit fine-tunes only the bias terms and can match full fine-tuning on transformer tasks.",
+        citation_count=677,
+        dense_score=0.0,
+        matched_by=["paper_lookup", "corpus_index"],
+    )
+    response = UnifiedSearchResponse(
+        query="Explain the BitFit paper.",
+        route=QueryRoute(
+            query="Explain the BitFit paper.",
+            route="hybrid_both",
+            reason="The question names a specific paper in the local corpus.",
+            confidence=0.92,
+            matched_signals=["paper_lookup: title token overlap: bitfit", "paper_id: paper:https://openalex.org/W3176828726"],
+        ),
+        paper_result_count=1,
+        chunk_result_count=1,
+        paper_results=[bitfit_paper],
+        chunk_results=[bitfit_chunk],
+    )
+
+    assessment = assess_confidence(response)
+
+    assert assessment.decision == "sufficient_evidence"
+    assert any("paper_lookup=1.00" in signal for signal in assessment.signals)
+
+
 def test_load_response_reads_unified_response_json(tmp_path):
     response = make_response(papers=[make_paper("p1")])
     path = tmp_path / "response.json"
