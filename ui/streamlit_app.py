@@ -22,6 +22,7 @@ from ui.api_client import (
     build_guidance_payload,
     confidence_style,
     error_message,
+    format_direct_answer,
     is_answerable,
     evaluation_metric_rows,
     evidence_rows,
@@ -313,7 +314,7 @@ def render_weak_evidence_state(payload: dict):
 
 def render_answer_card(payload: dict):
     brief = payload.get("brief") or {}
-    direct_answer = brief.get("direct_answer")
+    direct_answer = format_direct_answer(payload)
     if not direct_answer:
         st.info("No direct answer was returned for this query.")
         return

@@ -123,6 +123,28 @@ def test_error_message_formats_structured_api_errors():
     assert message == "RETRIEVAL_FAILED: Unable to retrieve. Request ID: abc-123"
 
 
+def test_format_direct_answer_replaces_raw_source_ids_with_readable_labels():
+    payload = sample_guidance_payload()
+    payload["brief"] = {
+        "direct_answer": (
+            "BitFit fine-tunes bias terms (SOURCE_ID: chunk:c1). "
+            "Sources: paper:p1; chunk:c1."
+        ),
+        "sources": [
+            {"source_id": "paper:p1", "title": "Paper One"},
+            {"source_id": "chunk:c1", "title": "Paper One"},
+        ],
+    }
+
+    answer = api_client.format_direct_answer(payload)
+
+    assert "SOURCE_ID" not in answer
+    assert "paper:p1" not in answer
+    assert "chunk:c1" not in answer
+    assert "[S1]" in answer
+    assert "[S2]" in answer
+
+
 def test_table_helpers_flatten_guidance_response():
     payload = sample_guidance_payload()
 

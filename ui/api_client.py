@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 import uuid
 from typing import Any
 
@@ -159,6 +160,38 @@ def error_message(payload: dict[str, Any]) -> str | None:
     request_id = error.get("request_id")
     suffix = f" Request ID: {request_id}" if request_id else ""
     return f"{code}: {message}{suffix}"
+
+
+GENERIC_SOURCE_ID_PATTERN = re.compile(r"(?:SOURCE_ID:\s*)?(?:chunk|paper|result):[^\s,;)]+")
+
+
+def direct_answer_source_labels(payload: dict[str, Any]) -> dict[str, str]:
+    brief = payload.get("brief") or {}
+    sources = brief.get("sources") or []
+    labels: dict[str, str] = {}
+    for index, source in enumerate(sources, start=1):
+        source_id = source.get("source_id") if isinstance(source, dict) else None
+        if source_id and source_id not in labels:
+            labels[str(source_id)] = f"[S{index}]"
+    return labels
+
+
+def format_direct_answer(payload: dict[str, Any]) -> str:
+    brief = payload.get("brief") or {}
+    answer = brief.get("direct_answer") or ""
+    if not answer:
+        return ""
+
+    formatted = str(answer)
+    for source_id, label in sorted(direct_answer_source_labels(payload).items(), key=lambda item: len(item[0]), reverse=True):
+        formatted = re.sub(rf"SOURCE_ID:\s*{re.escape(source_id)}", label, formatted)
+        formatted = formatted.replace(source_id, label)
+
+    formatted = GENERIC_SOURCE_ID_PATTERN.sub("[source]", formatted)
+    formatted = re.sub(r"\(\s*(\[S\d+\]|\[source\])\s*\)", r"\1", formatted)
+    formatted = re.sub(r"\s+([,.;:])", r"\1", formatted)
+    formatted = re.sub(r"\s{2,}", " ", formatted)
+    return formatted.strip()
 
 
 def _is_meaningful_evidence(value: Any) -> bool:
