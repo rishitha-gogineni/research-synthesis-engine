@@ -183,6 +183,7 @@ def dataframe(rows: list[dict], *, hide_index: bool = True):
     st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=hide_index)
 
 
+@st.cache_data(ttl=60, show_spinner=False)
 def render_health():
     try:
         health, _ = get_api("/health", timeout=8)
@@ -191,6 +192,7 @@ def render_health():
     return health
 
 
+@st.cache_data(ttl=60, show_spinner=False)
 def render_corpus_stats():
     try:
         stats, _ = get_api("/corpus/stats", timeout=8)
