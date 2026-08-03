@@ -170,6 +170,20 @@ st.markdown(
     .rse-empty-state h3 { color: var(--rse-ink); margin-top: 0; }
     .rse-source-card-title { font-weight: 720; margin-bottom: 0.25rem; }
     .rse-source-card-meta { color: var(--rse-muted); font-size: 0.82rem; margin-bottom: 0.4rem; }
+    .rse-evidence-card {
+        border: 1px solid var(--rse-line);
+        border-radius: 12px;
+        padding: 0.9rem 1rem;
+        margin: 0.72rem 0;
+        background: var(--rse-card);
+        box-shadow: 0 8px 20px rgba(17, 17, 17, 0.025);
+    }
+    .rse-evidence-index { color: var(--rse-muted); font-size: 0.74rem; font-weight: 760; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.28rem; }
+    .rse-evidence-claim { font-size: 0.98rem; font-weight: 690; line-height: 1.45; margin-bottom: 0.62rem; color: var(--rse-ink); white-space: normal; overflow-wrap: anywhere; }
+    .rse-evidence-label { color: var(--rse-muted); font-size: 0.75rem; font-weight: 720; margin-top: 0.45rem; text-transform: uppercase; letter-spacing: 0.035em; }
+    .rse-evidence-text { color: var(--rse-ink); font-size: 0.92rem; line-height: 1.55; white-space: normal; overflow-wrap: anywhere; }
+    .rse-evidence-sources { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; line-height: 1.45; overflow-wrap: anywhere; }
+    .rse-evidence-sources a { color: #0057B8; text-decoration: underline; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -210,12 +224,10 @@ def render_title():
 
 
 def render_status(health: dict, stats: dict):
-    status = health.get("status", "unknown")
     papers = stats.get("paper_count") or stats.get("enriched_papers") or "-"
-    chunks = stats.get("chunk_count") or stats.get("full_text_chunks") or "-"
     topics = stats.get("topics") or "-"
     st.markdown(
-        f"<div class='rse-status'><strong>API:</strong> {status}<br/><strong>Corpus:</strong> {papers} papers | {chunks} chunks | {topics} topics</div>",
+        f"<div class='rse-status'><strong>Corpus:</strong> {papers} papers · {topics} topics</div>",
         unsafe_allow_html=True,
     )
 
@@ -374,12 +386,43 @@ def render_top_evidence(payload: dict):
             st.markdown(f"<span class='rse-source-id'>{source_id}</span>", unsafe_allow_html=True)
 
 
+def _source_links_html(source_value: str) -> str:
+    links = []
+    for raw_source in str(source_value or "").split(","):
+        source = raw_source.strip()
+        if not source:
+            continue
+        if source.startswith("paper:http"):
+            url = source.removeprefix("paper:")
+            label = url.rstrip("/").split("/")[-1]
+            links.append(f"<a href='{html.escape(url)}' target='_blank'>paper:{html.escape(label)}</a>")
+        else:
+            links.append(html.escape(source))
+    return " · ".join(links) or "No source IDs returned."
+
+
 def render_evidence(payload: dict):
     rows = evidence_rows(payload)
     if not rows:
         st.info("No structured claims were returned for this query.")
         return
-    dataframe(rows)
+    for index, row in enumerate(rows, start=1):
+        claim = html.escape(str(row.get("Claim") or "No claim returned."))
+        evidence = html.escape(str(row.get("Evidence") or "No evidence summary returned."))
+        sources = _source_links_html(str(row.get("Sources") or ""))
+        st.markdown(
+            f"""
+            <div class='rse-evidence-card'>
+                <div class='rse-evidence-index'>Claim {index}</div>
+                <div class='rse-evidence-claim'>{claim}</div>
+                <div class='rse-evidence-label'>Evidence</div>
+                <div class='rse-evidence-text'>{evidence}</div>
+                <div class='rse-evidence-label'>Sources</div>
+                <div class='rse-evidence-sources'>{sources}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
 def render_reading_path(payload: dict):
