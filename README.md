@@ -1,6 +1,8 @@
 # Research Synthesis Engine
 
-A retrieval-augmented research assistant for AI papers. It routes each question to paper-level metadata, full-text chunks, or both, checks whether the retrieved evidence is sufficient before generating an answer, and declines to answer when it isn't.
+Research Synthesis Engine is a retrieval-augmented research assistant for working with AI literature. Instead of returning a generic summary, it searches a curated corpus of papers, selects the right retrieval path for the question, checks whether the evidence is strong enough, and produces a grounded research brief with sources.
+
+The project combines an offline data pipeline with a live question-answering workflow. The offline side collects papers from OpenAlex, extracts structured metadata, discovers legal full-text PDFs, chunks and embeds the text, and indexes everything in Qdrant. The live side routes each user query to paper-level retrieval, full-text chunk retrieval, metadata filtering, or a hybrid path, then applies a confidence gate before showing an answer. If the corpus does not support the question, the system declines to answer and shows the closest retrieved sources for inspection.
 
 **Live app:** [research-synthesis-engine.streamlit.app](https://research-synthesis-engine-auf9fawskhzarpqdv3sn2q.streamlit.app/)  
 **API:** [research-synthesis-engine-api.onrender.com](https://research-synthesis-engine-api.onrender.com)
