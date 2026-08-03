@@ -556,7 +556,7 @@ Reasoning:
 - Counting `hybrid_both` as wrong in those cases made route accuracy stricter than the product behavior users actually want.
 - Several realistic questions have multiple correct evidence sources, so a golden label with only one paper/chunk ID made Recall/MRR brittle.
 - Labels are expanded only from local paper/chunk artifacts and inspected retrieval results; the goal is fairer evaluation, not easier questions.
-- The latest live evaluation over the 50-query fixture reports route accuracy 1.00, Recall@10 1.00, MRR 0.86, and confidence fallback success 1.00 on their documented subsets.
+- The latest documented evaluation over the 50-query fixture reports route accuracy 1.00, relevant-ID hit rate@10 1.00, true Recall@10 0.76, MRR 0.75, and confidence fallback success 1.00 on their documented subsets.
 
 ## 2026-07-24: Add Lightweight Retrieval Cache And MMR Context Selection
 
