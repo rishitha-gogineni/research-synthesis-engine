@@ -369,23 +369,6 @@ def render_brief(payload: dict):
             st.write(f"- {item}")
 
 
-def render_top_evidence(payload: dict):
-    rows = top_supporting_evidence(payload)
-    if not rows:
-        st.info("No supporting evidence returned.")
-        return
-    for row in rows:
-        title = html.escape(str(row.get("Title") or "Untitled source"))
-        detail = html.escape(f"{row.get('Source', 'source')} | {row.get('Year') or 'unknown year'} | {row.get('Citations') or 0} citations")
-        source_id = html.escape(str(row.get("Source ID") or "source"))
-        why = row.get("Why It Matters") or "No evidence summary returned."
-        with st.container(border=True):
-            st.markdown(f"<div class='rse-source-card-title'>{title}</div>", unsafe_allow_html=True)
-            st.markdown(f"<div class='rse-source-card-meta'>{detail}</div>", unsafe_allow_html=True)
-            st.write(why)
-            st.markdown(f"<span class='rse-source-id'>{source_id}</span>", unsafe_allow_html=True)
-
-
 def _source_links_html(source_value: str) -> str:
     links = []
     for raw_source in str(source_value or "").split(","):
@@ -396,9 +379,32 @@ def _source_links_html(source_value: str) -> str:
             url = source.removeprefix("paper:")
             label = url.rstrip("/").split("/")[-1]
             links.append(f"<a href='{html.escape(url)}' target='_blank'>paper:{html.escape(label)}</a>")
+        elif source.startswith("paper:") and source.removeprefix("paper:").startswith("http"):
+            url = source.removeprefix("paper:")
+            label = url.rstrip("/").split("/")[-1]
+            links.append(f"<a href='{html.escape(url)}' target='_blank'>paper:{html.escape(label)}</a>")
+        elif source.startswith("chunk:"):
+            links.append("chunk evidence")
         else:
             links.append(html.escape(source))
     return " · ".join(links) or "No source IDs returned."
+
+
+def render_top_evidence(payload: dict):
+    rows = top_supporting_evidence(payload)
+    if not rows:
+        st.info("No supporting evidence returned.")
+        return
+    for row in rows:
+        title = html.escape(str(row.get("Title") or "Untitled source"))
+        detail = html.escape(f"{row.get('Source', 'source')} | {row.get('Year') or 'unknown year'} | {row.get('Citations') or 0} citations")
+        source_id = _source_links_html(str(row.get("Source ID") or "source"))
+        why = row.get("Why It Matters") or "No evidence summary returned."
+        with st.container(border=True):
+            st.markdown(f"<div class='rse-source-card-title'>{title}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='rse-source-card-meta'>{detail}</div>", unsafe_allow_html=True)
+            st.write(why)
+            st.markdown(f"<span class='rse-source-id'>{source_id}</span>", unsafe_allow_html=True)
 
 
 def render_evidence(payload: dict):

@@ -272,6 +272,28 @@ def test_direct_answer_citation_guard_preserves_existing_citations():
     assert answer == "RAG grounds answers using retrieved evidence (SOURCE_ID: chunk:c1)."
 
 
+def test_metadata_filter_returns_ranked_listing_brief_without_generation():
+    response = UnifiedSearchResponse(
+        query="Show me highly cited AI agent survey papers published after 2023.",
+        route=make_route(route="metadata_filter"),
+        paper_result_count=1,
+        chunk_result_count=0,
+        paper_results=[make_paper(paper_id="https://openalex.org/W1", score=0.88)],
+        chunk_results=[],
+    )
+
+    def should_not_run(_: str) -> str:
+        raise AssertionError("metadata listing should not call the LLM generator")
+
+    brief = build_research_brief(response, confidence=make_confidence(decision="broaden_search"), generator=should_not_run)
+
+    assert brief.status == "generated"
+    assert brief.confidence_decision == "broaden_search"
+    assert "ranked bibliography" in brief.direct_answer.lower()
+    assert "I cannot answer" not in brief.direct_answer
+    assert brief.sources[0].source_id == "paper:https://openalex.org/W1"
+
+
 def test_low_confidence_skips_generation():
     response = make_response(papers=[make_paper()])
 

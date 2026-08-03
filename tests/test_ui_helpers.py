@@ -216,12 +216,41 @@ def test_post_api_collapses_html_error_pages(monkeypatch):
             raise ValueError("not json")
 
     monkeypatch.setattr(api_client.requests, "post", lambda *args, **kwargs: FakeResponse())
+    monkeypatch.setattr(api_client.time, "sleep", lambda _: None)
 
     body, request_id = api_client.post_api("/guidance", {"question": "test"}, request_id="request-1")
 
     assert request_id is None
     assert body["_error_status"] == 502
     assert body["error"]["message"] == "API returned HTTP 502 with a non-JSON error page."
+
+
+def test_post_api_retries_once_for_transient_html_502(monkeypatch):
+    class HtmlResponse:
+        status_code = 502
+        headers = {"X-Request-ID": "request-1"}
+        text = "<!DOCTYPE html><html><body>bad gateway</body></html>"
+
+        def json(self):
+            raise ValueError("not json")
+
+    class JsonResponse:
+        status_code = 200
+        headers = {"X-Request-ID": "request-2"}
+        text = "{}"
+
+        def json(self):
+            return {"ok": True}
+
+    responses = [HtmlResponse(), JsonResponse()]
+    monkeypatch.setattr(api_client.requests, "post", lambda *args, **kwargs: responses.pop(0))
+    monkeypatch.setattr(api_client.time, "sleep", lambda _: None)
+
+    body, request_id = api_client.post_api("/guidance", {"question": "test"}, request_id="request-1")
+
+    assert body == {"ok": True}
+    assert request_id == "request-2"
+    assert responses == []
 
 
 def test_get_api_collapses_html_error_pages(monkeypatch):
@@ -488,6 +517,15 @@ def test_rewrite_summary_formats_guidance_rewrite_fields():
     assert summary["Standalone Query"] == "What are the limitations of LoRA?"
     assert summary["Rewrite Used"] == "yes"
     assert summary["Method"] == "llm"
+
+
+def test_source_links_html_compacts_openalex_and_chunk_ids():
+    html = streamlit_app._source_links_html("paper:https://openalex.org/W3176828726, chunk:chunk-abcdef")
+
+    assert "paper:W3176828726" in html
+    assert "https://openalex.org/W3176828726" in html
+    assert "chunk evidence" in html
+    assert "chunk-abcdef" not in html
 
 
 def test_chunk_display_label_uses_title_section_and_score():

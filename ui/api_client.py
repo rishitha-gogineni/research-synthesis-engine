@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import re
+import time
 import uuid
 from typing import Any
 
@@ -128,15 +129,30 @@ def post_api(endpoint: str, payload: dict[str, Any], *, request_id: str | None =
     headers = {"Content-Type": "application/json"}
     if request_id:
         headers["X-Request-ID"] = request_id
-    response = requests.post(url, json=payload, headers=headers, timeout=timeout)
-    response_id = response.headers.get("X-Request-ID")
-    try:
-        body = response.json()
-    except ValueError:
-        body = {"error": {"code": "INVALID_RESPONSE", "message": non_json_error_message(response), "request_id": response_id}}
-    if response.status_code >= 400:
-        return {"_error_status": response.status_code, **body}, response_id
-    return body, response_id
+
+    last_body: dict[str, Any] | None = None
+    last_response_id: str | None = None
+    last_status = 0
+    for attempt in range(2):
+        response = requests.post(url, json=payload, headers=headers, timeout=timeout)
+        response_id = response.headers.get("X-Request-ID")
+        last_response_id = response_id
+        last_status = response.status_code
+        try:
+            body = response.json()
+        except ValueError:
+            body = {"error": {"code": "INVALID_RESPONSE", "message": non_json_error_message(response), "request_id": response_id}}
+        last_body = body
+        transient_non_json = response.status_code in {502, 503, 504} and body.get("error", {}).get("code") == "INVALID_RESPONSE"
+        if transient_non_json and attempt == 0:
+            time.sleep(0.6)
+            continue
+        if response.status_code >= 400:
+            return {"_error_status": response.status_code, **body}, response_id
+        return body, response_id
+
+    fallback = last_body or {"error": {"code": "INVALID_RESPONSE", "message": "API returned an invalid response.", "request_id": last_response_id}}
+    return {"_error_status": last_status, **fallback}, last_response_id
 
 
 def get_api(endpoint: str, *, timeout: int = 20) -> tuple[dict[str, Any], str | None]:

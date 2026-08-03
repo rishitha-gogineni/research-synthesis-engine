@@ -315,6 +315,40 @@ def ensure_direct_answer_citations(answer: str, sources: list[EvidenceSource]) -
     return f"{answer.rstrip()} Sources: {cited}."
 
 
+def build_metadata_listing_brief(
+    query: str,
+    confidence: ConfidenceAssessment,
+    sources: list[EvidenceSource],
+) -> ResearchBrief:
+    ranked_sources = sources[:8]
+    if ranked_sources:
+        lead = "The corpus returned a ranked bibliography for this metadata request."
+        paper_summaries = []
+        for index, source in enumerate(ranked_sources[:5], start=1):
+            year = source.year or "unknown year"
+            citations = f"{source.citation_count} citations"
+            paper_summaries.append(f"{index}. {source.title} ({year}, {citations}; {source.source_id})")
+        direct_answer = lead + " Top matches: " + " ".join(paper_summaries)
+    else:
+        direct_answer = "No papers matched this metadata request in the indexed corpus."
+
+    return ResearchBrief(
+        query=query,
+        status="generated",
+        confidence_decision=confidence.decision,
+        direct_answer=direct_answer,
+        themes=[],
+        evidence_bullets=[
+            "This response is a ranked bibliography generated from retrieved paper metadata, not a synthesized claim about paper contents."
+        ],
+        limitations=[
+            "Metadata listing results rank papers by available corpus metadata; they do not by themselves establish experimental findings."
+        ],
+        open_problems=[],
+        sources=ranked_sources,
+    )
+
+
 def build_guarded_brief(
     query: str,
     confidence: ConfidenceAssessment,
@@ -348,6 +382,9 @@ def build_research_brief(
 ) -> ResearchBrief:
     confidence = confidence or assess_confidence(response)
     sources = collect_evidence_sources(response)
+
+    if response.route.route == "metadata_filter" and response.paper_results:
+        return build_metadata_listing_brief(response.query, confidence, sources)
 
     if confidence.decision != "sufficient_evidence":
         return build_guarded_brief(response.query, confidence, sources)
