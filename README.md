@@ -96,7 +96,17 @@ flowchart TD
 
 ## Tech Stack
 
-Qdrant, BM25 (`rank-bm25`), cross-encoder reranking (opt-in), OpenAI `gpt-4o-mini` and `text-embedding-3-large`, FastAPI, Streamlit, Pydantic, Docker, Pytest (303 tests with mocked external calls), Render, Streamlit Community Cloud, Qdrant Cloud.
+| Layer | Tools | Purpose |
+| --- | --- | --- |
+| Data ingestion | OpenAlex API, `requests`, Pydantic | Collect paper metadata, normalize records, and validate schemas |
+| Full-text processing | `pypdf`, custom chunking, exact chunk deduplication | Extract legal PDF text and create retrieval-ready chunks |
+| Retrieval | Qdrant, OpenAI `text-embedding-3-large`, `rank-bm25` | Combine dense vector search with keyword retrieval across papers and chunks |
+| Ranking | Citation-aware scoring, RRF/weighted fusion, optional cross-encoder reranking | Balance semantic relevance, keyword match, and paper influence |
+| Agent workflow | Query router, context rewriter, CRAG-style confidence gate, `gpt-4o-mini` | Route questions, rewrite follow-ups, and generate only when evidence is sufficient |
+| Backend | FastAPI, Uvicorn, structured API errors, request IDs | Serve retrieval, route preview, guidance, and health-check endpoints |
+| Frontend | Streamlit | Provide the research workspace, filters, evidence view, and follow-up flow |
+| Evaluation | Pytest, golden query fixture, retrieval metrics, faithfulness judge | Test routing, retrieval quality, confidence decisions, and generated-answer grounding |
+| Deployment | Docker, Render, Streamlit Community Cloud, Qdrant Cloud | Run the backend, UI, and vector database on free-tier hosting |
 
 ## Local Setup
 
