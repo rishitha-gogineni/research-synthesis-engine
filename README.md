@@ -22,6 +22,20 @@ The project combines an offline data pipeline with a live question-answering wor
 
 Full methodology in [`docs/EVALUATION.md`](docs/EVALUATION.md).
 
+## Demo Preview
+
+**Live query workspace**
+
+<img src="docs/images/query-workspace-live.png" alt="Live query workspace" width="900">
+
+**Evidence-gated research brief**
+
+<img src="docs/images/research-brief-live.png" alt="Evidence-gated research brief" width="900">
+
+**Claim-level evidence matrix**
+
+<img src="docs/images/evidence-matrix-live.png" alt="Evidence matrix" width="900">
+
 ## What It Does
 
 Example questions the system supports:
