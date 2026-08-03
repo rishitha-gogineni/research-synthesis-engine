@@ -14,7 +14,6 @@ from pydantic import ValidationError
 
 from retrieval.confidence import assess_confidence, load_response
 from retrieval.index_qdrant import load_env_file
-from retrieval.rerank import compress_text_for_query
 from retrieval.unified_search import run_unified_search
 from shared.schemas import (
     BriefTheme,
@@ -35,6 +34,53 @@ BriefGenerator = Callable[[str], str]
 
 class SynthesisError(RuntimeError):
     """Raised when a grounded brief cannot be generated or parsed."""
+
+
+def normalized_terms(value: str) -> set[str]:
+    return set(re.findall(r"[a-z0-9]+", value.lower()))
+
+
+def split_into_sentences(text: str) -> list[str]:
+    sentences = re.split(r"(?<=[.!?])\s+", text.strip())
+    return [sentence for sentence in sentences if sentence]
+
+
+def compress_text_for_query(text: str, query: str, *, budget_chars: int) -> str:
+    """Keep query-relevant sentences instead of blindly truncating long evidence."""
+    if budget_chars <= 0:
+        return ""
+    if len(text) <= budget_chars:
+        return text
+
+    sentences = split_into_sentences(text)
+    query_terms = normalized_terms(query)
+    if len(sentences) <= 1 or not query_terms:
+        return text[:budget_chars]
+
+    scored = [
+        (len(normalized_terms(sentence) & query_terms), index)
+        for index, sentence in enumerate(sentences)
+    ]
+    if not any(score > 0 for score, _ in scored):
+        return text[:budget_chars]
+
+    selected: set[int] = set()
+    used_chars = 0
+    for score, index in sorted(scored, key=lambda item: item[0], reverse=True):
+        if score <= 0:
+            break
+        sentence = sentences[index]
+        added_chars = len(sentence) + (1 if selected else 0)
+        if selected and used_chars + added_chars > budget_chars:
+            continue
+        selected.add(index)
+        used_chars += added_chars
+        if used_chars >= budget_chars:
+            break
+
+    if not selected:
+        return text[:budget_chars]
+    return " ".join(sentences[index] for index in sorted(selected))[:budget_chars]
 
 
 def clean_text(value: str | None) -> str:
