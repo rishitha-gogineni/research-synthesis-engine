@@ -558,14 +558,57 @@ Reasoning:
 - Labels are expanded only from local paper/chunk artifacts and inspected retrieval results; the goal is fairer evaluation, not easier questions.
 - The latest documented evaluation over the 50-query fixture reports route accuracy 1.00, relevant-ID hit rate@10 1.00, true Recall@10 0.76, MRR 0.75, and confidence fallback success 1.00 on their documented subsets.
 
-## 2026-07-24: Add Lightweight Retrieval Cache And MMR Context Selection
+## 2026-07-28: Fixed Recall@K/Hit Rate Conflation; Tried and Reverted Retrieval-Layer MMR + Candidate Oversampling
 
-We will add two production-style RAG improvements inspired by scale-oriented architecture patterns: an in-memory API retrieval cache and MMR-style evidence selection for synthesis prompts.
+We separated a genuine Recall@K bug from a real, measured, negative experiment in retrieval-layer diversity selection.
+
+**Metric fix (kept):**
+- The evaluator's `recall@K` had always computed a relevant-ID *hit rate* (did at least one labeled relevant ID appear in the top-K?), not textbook Recall@K (what fraction of all labeled relevant IDs were retrieved?). These are the same number only when every labeled query has exactly one relevant ID.
+- `retrieval/evaluate.py` now reports both, separately: `id_relevant_hit_rate` (the old metric, correctly named) and `recall` (true fractional recall, new).
+- Verified on the 50-query fixture (36 exact-ID labeled): `id_relevant_hit_rate@10 = 1.00`, true `recall@10 = 0.76`, `recall@5 = 0.65`, MRR = 0.75.
+
+**MMR diversity reranking (tried, reverted):**
+- Hypothesis: plain top-K-by-score retrieval could let several near-duplicate high-scoring chunks/papers on one narrow sub-topic crowd out a genuinely different relevant result, hurting multi-document queries like "compare X, Y, and Z."
+- Added `select_mmr_candidates()` to `retrieval/rerank.py`, wired into `rerank_and_blend()` behind an `apply_mmr` flag.
+- Measured with `apply_mmr=True` as the default: Recall@5 dropped from 0.65 to 0.62, Recall@10 from 0.76 to 0.72, Hit Rate@10 from 1.00 to 0.94.
+- Root cause of the regression: only 7 of 36 labeled queries are genuine cross-paper comparisons; 19 are `full_text_evidence` queries where the correct answer is often *multiple chunks from the same paper*. MMR's redundancy penalty discards those correct same-paper chunks in favor of more "diverse" but less relevant ones, and the majority case outweighed the minority case it was meant to help.
+- **Decision: `apply_mmr` now defaults to `False` (opt-in only).** The capability stays in the codebase, documented with these numbers, in case a future query mix (e.g. more comparison-heavy usage) makes the tradeoff worth revisiting.
+
+**Candidate-pool oversampling (tried, reverted):**
+- Separately tried fetching 3x candidates before reranking (a standard "retrieve N, rerank to K" pattern) purely to give MMR room to work, on the assumption that letting the more accurate cross-encoder consider more candidates could only help or be neutral even without MMR.
+- Measured with oversampling alone (MMR still off): Recall@5 dropped further, to 0.60; Recall@10 to 0.69 -- worse than either prior run.
+- Root cause: `retrieval/rerank.py`'s `normalize_scores()` is min-max normalization *relative to whatever is in the current candidate batch*. Enlarging the batch pulls in weaker fusion-ranked candidates that were previously excluded, which shifts the normalization floor and rescales every candidate's normalized score -- including the true positives -- in a way unrelated to their actual relevance. Ranking quality is not stable to batch size under this scoring scheme.
+- **Decision: reverted.** `rerank_candidate_pool_size()` is now a no-op (returns `top_k` unchanged) with this reasoning documented in its docstring. Fixing the underlying batch-sensitivity would mean moving to an absolute/fixed-scale score transform instead of batch-relative min-max normalization -- a separate, larger change, not attempted here.
+
+Both experiments were measured against the same 50-query fixture before and after, and both were reverted based on that evidence rather than kept because they were already built.
+
+## 2026-07-29: Keep Fixed-Scale Rerank Normalization; Leave Conditional MMR Undecided
+
+We replaced batch-relative rerank score normalization with fixed-scale normalization, while keeping the old batch-relative function as `normalize_scores_batch_relative()` for direct ablations.
+
+Measured against the 50-query fixture with 36 exact-ID labeled queries:
+- Before fixed-scale normalization: Recall@5 = 0.6866, Recall@10 = 0.7583, MRR = 0.8598.
+- After fixed-scale normalization: Recall@5 = 0.7204, Recall@10 = 0.7583, MRR = 0.8667.
+
+Decision:
+- Keep the fixed-scale normalization change as a net-positive tradeoff: aggregate Recall@5 improved, Recall@10 did not regress, and MRR improved slightly.
+- This is not a clean per-query win. Two known top-5 regressions were observed: `How are they evaluated?` moved one expected agent-survey parent paper from rank 2 to rank 6, and `Which LoRA and PEFT papers should I read first and why?` moved one expected paper from rank 3 to rank 7. In both cases the missing item remained inside top-10, so these are cutoff-sensitive rank shifts rather than complete retrieval failures.
+- Do not enable conditional MMR by default yet. The first conditional-MMR run triggered on 6 of 50 queries and produced the same aggregate summary as the Step-1-after baseline, so it did not demonstrate an independent aggregate gain. However, no Step1-after-to-Step3-final downside was detected in that run, and cross-topic comparison was already improved relative to the pre-Step-1 baseline.
+- Conditional MMR is therefore a promising but low-sample-size candidate for revisiting later, not a confirmed success or confirmed failure. If revisited, measure it cleanly against the fixed-scale-normalization baseline and check trigger behavior separately for original user queries and rewritten standalone queries.
+
+## 2026-07-31: Add Corpus Index Fast Paths For Human Query Patterns
+
+We added a lightweight local corpus index for query patterns that are better answered by structured lookup than by full vector retrieval.
 
 Reasoning:
-- Repeated UI/demo questions should not pay the full embedding and vector-search cost every time.
-- The cache stores only route-aware retrieval responses for a short TTL; it does not cache generated answers, prompts, secrets, or provider responses.
-- Retrieval filters are still applied after the cached base response, preserving current API behavior.
-- Synthesis prompts benefit from diverse evidence: repeated near-duplicate chunks waste context and can make answers feel redundant.
-- MMR keeps high-scoring sources while penalizing overlap with already selected evidence, improving context quality without changing the underlying retrieval index.
+- Users do not only ask conceptual RAG questions; they also ask for ranked paper lists, highly cited papers, year-filtered papers, and explanations of a specific paper.
+- Ranked-list and metadata questions can be answered faster and more predictably from in-memory maps over the existing corpus: paper ID to paper, normalized title to paper ID, topic to citation-sorted papers, and paper ID to chunks.
+- Specific-paper questions such as "Explain the BitFit paper" should first resolve the paper title directly, then return that paper and its local chunks, instead of hoping dense retrieval finds the same paper indirectly.
+- This does not replace the vector/BM25 RAG path. Conceptual, comparison, dataset/method, and evidence-heavy questions still use the existing router, Qdrant retrieval, reranking, confidence gate, and synthesis flow.
+- The fast paths are intentionally conservative: if a paper lookup cannot resolve a paper title confidently, the request falls back to normal retrieval.
+
+Implementation note:
+- `retrieval/corpus_index.py` owns the query-pattern classifier and local lookup maps.
+- `retrieval/unified_search.py` uses the corpus index only for ranked-list metadata paths and confidently resolved paper lookups.
+- Existing BM25-backed metadata filtering behavior is preserved for tests and CLI paths that pass a custom BM25 artifact.
 
