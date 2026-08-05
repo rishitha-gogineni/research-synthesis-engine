@@ -216,6 +216,32 @@ def test_run_unified_search_paper_level_returns_only_papers():
     assert response.paper_results[0].blended_score is not None
 
 
+def test_run_unified_search_forwards_fusion_method_to_paper_retriever():
+    seen_fusion_methods = []
+
+    def capturing_paper_retriever(query, **kwargs):
+        seen_fusion_methods.append(kwargs.get("fusion_method"))
+        return fake_paper_retriever(query, **kwargs)
+
+    response = run_unified_search(
+        "What are the main approaches?",
+        top_k=2,
+        dense_top_k=4,
+        sparse_top_k=5,
+        fusion_method="rrf",
+        router=fake_router("paper_level"),
+        paper_retriever=capturing_paper_retriever,
+        chunk_retriever=fake_chunk_retriever,
+        reranker=fake_reranker,
+        openai_client=object(),
+        qdrant_client=object(),
+        bm25_artifact={},
+    )
+
+    assert seen_fusion_methods == ["rrf"]
+    assert response.route.route == "paper_level"
+
+
 def test_run_unified_search_chunk_level_returns_only_chunks():
     response = run_unified_search(
         "Which datasets and metrics are used?",

@@ -626,6 +626,8 @@ def test_request_id_is_returned_for_success_response(monkeypatch):
 
 
 def test_request_id_is_returned_for_error_response(monkeypatch):
+    api_main.RETRIEVAL_CACHE.clear()
+
     def fail_retrieval(query, **kwargs):
         raise api_main.UnifiedSearchError("Qdrant unavailable")
 

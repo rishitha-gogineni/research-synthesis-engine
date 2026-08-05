@@ -6,6 +6,7 @@ from retrieval.hybrid_search import (
     bm25_result_to_candidate,
     candidate_key,
     merge_candidates,
+    merge_candidates_rrf,
     retrieve_papers,
 )
 
@@ -113,6 +114,70 @@ def test_merge_candidates_combines_dense_and_sparse_matches():
     assert results[0]["matched_by"] == ["dense", "sparse"]
     assert results[0]["hybrid_score"] == 1.0
     assert len(results) == 3
+
+
+def test_merge_candidates_defaults_to_weighted_fusion():
+    dense = [{"paper_id": "paper-1", "title": "A", "dense_score": 0.8, "sparse_score": None, "citation_count": 10}]
+    sparse = [{"paper_id": "paper-1", "title": "A", "dense_score": None, "sparse_score": 3.0, "citation_count": 10}]
+
+    results = merge_candidates(dense, sparse, final_top_k=1)
+
+    assert results[0]["fusion_method"] == "weighted"
+    assert results[0]["hybrid_score"] == 1.0
+
+
+def test_merge_candidates_rrf_rewards_top_ranked_agreement():
+    # paper-1 is rank 1 in both lists; paper-2 is rank 1 dense only; paper-3 is rank 2 sparse only.
+    dense = [
+        {"paper_id": "paper-1", "title": "A", "dense_score": 0.9, "citation_count": 1},
+        {"paper_id": "paper-2", "title": "B", "dense_score": 0.85, "citation_count": 1},
+    ]
+    sparse = [
+        {"paper_id": "paper-1", "title": "A", "sparse_score": 5.0, "citation_count": 1},
+        {"paper_id": "paper-3", "title": "C", "sparse_score": 4.0, "citation_count": 1},
+    ]
+
+    results = merge_candidates_rrf(dense, sparse, final_top_k=3, rrf_k=60)
+
+    assert results[0]["paper_id"] == "paper-1"
+    assert results[0]["fusion_method"] == "rrf"
+    # Rank-1-in-both should score exactly 1/61 + 1/61.
+    assert results[0]["hybrid_score"] == round(1 / 61 + 1 / 61, 6)
+    assert {result["paper_id"] for result in results} == {"paper-1", "paper-2", "paper-3"}
+
+
+def test_merge_candidates_rrf_is_insensitive_to_score_scale():
+    # Dense scores (~0-1) and sparse scores (BM25, unbounded) live on very
+    # different scales; RRF should not let a huge BM25 score dominate purely
+    # because of scale, only because of rank.
+    dense = [{"paper_id": "paper-1", "title": "A", "dense_score": 0.99, "citation_count": 1}]
+    sparse = [{"paper_id": "paper-2", "title": "B", "sparse_score": 500.0, "citation_count": 1}]
+
+    results = merge_candidates_rrf(dense, sparse, final_top_k=2)
+
+    # Both are rank-1 in their own list, so they should tie under RRF.
+    assert results[0]["hybrid_score"] == results[1]["hybrid_score"]
+
+
+def test_merge_candidates_rrf_rejects_non_positive_k():
+    with pytest.raises(ValueError, match="rrf_k"):
+        merge_candidates_rrf([], [], rrf_k=0)
+
+
+def test_retrieve_papers_supports_rrf_fusion_method():
+    results = retrieve_papers(
+        "hallucination detection",
+        openai_client=FakeOpenAIClient(),
+        qdrant_client=FakeQdrantClient(),
+        bm25_artifact=make_bm25_artifact(),
+        dense_top_k=2,
+        sparse_top_k=2,
+        final_top_k=2,
+        fusion_method="rrf",
+    )
+
+    assert results[0]["paper_id"] == "paper-1"
+    assert results[0]["fusion_method"] == "rrf"
 
 
 def test_retrieve_papers_runs_dense_and_sparse_paths_without_real_api():

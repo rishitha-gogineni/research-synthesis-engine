@@ -182,6 +182,10 @@ def evaluate_response(
     topic_hits = {k: topic_hit(combined_results, query.expected_topics, k) for k in top_ks}
     keyword_hits = {k: keyword_hit(combined_results, query.expected_keywords, k) for k in top_ks}
     id_hit_sets = {k: id_hits(route_results, query.expected_relevant_ids, k) for k in top_ks}
+    expected_id_count = len(set(query.expected_relevant_ids))
+    id_hit_fractions = {
+        k: (len(id_hit_sets[k]) / expected_id_count if expected_id_count else None) for k in top_ks
+    }
     rewrite_keyword_hit = text_contains_keywords(rewrite_result.standalone_query, query.expected_standalone_keywords)
     confidence_correct = (
         confidence_decision == query.expected_confidence_decision
@@ -208,6 +212,7 @@ def evaluate_response(
         "topic_hits": topic_hits,
         "keyword_hits": keyword_hits,
         "id_hit_sets": id_hit_sets,
+        "id_hit_fractions": id_hit_fractions,
         "reciprocal_rank": reciprocal_rank(route_results, query.expected_relevant_ids) if has_relevant_ids else None,
     }
 
@@ -234,6 +239,7 @@ def summarize_evaluations(evaluations: list[dict[str, object]], top_ks: tuple[in
 
     topic_counts = {}
     keyword_counts = {}
+    hit_rate_counts = {}
     recall_counts = {}
     for k in top_ks:
         topic_values = [evaluation["topic_hits"][k] for evaluation in evaluations if evaluation["topic_hits"][k] is not None]
@@ -246,9 +252,18 @@ def summarize_evaluations(evaluations: list[dict[str, object]], top_ks: tuple[in
             "value": safe_rate(sum(1 for value in keyword_values if value), len(keyword_values)),
             "n": len(keyword_values),
         }
-        recall_counts[k] = {
+        hit_rate_counts[k] = {
             "value": safe_rate(sum(1 for evaluation in labeled if evaluation["id_hit_sets"][k]), labeled_count),
             "n": labeled_count,
+        }
+        recall_fractions = [
+            evaluation["id_hit_fractions"][k]
+            for evaluation in labeled
+            if evaluation["id_hit_fractions"][k] is not None
+        ]
+        recall_counts[k] = {
+            "value": (sum(recall_fractions) / len(recall_fractions)) if recall_fractions else None,
+            "n": len(recall_fractions),
         }
 
     mrr_values = [float(evaluation["reciprocal_rank"]) for evaluation in labeled]
@@ -267,6 +282,7 @@ def summarize_evaluations(evaluations: list[dict[str, object]], top_ks: tuple[in
         "crag_fallback_success_rate": {"value": crag_fallback_success_rate, "n": len(fallback_labeled)},
         "topic_hit_rate": topic_counts,
         "keyword_hit_rate": keyword_counts,
+        "id_relevant_hit_rate": hit_rate_counts,
         "recall": recall_counts,
         "mrr": {"value": mrr, "n": labeled_count},
     }
@@ -279,6 +295,9 @@ def run_evaluation(
     top_ks: tuple[int, ...] = DEFAULT_TOP_KS,
     apply_reranking: bool = True,
     apply_query_rewriting: bool = True,
+    fusion_method: str = "weighted",
+    local_path: Path | None = None,
+    qdrant_url: str | None = None,
     rewriter: RewriteRunner = rewrite_query,
     confidence_checker: ConfidenceRunner = assess_confidence,
 ) -> tuple[dict[str, object], list[dict[str, object]]]:
@@ -286,7 +305,14 @@ def run_evaluation(
     max_top_k = max(top_ks)
     for query in queries:
         rewrite_result = maybe_rewrite_query(query, rewriter=rewriter, enabled=apply_query_rewriting)
-        response = search_runner(rewrite_result.standalone_query, top_k=max_top_k, apply_reranking=apply_reranking)
+        response = search_runner(
+            rewrite_result.standalone_query,
+            top_k=max_top_k,
+            apply_reranking=apply_reranking,
+            fusion_method=fusion_method,
+            local_path=local_path,
+            qdrant_url=qdrant_url,
+        )
         confidence = confidence_checker(response) if query.expected_confidence_decision is not None else None
         evaluations.append(evaluate_response(query, response, top_ks, rewrite_result=rewrite_result, confidence=confidence))
     return summarize_evaluations(evaluations, top_ks), evaluations
@@ -308,10 +334,12 @@ def summary_to_text(summary: dict[str, object], top_ks: tuple[int, ...]) -> str:
     for k in top_ks:
         topic = summary["topic_hit_rate"][k]
         keyword = summary["keyword_hit_rate"][k]
+        hit_rate = summary["id_relevant_hit_rate"][k]
         recall = summary["recall"][k]
         lines.append(f"topic_hit_rate@{k}: {format_rate(topic['value'])} (sanity check, n={topic['n']})")
         lines.append(f"keyword_hit_rate@{k}: {format_rate(keyword['value'])} (sanity check, n={keyword['n']})")
-        lines.append(f"recall@{k} (labeled subset, n={recall['n']}): {format_rate(recall['value'])}")
+        lines.append(f"hit_rate@{k} (>=1 relevant id in top-{k}, labeled subset, n={hit_rate['n']}): {format_rate(hit_rate['value'])}")
+        lines.append(f"recall@{k} (fraction of all relevant ids retrieved, labeled subset, n={recall['n']}): {format_rate(recall['value'])}")
     mrr = summary["mrr"]
     lines.append(f"mrr (labeled subset, n={mrr['n']}): {format_rate(mrr['value'])}")
     return "\n".join(lines)
@@ -329,6 +357,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--queries", type=Path, default=DEFAULT_EVAL_QUERIES)
     parser.add_argument("--top-ks", type=parse_top_ks, default=DEFAULT_TOP_KS)
     parser.add_argument("--no-rerank", action="store_true")
+    parser.add_argument("--fusion-method", choices=["weighted", "rrf"], default="weighted")
+    parser.add_argument("--local-path", type=Path, default=None, help="Use an embedded/local Qdrant snapshot instead of a running server.")
+    parser.add_argument("--qdrant-url", default=None, help="URL of a running Qdrant server (ignored if --local-path is set).")
     parser.add_argument("--json", action="store_true", help="Print machine-readable JSON summary.")
     return parser.parse_args()
 
@@ -340,6 +371,9 @@ def main() -> None:
         queries,
         top_ks=args.top_ks,
         apply_reranking=not args.no_rerank,
+        fusion_method=args.fusion_method,
+        local_path=args.local_path,
+        qdrant_url=args.qdrant_url,
     )
     if args.json:
         print(json.dumps({"summary": summary, "evaluations": evaluations}, indent=2, default=str))

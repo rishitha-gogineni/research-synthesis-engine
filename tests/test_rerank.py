@@ -8,11 +8,14 @@ from retrieval.rerank import (
     apply_query_intent_boosts,
     attach_rerank_scores,
     candidate_to_text,
+    compress_text_for_query,
     normalize_scores,
+    normalize_scores_batch_relative,
     normalized_citation_scores,
     fallback_retrieval_scores,
     rerank_and_blend,
     score_with_cross_encoder,
+    split_into_sentences,
 )
 
 
@@ -67,10 +70,81 @@ def test_candidate_to_text_truncates_long_text():
     assert len(text) == 10
 
 
-def test_normalize_scores_handles_range_and_equal_values():
-    assert normalize_scores([2.0, 4.0, 6.0]) == [0.0, 0.5, 1.0]
-    assert normalize_scores([3.0, 3.0]) == [1.0, 1.0]
+def test_split_into_sentences_splits_on_terminal_punctuation():
+    sentences = split_into_sentences("First sentence. Second sentence! Third one?")
+
+    assert sentences == ["First sentence.", "Second sentence!", "Third one?"]
+
+
+def test_compress_text_for_query_returns_text_unchanged_when_it_fits():
+    text = "Short chunk about datasets."
+    assert compress_text_for_query(text, "datasets", budget_chars=1000) == text
+
+
+def test_compress_text_for_query_prefers_query_relevant_sentences_over_prefix():
+    text = (
+        "This paper introduces a new transformer architecture for vision tasks. "
+        "We build on prior work in convolutional networks. "
+        "The dataset used for evaluation is TruthfulQA, a hallucination benchmark. "
+        "Training used eight GPUs for three days. "
+        "Related work includes several attention-based baselines."
+    )
+    # A naive prefix truncation at this budget would cut off before the
+    # dataset sentence entirely; query-aware compression should keep it.
+    compressed = compress_text_for_query(text, "what dataset was used for evaluation", budget_chars=90)
+
+    assert "TruthfulQA" in compressed
+    assert len(compressed) <= 90
+
+
+def test_compress_text_for_query_falls_back_to_prefix_when_no_term_overlap():
+    text = "Alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima."
+    compressed = compress_text_for_query(text, "zzz unrelated query terms", budget_chars=20)
+
+    assert compressed == text[:20]
+
+
+def test_compress_text_for_query_falls_back_to_prefix_for_single_sentence_text():
+    text = "One single very long sentence without any terminal punctuation at all"
+    compressed = compress_text_for_query(text, "sentence", budget_chars=15)
+
+    assert compressed == text[:15]
+
+
+def test_candidate_to_text_uses_query_aware_compression_for_long_chunks():
+    long_text = (
+        "Introductory filler sentence about background context that is not relevant. "
+        "Another filler sentence padding out the passage even more than before. "
+        "The key result reported is a 12 percent improvement on the benchmark. "
+        "Yet more filler discussing unrelated prior work in the field."
+    )
+    candidate = {"title": "A Paper", "text": long_text}
+
+    without_query = candidate_to_text(candidate, max_chars=60)
+    with_query = candidate_to_text(candidate, max_chars=60, query="what was the key result reported")
+
+    # Without a query, behavior is unchanged: a blind prefix cut that misses the result sentence.
+    assert "12 percent" not in without_query
+    # With a query, compression should surface the sentence that actually answers it.
+    assert "12 percent" in with_query
+
+
+def test_candidate_to_text_query_path_matches_no_query_path_when_text_already_fits():
+    candidate = {"title": "A", "topic": "RAG", "text": "Short fitting text."}
+
+    assert candidate_to_text(candidate, query="anything") == candidate_to_text(candidate)
+
+
+def test_normalize_scores_uses_fixed_scale_range():
+    assert normalize_scores([-10.0, 0.0, 10.0]) == [0.0, 0.5, 1.0]
+    assert normalize_scores([-20.0, 20.0]) == [0.0, 1.0]
     assert normalize_scores([]) == []
+
+
+def test_normalize_scores_batch_relative_keeps_original_behavior():
+    assert normalize_scores_batch_relative([2.0, 4.0, 6.0]) == [0.0, 0.5, 1.0]
+    assert normalize_scores_batch_relative([3.0, 3.0]) == [1.0, 1.0]
+    assert normalize_scores_batch_relative([]) == []
 
 
 def test_normalized_citation_scores_uses_log_scale():
@@ -100,7 +174,7 @@ def test_score_with_cross_encoder_rejects_blank_query():
 
 def test_attach_rerank_scores_sorts_by_normalized_score_without_mutating_input():
     candidates = make_candidates()[:2]
-    reranked = attach_rerank_scores(candidates, [0.1, 0.9])
+    reranked = attach_rerank_scores(candidates, [-10.0, 10.0])
 
     assert reranked[0]["paper_id"] == "paper-2"
     assert reranked[0]["rerank_score"] == 1.0
@@ -179,7 +253,7 @@ def test_query_intent_boost_reranks_agent_tool_sources_above_debate_only_example
 
 def test_rerank_and_blend_runs_end_to_end_with_mocked_model():
     candidates = make_candidates()
-    model = FakeCrossEncoder([0.2, 0.3, 0.95])
+    model = FakeCrossEncoder([-5.0, -4.0, 10.0])
 
     results = rerank_and_blend("Which benchmarks evaluate hallucination?", candidates, model=model, top_k=2)
 

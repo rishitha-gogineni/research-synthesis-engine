@@ -395,3 +395,22 @@ class ResearchGuidanceResponse(BaseModel):
     open_problems: Optional[OpenProblemsReport] = None
     warnings: list[str] = Field(default_factory=list)
 
+
+class FaithfulnessAssessment(BaseModel):
+    """LLM-judge assessment of whether a generated brief is grounded in its own cited evidence.
+
+    This is distinct from retrieval evaluation (Recall@K, MRR, route accuracy):
+    those metrics only check whether the *right evidence was retrieved*, not
+    whether the *generated answer* actually sticks to what that evidence
+    supports. A brief can cite the perfect sources and still assert something
+    they don't say (a faithfulness failure) or answer a different question
+    than the one asked (a relevancy failure).
+    """
+
+    query: str = Field(..., min_length=1)
+    faithfulness_score: float = Field(..., ge=0.0, le=1.0, description="Fraction of direct_answer claims grounded in the cited sources.")
+    answer_relevancy_score: float = Field(..., ge=0.0, le=1.0, description="How directly the answer addresses the query, independent of grounding.")
+    unsupported_claims: list[str] = Field(default_factory=list, description="Claims in direct_answer the judge could not find support for in the cited sources.")
+    judge_notes: str = Field(default="")
+    source_ids_checked: list[str] = Field(default_factory=list)
+

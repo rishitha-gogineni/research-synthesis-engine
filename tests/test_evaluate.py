@@ -134,6 +134,43 @@ def test_evaluate_response_accepts_valid_route_alternative():
     assert evaluation["id_hit_sets"][1] == {"c1"}
 
 
+def test_evaluate_response_true_recall_differs_from_any_hit():
+    # Two relevant chunks expected, but only one is actually retrieved in the
+    # route's result set. A hit-rate style metric ("did we get >=1 relevant
+    # id?") should say yes; true recall ("what fraction of relevant ids did
+    # we retrieve?") should say 0.5, not 1.0. These must not collapse to the
+    # same number, or the "recall" label is misleading.
+    query = EvaluationQuery(
+        query="Which papers benchmark hallucination detection?",
+        expected_route="chunk_level",
+        expected_relevant_ids=["c1", "c2"],
+    )
+    response = make_response("q", "chunk_level", chunk_ids=["c1", "c-unrelated"])
+
+    evaluation = evaluate_response(query, response, (5,))
+
+    assert evaluation["id_hit_sets"][5] == {"c1"}
+    assert evaluation["id_hit_fractions"][5] == pytest.approx(0.5)
+
+
+def test_summarize_evaluations_reports_hit_rate_and_recall_as_distinct_numbers():
+    queries = [
+        EvaluationQuery(query="q1", expected_route="chunk_level", expected_relevant_ids=["c1", "c2"]),
+    ]
+    responses = {"q1": make_response("q1", "chunk_level", chunk_ids=["c1", "c-unrelated"])}
+
+    def fake_runner(query_text, **_kwargs):
+        return responses[query_text]
+
+    summary, _evaluations = run_evaluation(queries, search_runner=fake_runner, top_ks=(5,), apply_query_rewriting=False)
+
+    # Any-hit metric: at least one of the two relevant ids was retrieved -> 1.0.
+    assert summary["id_relevant_hit_rate"][5]["value"] == pytest.approx(1.0)
+    # True recall: only 1 of 2 relevant ids was retrieved -> 0.5. These must differ.
+    assert summary["recall"][5]["value"] == pytest.approx(0.5)
+    assert summary["id_relevant_hit_rate"][5]["value"] != summary["recall"][5]["value"]
+
+
 def test_evaluate_response_uses_expected_route_result_set_for_ids():
     query = EvaluationQuery(
         query="Which datasets evaluate hallucinations?",
@@ -290,6 +327,7 @@ def test_summary_to_text_labels_rigorous_and_sanity_metrics():
         "crag_fallback_success_rate": {"value": 0.67, "n": 3},
         "topic_hit_rate": {5: {"value": 0.85, "n": 20}},
         "keyword_hit_rate": {5: {"value": 0.75, "n": 20}},
+        "id_relevant_hit_rate": {5: {"value": 0.9, "n": 12}},
         "recall": {5: {"value": 0.72, "n": 12}},
         "mrr": {"value": 0.68, "n": 12},
     }
@@ -304,7 +342,8 @@ def test_summary_to_text_labels_rigorous_and_sanity_metrics():
     assert "confidence_decision_accuracy: 0.75 (labeled confidence subset, n=4)" in text
     assert "crag_fallback_success_rate: 0.67 (expected fallback subset, n=3)" in text
     assert "topic_hit_rate@5: 0.85 (sanity check, n=20)" in text
-    assert "recall@5 (labeled subset, n=12): 0.72" in text
+    assert "hit_rate@5 (>=1 relevant id in top-5, labeled subset, n=12): 0.90" in text
+    assert "recall@5 (fraction of all relevant ids retrieved, labeled subset, n=12): 0.72" in text
     assert "mrr (labeled subset, n=12): 0.68" in text
 
 
