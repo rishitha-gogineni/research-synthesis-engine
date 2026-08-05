@@ -2,6 +2,9 @@ import pytest
 
 from full_text.chunk_papers import (
     chunk_paper,
+    chunk_papers,
+    content_fingerprint,
+    deduplicate_chunks,
     detect_section_hint,
     normalize_text,
     split_words,
@@ -77,6 +80,61 @@ def test_summarize_chunks_counts_topics_and_sections():
     assert summary["chunks"] == 2
     assert summary["papers"] == 1
     assert summary["by_topic"] == {"RAG": 2}
+
+
+def test_content_fingerprint_ignores_whitespace_and_case():
+    assert content_fingerprint("Hello   World") == content_fingerprint("hello world")
+
+
+def test_content_fingerprint_differs_for_different_text():
+    assert content_fingerprint("Hello World") != content_fingerprint("Goodbye World")
+
+
+def test_deduplicate_chunks_drops_exact_text_repeats():
+    chunks = [
+        {"chunk_id": "a", "text": "Same boilerplate license text."},
+        {"chunk_id": "b", "text": "Genuinely different chunk content."},
+        {"chunk_id": "c", "text": "same   BOILERPLATE license text."},
+    ]
+
+    deduplicated, dropped = deduplicate_chunks(chunks)
+
+    assert dropped == 1
+    assert [chunk["chunk_id"] for chunk in deduplicated] == ["a", "b"]
+
+
+def test_deduplicate_chunks_keeps_overlapping_windows_distinct():
+    text = " ".join(f"word{i}" for i in range(10))
+    chunks = chunk_paper(make_paper(text), max_words=5, overlap_words=1)
+
+    deduplicated, dropped = deduplicate_chunks(chunks)
+
+    assert dropped == 0
+    assert len(deduplicated) == len(chunks)
+
+
+def test_chunk_papers_removes_cross_paper_duplicates_by_default():
+    boilerplate = "This work is licensed under a standard preprint agreement."
+    papers = [
+        make_paper(boilerplate),
+        {**make_paper(boilerplate), "paper_id": "paper-2"},
+    ]
+
+    chunks = chunk_papers(papers, max_words=50, overlap_words=0)
+
+    assert len(chunks) == 1
+
+
+def test_chunk_papers_can_disable_deduplication():
+    boilerplate = "This work is licensed under a standard preprint agreement."
+    papers = [
+        make_paper(boilerplate),
+        {**make_paper(boilerplate), "paper_id": "paper-2"},
+    ]
+
+    chunks = chunk_papers(papers, max_words=50, overlap_words=0, deduplicate=False)
+
+    assert len(chunks) == 2
 
 
 def test_write_chunks_replaces_invalid_surrogates(tmp_path):
