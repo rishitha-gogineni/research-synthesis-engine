@@ -1,4 +1,4 @@
-"""Create OpenAI embeddings for enriched papers and truncate them to 1024 dims."""
+"""Create OpenAI embeddings for enriched papers."""
 
 from __future__ import annotations
 
@@ -15,7 +15,6 @@ from shared.schemas import EnrichedPaper
 
 
 DEFAULT_EMBEDDING_MODEL = "text-embedding-3-large"
-FULL_DIMENSIONS = 3072
 TRUNCATED_DIMENSIONS = 1024
 
 
@@ -72,14 +71,8 @@ def build_embedding_text(paper: EnrichedPaper) -> str:
     )
 
 
-def truncate_embedding(embedding: list[float], dimensions: int = TRUNCATED_DIMENSIONS) -> list[float]:
-    if len(embedding) < dimensions:
-        raise ValueError(f"Embedding has {len(embedding)} dims, cannot truncate to {dimensions}")
-    return embedding[:dimensions]
-
-
-def embed_texts(client: OpenAI, model: str, texts: list[str]) -> list[list[float]]:
-    response = client.embeddings.create(model=model, input=texts)
+def embed_texts(client: OpenAI, model: str, texts: list[str], dimensions: int = TRUNCATED_DIMENSIONS) -> list[list[float]]:
+    response = client.embeddings.create(model=model, input=texts, dimensions=dimensions)
     return [item.embedding for item in response.data]
 
 
@@ -99,7 +92,7 @@ def build_embedding_record(
         "embedding_model": model,
         "full_embedding_dimensions": len(full_embedding),
         "embedding_dimensions": dimensions,
-        "embedding": truncate_embedding(full_embedding, dimensions),
+        "embedding": full_embedding,
         "embedding_text": embedding_text,
         "metadata": paper.model_dump(),
     }
@@ -133,7 +126,7 @@ def run_embedding(
     for start in range(0, len(candidates), batch_size):
         batch = candidates[start : start + batch_size]
         texts = [build_embedding_text(paper) for paper in batch]
-        embeddings = embed_texts(client, model, texts)
+        embeddings = embed_texts(client, model, texts, dimensions=dimensions)
 
         for paper, text, full_embedding in zip(batch, texts, embeddings):
             record = build_embedding_record(

@@ -67,8 +67,13 @@ def test_normalize_text_supports_title_keys():
 
 def test_question_pattern_classifier_matches_common_human_questions():
     assert classify_question_pattern("Show me highly cited AI agent survey papers published after 2023.") == "ranked_list"
+    assert classify_question_pattern("List papers between 2021 and 2024 about RAG.") == "ranked_list"
     assert classify_question_pattern('Explain the paper "BitFit: Simple Parameter-efficient Fine-tuning"') == "paper_lookup"
     assert classify_question_pattern("Compare LoRA and BitFit.") == "comparison"
+    assert classify_question_pattern("What is the difference between AI agents and RAG?") == "comparison"
+    assert classify_question_pattern("How does RAG differ from fine-tuning?") == "comparison"
+    assert classify_question_pattern("How can I stop a chatbot from making things up?") == "concept_explanation"
+    assert classify_question_pattern("How do models look up facts before answering?") == "concept_explanation"
     assert classify_question_pattern("What datasets evaluate LoRA?") == "dataset_method"
     assert classify_question_pattern("What are its limitations?", has_chat_history=True) == "follow_up"
 

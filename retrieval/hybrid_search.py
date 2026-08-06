@@ -10,7 +10,7 @@ from typing import Any, Literal
 
 from openai import OpenAI
 
-from ingestion.embed import DEFAULT_EMBEDDING_MODEL, TRUNCATED_DIMENSIONS, truncate_embedding
+from ingestion.embed import DEFAULT_EMBEDDING_MODEL, TRUNCATED_DIMENSIONS
 from retrieval.build_bm25 import load_bm25_artifact, normalize_title, search_bm25
 from retrieval.index_qdrant import DEFAULT_COLLECTION, DEFAULT_QDRANT_URL, get_qdrant_client, load_env_file
 
@@ -26,11 +26,16 @@ DEFAULT_RRF_K = 60
 FusionMethod = Literal["weighted", "rrf"]
 
 
-def embed_query(client: OpenAI, query: str, model: str = DEFAULT_EMBEDDING_MODEL) -> list[float]:
+def embed_query(
+    client: OpenAI,
+    query: str,
+    model: str = DEFAULT_EMBEDDING_MODEL,
+    dimensions: int = TRUNCATED_DIMENSIONS,
+) -> list[float]:
     """Embed a user query with the same model and dimensions used during ingestion."""
 
-    response = client.embeddings.create(model=model, input=query)
-    return truncate_embedding(response.data[0].embedding, TRUNCATED_DIMENSIONS)
+    response = client.embeddings.create(model=model, input=query, dimensions=dimensions)
+    return response.data[0].embedding
 
 
 def search_dense(

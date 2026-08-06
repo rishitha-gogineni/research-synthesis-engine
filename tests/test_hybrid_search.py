@@ -12,10 +12,11 @@ from retrieval.hybrid_search import (
 
 
 class FakeEmbeddings:
-    def create(self, model, input):
+    def create(self, model, input, dimensions):
         assert model == "text-embedding-3-large"
         assert input == "hallucination detection"
-        return SimpleNamespace(data=[SimpleNamespace(embedding=[0.1] * 3072)])
+        assert dimensions == 1024
+        return SimpleNamespace(data=[SimpleNamespace(embedding=[0.1] * 1024)])
 
 
 class FakeOpenAIClient:

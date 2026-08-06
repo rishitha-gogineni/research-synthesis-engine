@@ -25,9 +25,9 @@ def test_build_chunk_embedding_text_includes_retrieval_context():
     assert "This chunk describes the method." in text
 
 
-def test_build_embedding_record_truncates_and_stores_metadata():
+def test_build_embedding_record_stores_server_sized_embedding_and_metadata():
     chunk = make_chunk()
-    record = build_embedding_record(chunk, [float(i) for i in range(3072)], "embedding text", "model", 1024)
+    record = build_embedding_record(chunk, [float(i) for i in range(1024)], "embedding text", "model", 1024)
 
     assert record["chunk_id"] == "chunk-1"
     assert len(record["embedding"]) == 1024

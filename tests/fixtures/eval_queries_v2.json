@@ -1672,5 +1672,37 @@
     "acceptable_routes": [
       "hybrid_both"
     ]
+  },
+  {
+    "query": "What is the difference between AI agents and RAG?",
+    "expected_route": "hybrid_both",
+    "expected_topics": [
+      "AI Agents & Tool Use",
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "agent",
+      "rag",
+      "difference"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "cross_topic_comparison",
+    "rationale": "Regression test for router 'difference between' pattern fix"
+  },
+  {
+    "query": "How does RAG differ from fine-tuning?",
+    "expected_route": "hybrid_both",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)",
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "rag",
+      "fine-tuning",
+      "differ"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "cross_topic_comparison",
+    "rationale": "Regression test for router 'how does X differ' pattern fix"
   }
 ]

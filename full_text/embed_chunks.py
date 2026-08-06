@@ -11,7 +11,7 @@ from typing import Any
 
 from openai import OpenAI
 
-from ingestion.embed import DEFAULT_EMBEDDING_MODEL, TRUNCATED_DIMENSIONS, embed_texts, load_env_file, truncate_embedding
+from ingestion.embed import DEFAULT_EMBEDDING_MODEL, TRUNCATED_DIMENSIONS, embed_texts, load_env_file
 
 
 DEFAULT_INPUT = Path("data/full_text_chunks.json")
@@ -68,7 +68,7 @@ def build_embedding_record(chunk: dict[str, Any], full_embedding: list[float], e
         "embedding_model": model,
         "full_embedding_dimensions": len(full_embedding),
         "embedding_dimensions": dimensions,
-        "embedding": truncate_embedding(full_embedding, dimensions),
+        "embedding": full_embedding,
         "embedding_text": embedding_text,
         "metadata": chunk,
     }
@@ -100,7 +100,7 @@ def run_chunk_embedding(
     for start in range(0, len(candidates), batch_size):
         batch = candidates[start : start + batch_size]
         texts = [build_chunk_embedding_text(chunk) for chunk in batch]
-        embeddings = embed_texts(client, model, texts)
+        embeddings = embed_texts(client, model, texts, dimensions=dimensions)
         for chunk, text, full_embedding in zip(batch, texts, embeddings):
             existing.append(build_embedding_record(chunk, full_embedding, text, model, dimensions))
             embedded_count += 1

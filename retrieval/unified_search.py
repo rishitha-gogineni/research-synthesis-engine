@@ -51,6 +51,31 @@ COMPARISON_QUERY_PATTERNS = (
 )
 
 
+QUERY_EXPANSIONS: tuple[tuple[re.Pattern[str], str], ...] = (
+    (
+        re.compile(r"\b(?:making things up|make things up|made up|false claims?)\b", re.IGNORECASE),
+        "hallucination detection mitigation factuality ungrounded claims",
+    ),
+    (
+        re.compile(r"\blook up facts?\b", re.IGNORECASE),
+        "retrieval augmented generation factual knowledge retrieval before generation",
+    ),
+    (
+        re.compile(r"\bground(?:ing|ed)\b.*\bretrieved evidence\b", re.IGNORECASE),
+        "retrieval augmented generation grounded generation evidence attribution hallucination mitigation",
+    ),
+)
+
+
+def expand_query_for_retrieval(query: str) -> str:
+    """Append corpus vocabulary for common human phrasing without changing the visible query."""
+
+    expansions = [expansion for pattern, expansion in QUERY_EXPANSIONS if pattern.search(query)]
+    if not expansions:
+        return query
+    return f"{query} {' '.join(dict.fromkeys(expansions))}"
+
+
 def should_apply_mmr(query: str) -> bool:
     """Enable MMR only for comparison/conceptual queries."""
 
@@ -328,6 +353,7 @@ def run_unified_search(
 
     question_pattern = classify_question_pattern(request.query)
     route = router(request.query)
+    retrieval_query = expand_query_for_retrieval(request.query)
 
     if question_pattern == "ranked_list" and route.route != "metadata_filter":
         route = QueryRoute(
@@ -400,7 +426,7 @@ def run_unified_search(
         else:
             if needs_papers:
                 paper_candidates = paper_retriever(
-                    request.query,
+                    retrieval_query,
                     openai_client=openai_client,
                     qdrant_client=qdrant_client,
                     bm25_artifact=bm25_artifact,
@@ -412,7 +438,7 @@ def run_unified_search(
                     fusion_method=fusion_method,
                 )
                 paper_candidates = maybe_rerank(
-                    request.query,
+                    retrieval_query,
                     paper_candidates,
                     enabled=request.apply_reranking,
                     reranker=reranker,
@@ -421,7 +447,7 @@ def run_unified_search(
                 )
             if needs_chunks:
                 chunk_candidates = chunk_retriever(
-                    request.query,
+                    retrieval_query,
                     openai_client=openai_client,
                     qdrant_client=qdrant_client,
                     collection_name=chunk_collection,
@@ -429,7 +455,7 @@ def run_unified_search(
                     top_k=chunk_pool_size,
                 )
                 chunk_candidates = maybe_rerank(
-                    request.query,
+                    retrieval_query,
                     chunk_candidates,
                     enabled=request.apply_reranking,
                     reranker=reranker,

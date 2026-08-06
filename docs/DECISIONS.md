@@ -612,3 +612,31 @@ Implementation note:
 - `retrieval/unified_search.py` uses the corpus index only for ranked-list metadata paths and confidently resolved paper lookups.
 - Existing BM25-backed metadata filtering behavior is preserved for tests and CLI paths that pass a custom BM25 artifact.
 
+## 2026-08-06: Preserve Retrieval Order When Cross-Encoder Reranking Is Unavailable
+
+The deployed free-tier configuration keeps local cross-encoder reranking disabled because the model stack is too heavy for a small memory budget. In that case, `rerank_and_blend()` now preserves the existing retrieval order and marks candidates with `rerank_fallback=cross_encoder_unavailable` instead of applying a second score-blending pass without a real reranker.
+
+Measured against the 82-query v2 fixture:
+- Baseline after Matryoshka + router fixes: Hit Rate@5 = 0.529, Recall@5 = 0.276, Hit Rate@10 = 0.662, Recall@10 = 0.374, MRR = 0.379.
+- No-rerank ablation: Hit Rate@5 = 0.559, Recall@5 = 0.286, Hit Rate@10 = 0.662, Recall@10 = 0.374, MRR = 0.403.
+- Preserve-order fallback: same as the no-rerank ablation.
+
+Decision:
+- Keep preserve-order fallback behavior for unavailable default cross-encoders. It improves early-rank quality and MRR while keeping top-10 retrieval unchanged.
+- Do not switch to RRF by default. The RRF ablation left Hit Rate@10 unchanged and slightly improved Recall@10, but reduced Hit Rate@5, Recall@5, and MRR, which is the wrong tradeoff for the current product flow.
+- Real cross-encoder reranking remains available when explicitly configured and supported by the runtime.
+
+## 2026-08-06: Add Narrow Query Expansion For Colloquial Research Questions
+
+Some user questions use everyday wording that does not match the indexed research vocabulary. For example, "making things up" means hallucination, and "look up facts before answering" points to retrieval-augmented generation. The router can classify these correctly, but retrieval still needs corpus vocabulary to find the right papers and chunks.
+
+Decision:
+- Add a deterministic `expand_query_for_retrieval()` helper for a small set of human phrases.
+- Use the expanded text only for retrieval/reranking; keep the original user question visible in responses.
+- Keep the expansion list narrow and test-backed so it does not become hidden prompt engineering.
+
+Measured against the 82-query v2 fixture, compared with the previous best fallback-preserve-order run:
+- Route accuracy improved from 0.976 to 1.000.
+- Hit Rate@10 improved from 0.662 to 0.691.
+- Recall@10 improved from 0.374 to 0.384.
+- MRR improved from 0.403 to 0.408.

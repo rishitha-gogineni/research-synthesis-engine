@@ -95,3 +95,46 @@ def test_run_unified_search_ranked_list_uses_metadata_index_without_vector_clien
     assert response.route.route == "metadata_filter"
     assert [paper.paper_id for paper in response.paper_results] == ["p-agent-1", "p-agent-2"]
     assert response.chunk_result_count == 0
+
+
+def test_run_unified_search_difference_between_keeps_comparison_route():
+    response = run_unified_search(
+        "What is the difference between AI agents and RAG?",
+        top_k=5,
+        corpus_index=make_corpus_index(),
+        apply_reranking=False,
+        paper_retriever=lambda *args, **kwargs: [],
+        chunk_retriever=lambda *args, **kwargs: [],
+        reranker=lambda query, candidates, top_k, apply_mmr=False: candidates[:top_k],
+    )
+
+    assert response.route.route == "hybrid_both"
+    assert any("difference between" in signal for signal in response.route.matched_signals)
+
+
+def test_run_unified_search_hallucination_concept_does_not_use_metadata_fast_path():
+    response = run_unified_search(
+        "How can I stop a chatbot from making things up?",
+        top_k=5,
+        corpus_index=make_corpus_index(),
+        apply_reranking=False,
+        paper_retriever=lambda *args, **kwargs: [],
+        chunk_retriever=lambda *args, **kwargs: [],
+        reranker=lambda query, candidates, top_k, apply_mmr=False: candidates[:top_k],
+    )
+
+    assert response.route.route == "hybrid_both"
+
+
+def test_run_unified_search_fact_lookup_concept_does_not_use_metadata_fast_path():
+    response = run_unified_search(
+        "How do models look up facts before answering?",
+        top_k=5,
+        corpus_index=make_corpus_index(),
+        apply_reranking=False,
+        paper_retriever=lambda *args, **kwargs: [],
+        chunk_retriever=lambda *args, **kwargs: [],
+        reranker=lambda query, candidates, top_k, apply_mmr=False: candidates[:top_k],
+    )
+
+    assert response.route.route == "paper_level"

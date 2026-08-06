@@ -277,21 +277,21 @@ def test_fallback_retrieval_scores_use_existing_scores_before_position():
     assert fallback_retrieval_scores(candidates) == [0.4, 0.9, 1.0]
 
 
-def test_rerank_and_blend_falls_back_when_default_cross_encoder_unavailable(monkeypatch):
+def test_rerank_and_blend_falls_back_without_reordering_when_default_cross_encoder_unavailable(monkeypatch):
     def fail_to_load(*args, **kwargs):
         raise ImportError("torch binary mismatch")
 
     monkeypatch.setattr("retrieval.rerank.load_cross_encoder", fail_to_load)
     candidates = [
-        {"paper_id": "lower", "title": "Lower", "dense_score": 0.2, "citation_count": 1},
-        {"paper_id": "higher", "title": "Higher", "dense_score": 0.9, "citation_count": 1},
+        {"paper_id": "first", "title": "First", "dense_score": 0.2, "citation_count": 1},
+        {"paper_id": "second", "title": "Second", "dense_score": 0.9, "citation_count": 1},
     ]
 
     results = rerank_and_blend("attention mechanisms", candidates, top_k=2)
 
-    assert results[0]["paper_id"] == "higher"
+    assert [result["paper_id"] for result in results] == ["first", "second"]
     assert results[0]["rerank_fallback"] == "cross_encoder_unavailable"
-    assert "blended_score" in results[0]
+    assert "blended_score" not in results[0]
 
 
 def test_rerank_and_blend_does_not_hide_explicit_model_errors():

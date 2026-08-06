@@ -9,13 +9,13 @@ from typing import Any
 
 from openai import OpenAI
 
-from ingestion.embed import DEFAULT_EMBEDDING_MODEL, TRUNCATED_DIMENSIONS, truncate_embedding
+from ingestion.embed import DEFAULT_EMBEDDING_MODEL, TRUNCATED_DIMENSIONS
 from retrieval.index_qdrant import DEFAULT_COLLECTION, DEFAULT_QDRANT_URL, get_qdrant_client, load_env_file
 
 
-def embed_query(client: OpenAI, query: str, model: str) -> list[float]:
-    response = client.embeddings.create(model=model, input=query)
-    return truncate_embedding(response.data[0].embedding, TRUNCATED_DIMENSIONS)
+def embed_query(client: OpenAI, query: str, model: str, dimensions: int = TRUNCATED_DIMENSIONS) -> list[float]:
+    response = client.embeddings.create(model=model, input=query, dimensions=dimensions)
+    return response.data[0].embedding
 
 
 def search_qdrant(client: Any, collection_name: str, query_vector: list[float], top_k: int) -> list[dict[str, Any]]:

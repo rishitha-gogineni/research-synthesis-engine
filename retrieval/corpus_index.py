@@ -272,12 +272,23 @@ def classify_question_pattern(query: str, *, has_chat_history: bool = False) -> 
         return "follow_up"
     if re.search(r"\b(that|this|it|they|them|its)\b", lowered) and has_chat_history:
         return "follow_up"
+    comparison_tokens = ("compare", "versus", " vs ", "difference between", "contrast", "tradeoff")
+    if any(token in lowered for token in comparison_tokens) or re.search(r"\bhow does\b.*\bdiffer\b", lowered):
+        return "comparison"
+    conceptual_phrases = (
+        "making things up",
+        "make things up",
+        "stop a chatbot from making",
+        "look up facts",
+        "grounding llm outputs",
+        "grounded in retrieved evidence",
+    )
+    if any(phrase in lowered for phrase in conceptual_phrases):
+        return "concept_explanation"
     if any(token in lowered for token in ("top", "most cited", "highly cited", "latest", "recent", "newest", "published", "after ", "before ", "between ", "list", "show me")):
         return "ranked_list"
     if (("explain" in lowered or "summarize" in lowered) and "paper" in lowered) or any(token in lowered for token in ("that paper", "this paper")) or re.search(r"""["\'][^"\']{8,}["\']""", query):
         return "paper_lookup"
-    if any(token in lowered for token in ("compare", "versus", " vs ", "difference between", "contrast", "tradeoff")):
-        return "comparison"
     if any(token in lowered for token in ("dataset", "benchmark", "metric", "method", "methodology", "experiment", "result", "evaluate", "evaluation")):
         return "dataset_method"
     if any(token in lowered for token in ("read first", "reading path", "what should i read", "papers should i read", "start with")):

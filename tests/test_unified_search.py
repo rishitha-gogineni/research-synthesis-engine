@@ -8,6 +8,7 @@ import pytest
 
 from retrieval.unified_search import (
     UnifiedSearchError,
+    expand_query_for_retrieval,
     metadata_filter_papers,
     qdrant_chunk_point_to_candidate,
     retrieve_chunks,
@@ -157,10 +158,11 @@ def test_qdrant_chunk_point_to_candidate_flattens_payload():
 
 def test_retrieve_chunks_embeds_query_and_searches_chunk_collection():
     class FakeEmbeddings:
-        def create(self, model, input):
+        def create(self, model, input, dimensions):
             assert model == "text-embedding-3-large"
             assert input == "hallucination benchmarks"
-            return SimpleNamespace(data=[SimpleNamespace(embedding=[0.1] * 3072)])
+            assert dimensions == 1024
+            return SimpleNamespace(data=[SimpleNamespace(embedding=[0.1] * 1024)])
 
     class FakeOpenAI:
         embeddings = FakeEmbeddings()
@@ -335,3 +337,37 @@ def test_unified_search_cli_metadata_filter_outputs_json(tmp_path):
     assert payload["route"]["route"] == "metadata_filter"
     assert payload["paper_result_count"] == 1
     assert payload["paper_results"][0]["paper_id"] == "p2"
+
+def test_expand_query_for_retrieval_maps_colloquial_hallucination_language():
+    expanded = expand_query_for_retrieval("How can I stop a chatbot from making things up?")
+
+    assert "making things up" in expanded
+    assert "hallucination detection mitigation" in expanded
+
+
+def test_run_unified_search_uses_expanded_query_for_retrievers_but_keeps_visible_query():
+    seen = []
+
+    def paper_retriever(query, **kwargs):
+        seen.append(query)
+        return []
+
+    def chunk_retriever(query, **kwargs):
+        seen.append(query)
+        return []
+
+    response = run_unified_search(
+        "How can I stop a chatbot from making things up?",
+        top_k=2,
+        paper_retriever=paper_retriever,
+        chunk_retriever=chunk_retriever,
+        router=fake_router("hybrid_both"),
+        openai_client=object(),
+        qdrant_client=object(),
+        bm25_artifact=make_bm25_artifact(),
+        apply_reranking=False,
+    )
+
+    assert response.query == "How can I stop a chatbot from making things up?"
+    assert seen
+    assert all("hallucination detection mitigation" in query for query in seen)

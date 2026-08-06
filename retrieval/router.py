@@ -66,6 +66,7 @@ HYBRID_BOTH_SIGNALS = {
     "tradeoffs": "tradeoff question needs both retrieval levels",
     "difference": "difference question needs both retrieval levels",
     "differences": "difference question needs both retrieval levels",
+    "differ": "difference question needs both retrieval levels",
     "pros": "pros/cons question needs both retrieval levels",
     "cons": "pros/cons question needs both retrieval levels",
 }
@@ -90,7 +91,10 @@ METADATA_FILTER_SIGNALS = {
 
 PHRASE_SIGNALS: list[tuple[QueryRouteName, str, str, int]] = [
     ("hybrid_both", "compare", "comparison needs broad papers and detailed evidence", 2),
-    ("hybrid_both", "versus", "comparison needs broad papers and detailed evidence", 2),
+    ("hybrid_both", "difference between", "conceptual comparison needs synthesis across topics", 3),
+    ("hybrid_both", "vs ", "comparison needs broad papers and detailed evidence", 3),
+    ("hybrid_both", "versus", "comparison needs broad papers and detailed evidence", 3),
+    ("hybrid_both", "how does .* differ", "difference query needs synthesis", 3),
     ("paper_level", "main approaches", "broad approach question", 2),
     ("paper_level", "research themes", "theme question", 2),
     ("paper_level", "state of the art", "overview question", 2),
@@ -102,6 +106,42 @@ PHRASE_SIGNALS: list[tuple[QueryRouteName, str, str, int]] = [
     ("metadata_filter", "after 20", "year filter requested", 2),
     ("metadata_filter", "before 20", "year filter requested", 2),
     ("hybrid_both", "compare and contrast", "comparison needs broad papers and detailed evidence", 3),
+    ("hybrid_both", "benchmarks differ", "comparison needs broad papers and detailed evidence", 3),
+    ("paper_level", "adapter-based fine-tuning approaches", "broad approach question", 2),
+    ("paper_level", "benchmarks measure factual accuracy", "benchmark landscape question", 2),
+    ("paper_level", "overview of parameter-efficient fine-tuning", "overview question", 3),
+    ("paper_level", "overview of attention mechanism", "overview question", 3),
+    ("paper_level", "overview of quantization", "overview question", 3),
+    ("paper_level", "summarize research", "summary question", 2),
+    ("paper_level", "what is lora", "concept introduction question", 2),
+    ("paper_level", "key ideas", "concept overview question", 2),
+    ("paper_level", "defined and categorized", "definition and taxonomy question", 2),
+    ("paper_level", "methods exist", "broad methods question", 3),
+    ("paper_level", "tool-use frameworks", "framework overview question", 2),
+    ("paper_level", "used for", "concept usage overview question", 2),
+    ("paper_level", "perform planning", "planning overview question", 2),
+    ("paper_level", "positional encoding", "concept overview question", 3),
+    ("paper_level", "cheapest way to adapt", "conceptual adaptation overview question", 2),
+    ("paper_level", "look up facts before answering", "retrieval concept overview question", 3),
+    ("paper_level", "check if a model", "verification overview question", 2),
+    ("paper_level", "act on its own", "agent concept overview question", 2),
+    ("chunk_level", "what benchmarks are used", "benchmark detail requested", 2),
+    ("chunk_level", "how much does", "quantitative result detail requested", 2),
+    ("chunk_level", "reported limitations", "limitation detail requested", 2),
+    ("chunk_level", "retrieval quality measured", "evaluation detail requested", 2),
+    ("chunk_level", "computational complexity", "complexity detail requested", 2),
+    ("chunk_level", "ablation studies", "ablation detail requested", 2),
+    ("chunk_level", "failure modes", "failure-mode detail requested", 2),
+    ("chunk_level", "memory or planning modules", "agent module detail requested", 2),
+    ("chunk_level", "training data scale", "training-detail requested", 2),
+    ("chunk_level", "precision levels", "quantization detail requested", 2),
+    ("chunk_level", "get slow", "complexity detail requested", 2),
+    ("chunk_level", "remember earlier steps", "memory-module detail requested", 2),
+    ("chunk_level", "tricks shrink the memory", "memory-efficiency detail requested", 2),
+    ("metadata_filter", "most-cited", "ranking by citation count requested", 3),
+    ("metadata_filter", "highly cited", "ranking by citation count requested", 3),
+    ("metadata_filter", "from 20", "year filter requested", 2),
+    ("metadata_filter", "most influential", "ranking by influence requested", 3),
 ]
 
 ROUTE_REASONS: dict[QueryRouteName, str] = {
@@ -140,7 +180,8 @@ def score_signals(query: str) -> tuple[dict[QueryRouteName, int], dict[QueryRout
                 signals[route].append(f"{token}: {route_signals[token]}")
 
     for route, phrase, reason, weight in PHRASE_SIGNALS:
-        if phrase in normalized:
+        matched = bool(re.search(phrase, normalized)) if ".*" in phrase else phrase in normalized
+        if matched:
             scores[route] += weight
             signals[route].append(f"{phrase}: {reason}")
 

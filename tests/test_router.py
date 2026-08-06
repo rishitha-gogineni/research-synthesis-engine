@@ -50,6 +50,27 @@ def test_router_selects_hybrid_both_for_comparison_questions():
     assert any("compare" in signal for signal in decision.matched_signals)
 
 
+def test_router_selects_hybrid_both_for_difference_between_queries():
+    decision = route_query("What is the difference between AI agents and RAG?")
+
+    assert decision.route == "hybrid_both"
+    assert any("difference between" in signal for signal in decision.matched_signals)
+
+
+def test_router_selects_hybrid_both_for_vs_queries():
+    decision = route_query("Compare RAG vs fine-tuning")
+
+    assert decision.route == "hybrid_both"
+    assert any("vs " in signal or "compare" in signal for signal in decision.matched_signals)
+
+
+def test_router_selects_hybrid_both_for_differ_queries():
+    decision = route_query("How does BM25 differ from dense retrieval?")
+
+    assert decision.route == "hybrid_both"
+    assert any("how does .* differ" in signal for signal in decision.matched_signals)
+
+
 def test_router_selects_metadata_filter_for_ranking_and_year_questions():
     decision = route_query("Show top-cited LoRA papers after 2020.")
 

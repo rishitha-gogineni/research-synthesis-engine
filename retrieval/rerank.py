@@ -494,18 +494,17 @@ def rerank_and_blend(
     if top_k is not None and top_k <= 0:
         raise ValueError("top_k must be greater than 0")
 
-    fallback_reason = None
     try:
         raw_scores = score_with_cross_encoder(query, candidates, model=model, model_name=model_name)
     except Exception:
         if model is not None:
             raise
-        fallback_reason = "cross_encoder_unavailable"
-        raw_scores = fallback_retrieval_scores(candidates)
+        fallback = mark_rerank_fallback(candidates, "cross_encoder_unavailable")
+        if top_k is None:
+            return fallback
+        return fallback[:top_k]
 
     reranked = attach_rerank_scores(candidates, raw_scores)
-    if fallback_reason:
-        reranked = mark_rerank_fallback(reranked, fallback_reason)
     blended = apply_citation_blended_scores(
         reranked,
         rerank_weight=rerank_weight,
