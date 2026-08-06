@@ -15,6 +15,10 @@ from typing import Any, Protocol
 DEFAULT_CROSS_ENCODER_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 DEFAULT_RERANK_WEIGHT = 0.75
 DEFAULT_CITATION_WEIGHT = 0.25
+# Citation count that maps to a citation score of 1.0. Chosen as a round
+# order-of-magnitude landmark for "canonical paper in this field" rather than
+# fitted to the corpus, so the scale does not move when the corpus grows.
+DEFAULT_CITATION_REFERENCE = 10000.0
 DEFAULT_TEXT_CHAR_LIMIT = 2500
 DEFAULT_MMR_LAMBDA = 0.72
 FALLBACK_SCORE_KEYS = ("hybrid_score", "dense_score", "sparse_score", "blended_score", "rerank_score")
@@ -275,12 +279,34 @@ def normalize_scores(
     return normalized
 
 
-def normalized_citation_scores(candidates: Sequence[dict[str, Any]]) -> list[float]:
-    citation_logs = [math.log1p(max(int(candidate.get("citation_count") or 0), 0)) for candidate in candidates]
-    maximum = max(citation_logs, default=0.0)
-    if maximum <= 0:
-        return [0.0 for _ in citation_logs]
-    return [value / maximum for value in citation_logs]
+def normalized_citation_scores(
+    candidates: Sequence[dict[str, Any]],
+    *,
+    reference_citations: float = DEFAULT_CITATION_REFERENCE,
+) -> list[float]:
+    """Scale log citation counts against a fixed reference, not the batch max.
+
+    The previous version divided by the maximum log-citation count *within the
+    current candidate batch*, which made the citation term batch-relative in
+    exactly the way normalize_scores() was changed to avoid. Two problems
+    followed from it. First, the top-cited paper in any batch always scored a
+    perfect 1.0 regardless of whether it had 30 citations or 30,000. Second,
+    widening the candidate pool could pull in one very highly cited paper and
+    silently deflate the citation score of every other candidate, so a
+    candidate's blended score depended on which other candidates happened to be
+    retrieved alongside it.
+
+    Scaling against a fixed reference makes the term absolute: a paper with
+    1,000 citations scores the same whatever it is ranked next to. Scores are
+    clipped at 1.0 so papers above the reference do not run away with the blend.
+    """
+
+    denominator = math.log1p(max(float(reference_citations), 1.0))
+    scores = []
+    for candidate in candidates:
+        citations = max(int(candidate.get("citation_count") or 0), 0)
+        scores.append(min(1.0, math.log1p(citations) / denominator))
+    return scores
 
 
 def score_with_cross_encoder(

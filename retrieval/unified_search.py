@@ -26,6 +26,7 @@ from retrieval.hybrid_search import (
 )
 from retrieval.index_qdrant import DEFAULT_COLLECTION as DEFAULT_PAPER_COLLECTION
 from retrieval.index_qdrant import DEFAULT_QDRANT_URL, get_qdrant_client, load_env_file
+from retrieval.promotion import promote_candidates
 from retrieval.rerank import rerank_and_blend
 from retrieval.router import route_query
 from shared.schemas import (
@@ -67,10 +68,49 @@ QUERY_EXPANSIONS: tuple[tuple[re.Pattern[str], str], ...] = (
 )
 
 
-def expand_query_for_retrieval(query: str) -> str:
+# Vocabulary bridges for query wording that does not match how the corpus talks.
+# These are broader than QUERY_EXPANSIONS -- they fire on ordinary research
+# words rather than colloquial paraphrases -- so they stay opt-in until a run of
+# the v2 fixture shows whether the extra terms help or dilute the query vector.
+EXTENDED_QUERY_EXPANSIONS: tuple[tuple[re.Pattern[str], str], ...] = (
+    (
+        re.compile(r"\b(?:datasets?|corpora)\b", re.IGNORECASE),
+        "dataset benchmark corpus training data evaluation data",
+    ),
+    (
+        re.compile(r"\bbenchmarks?\b", re.IGNORECASE),
+        "benchmark evaluation suite test set leaderboard dataset",
+    ),
+    (
+        re.compile(r"\b(?:evaluation metrics?|metrics?|measured)\b", re.IGNORECASE),
+        "evaluation metric accuracy precision recall f1 score measurement",
+    ),
+    (
+        re.compile(r"\bablations?\b", re.IGNORECASE),
+        "ablation study component analysis variant removing",
+    ),
+    (
+        re.compile(r"\b(?:gpu memory|memory (?:usage|footprint)|memory)\b", re.IGNORECASE),
+        "memory footprint gpu memory parameter efficiency training cost",
+    ),
+    (
+        re.compile(r"\bcomputational complexity\b|\bcomplexity\b", re.IGNORECASE),
+        "computational complexity quadratic sequence length time memory cost",
+    ),
+    (
+        re.compile(r"\b(?:limitations?|weakness(?:es)?|drawbacks?)\b", re.IGNORECASE),
+        "limitation weakness failure mode drawback future work",
+    ),
+)
+
+
+def expand_query_for_retrieval(query: str, *, extended: bool = False) -> str:
     """Append corpus vocabulary for common human phrasing without changing the visible query."""
 
-    expansions = [expansion for pattern, expansion in QUERY_EXPANSIONS if pattern.search(query)]
+    tables = (QUERY_EXPANSIONS, EXTENDED_QUERY_EXPANSIONS) if extended else (QUERY_EXPANSIONS,)
+    expansions = [
+        expansion for table in tables for pattern, expansion in table if pattern.search(query)
+    ]
     if not expansions:
         return query
     return f"{query} {' '.join(dict.fromkeys(expansions))}"
@@ -82,26 +122,28 @@ def should_apply_mmr(query: str) -> bool:
     return any(pattern.search(query) for pattern in COMPARISON_QUERY_PATTERNS)
 
 
-def rerank_candidate_pool_size(top_k: int, apply_reranking: bool) -> int:
-    """How many candidates to fetch/fuse before handing them to the reranker.
+def rerank_candidate_pool_size(top_k: int, apply_reranking: bool, *, multiplier: int = 1) -> int:
+    """How many candidates to fetch/fuse before reducing to the visible top_k.
 
-    This intentionally returns top_k unchanged (no oversampling). An earlier
-    version of this function oversampled by RERANK_CANDIDATE_POOL_MULTIPLIER
-    to give MMR diversity selection room to work, but measurement on this
-    project's 36-query labeled eval set showed oversampling *alone* --
-    independent of MMR -- reduced Recall@10 from 0.76 to 0.69. The cause:
-    retrieval.rerank.normalize_scores() min-max normalizes rerank scores
-    relative to whatever is in the current candidate batch. Enlarging the
-    batch pulls in weaker fusion-ranked candidates, which shifts the
-    normalization floor and rescales every candidate's normalized score --
-    including the true positives -- in a way unrelated to their actual
-    relevance. Fixing that would mean moving to an absolute/fixed-scale
-    score transform instead of batch-relative min-max, which is a separate,
-    larger change from what this function was introduced to do. See
-    docs/DECISIONS.md for the measured before/after numbers.
+    Oversampling was tried once before and reverted: on the 36-query labeled
+    eval it dropped Recall@10 from 0.76 to 0.69. The cause was not the wider
+    pool itself but what the pool did to scoring. Both the cross-encoder term
+    and the citation term were min-max normalized against whatever happened to
+    be in the current batch, so pulling in weaker fusion-ranked candidates
+    shifted the normalization floor and rescaled every candidate -- including
+    the true positives -- for reasons unrelated to relevance.
+
+    Both of those are now fixed-scale (retrieval.rerank.normalize_scores and
+    normalized_citation_scores), and retrieval.promotion scores candidates from
+    their own rank and payload only. That removes the mechanism behind the
+    original regression, so widening is worth re-measuring -- but it has not
+    been re-measured yet, which is why multiplier defaults to 1 and the previous
+    behavior is preserved exactly. See docs/DECISIONS.md.
     """
 
-    return top_k
+    if multiplier < 1:
+        raise ValueError("multiplier must be at least 1")
+    return top_k * multiplier
 
 
 class UnifiedSearchError(RuntimeError):
@@ -235,6 +277,27 @@ def maybe_rerank(
     return reranker(query, candidates, top_k=top_k)
 
 
+def maybe_promote(
+    query: str,
+    candidates: list[dict[str, Any]],
+    *,
+    enabled: bool,
+    top_k: int,
+    level: str,
+) -> list[dict[str, Any]]:
+    """Reduce a candidate pool to top_k, optionally re-ordering it first.
+
+    When promotion is disabled this is a plain truncation, so a pool size equal
+    to top_k reproduces the previous behavior exactly.
+    """
+
+    if not candidates:
+        return []
+    if not enabled:
+        return candidates[:top_k]
+    return promote_candidates(query, candidates, top_k=top_k, level=level)
+
+
 def parse_year_filters(query: str) -> tuple[int | None, int | None]:
     lowered = query.lower()
     after = None
@@ -337,6 +400,9 @@ def run_unified_search(
     local_path: Path | None = None,
     bm25_index: Path = DEFAULT_BM25_PATH,
     corpus_index: CorpusIndex | None = None,
+    apply_promotion: bool = False,
+    pool_multiplier: int = 1,
+    extended_expansions: bool = False,
 ) -> UnifiedSearchResponse:
     try:
         request = UnifiedSearchRequest(
@@ -353,7 +419,7 @@ def run_unified_search(
 
     question_pattern = classify_question_pattern(request.query)
     route = router(request.query)
-    retrieval_query = expand_query_for_retrieval(request.query)
+    retrieval_query = expand_query_for_retrieval(request.query, extended=extended_expansions)
 
     if question_pattern == "ranked_list" and route.route != "metadata_filter":
         route = QueryRoute(
@@ -406,15 +472,24 @@ def run_unified_search(
 
     paper_candidates: list[dict[str, Any]] = []
     chunk_candidates: list[dict[str, Any]] = []
-    paper_pool_size = rerank_candidate_pool_size(request.paper_top_k, request.apply_reranking)
-    chunk_pool_size = rerank_candidate_pool_size(request.chunk_top_k, request.apply_reranking)
+    paper_pool_size = rerank_candidate_pool_size(request.paper_top_k, request.apply_reranking, multiplier=pool_multiplier)
+    chunk_pool_size = rerank_candidate_pool_size(request.chunk_top_k, request.apply_reranking, multiplier=pool_multiplier)
+    # Promotion reads the user's original question, never the expanded retrieval
+    # query: the expansion text itself contains words like "dataset", "metric"
+    # and "benchmark", which would otherwise trigger intents the user never
+    # expressed.
+    promotion_query = request.query
     # Conditional MMR is not enabled by default; it needs a clean Step-1-baseline ablation first.
     apply_mmr = False
 
     try:
         if route.route == "metadata_filter":
+            # The metadata/ranked-list path is deliberately excluded from pool
+            # widening and promotion. It is the one route that is already
+            # behaving correctly, and it answers bibliography questions where
+            # corpus ordering is the answer rather than an approximation of it.
             lookup_index = corpus_index or (None if bm25_artifact is not None else load_corpus_index())
-            paper_candidates = metadata_filter_papers(request.query, bm25_artifact or {}, paper_pool_size, corpus_index=lookup_index)
+            paper_candidates = metadata_filter_papers(request.query, bm25_artifact or {}, request.paper_top_k, corpus_index=lookup_index)
             paper_candidates = maybe_rerank(
                 request.query,
                 paper_candidates,
@@ -442,8 +517,15 @@ def run_unified_search(
                     paper_candidates,
                     enabled=request.apply_reranking,
                     reranker=reranker,
-                    top_k=request.paper_top_k,
+                    top_k=paper_pool_size,
                     apply_mmr=apply_mmr,
+                )
+                paper_candidates = maybe_promote(
+                    promotion_query,
+                    paper_candidates,
+                    enabled=apply_promotion,
+                    top_k=request.paper_top_k,
+                    level="paper",
                 )
             if needs_chunks:
                 chunk_candidates = chunk_retriever(
@@ -459,8 +541,15 @@ def run_unified_search(
                     chunk_candidates,
                     enabled=request.apply_reranking,
                     reranker=reranker,
-                    top_k=request.chunk_top_k,
+                    top_k=chunk_pool_size,
                     apply_mmr=apply_mmr,
+                )
+                chunk_candidates = maybe_promote(
+                    promotion_query,
+                    chunk_candidates,
+                    enabled=apply_promotion,
+                    top_k=request.chunk_top_k,
+                    level="chunk",
                 )
     except Exception as exc:  # noqa: BLE001 - normalize provider/retriever errors for callers.
         raise UnifiedSearchError(f"unified retrieval failed: {exc}") from exc
@@ -486,6 +575,22 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--local-path", type=Path, default=None)
     parser.add_argument("--bm25-index", type=Path, default=DEFAULT_BM25_PATH)
     parser.add_argument("--env-file", type=Path, default=Path(".env"))
+    parser.add_argument(
+        "--promotion",
+        action="store_true",
+        help="Re-order paper/chunk candidates with route-aware promotion before the top-k cut.",
+    )
+    parser.add_argument(
+        "--pool-multiplier",
+        type=int,
+        default=1,
+        help="Retrieve this many times top_k internally before reducing to top_k.",
+    )
+    parser.add_argument(
+        "--extended-expansions",
+        action="store_true",
+        help="Also apply the broader research-vocabulary query expansion table.",
+    )
     return parser.parse_args()
 
 
@@ -508,6 +613,9 @@ def main() -> None:
         qdrant_api_key=args.qdrant_api_key,
         local_path=args.local_path,
         bm25_index=args.bm25_index,
+        apply_promotion=args.promotion,
+        pool_multiplier=args.pool_multiplier,
+        extended_expansions=args.extended_expansions,
     )
     print(response.model_dump_json(indent=2))
 

@@ -640,3 +640,42 @@ Measured against the 82-query v2 fixture, compared with the previous best fallba
 - Hit Rate@10 improved from 0.662 to 0.691.
 - Recall@10 improved from 0.374 to 0.384.
 - MRR improved from 0.403 to 0.408.
+
+## 2026-08-06: Make Citation Scoring Fixed-Scale
+
+`normalized_citation_scores()` divided each candidate's log citation count by the maximum log citation count *in the current batch*. This is the same batch-relative coupling that `normalize_scores()` was already changed to avoid, and it had two consequences. The top-cited paper in any batch always scored exactly 1.0 whether it had 30 citations or 30,000, so the citation term carried no information about actual influence. And widening the candidate pool by even one highly cited paper silently deflated every other candidate's citation score, which meant a candidate's blended score depended on which other candidates happened to be retrieved alongside it.
+
+Decision:
+- Scale `log1p(citations)` against a fixed reference (`DEFAULT_CITATION_REFERENCE = 10_000`) and clip at 1.0.
+- Keep the reference a round order-of-magnitude landmark rather than fitting it to the corpus, so the scale does not shift when the corpus grows.
+
+This only affects the path where a cross-encoder is actually available. In the deployed free-tier configuration `rerank_and_blend()` preserves retrieval order and never computes a blended score at all.
+
+## 2026-08-06: Add Route-Aware Candidate Promotion Behind A Flag
+
+The top-20 diagnostic showed relevant-ID hit rate rising from 0.691 at k=10 to 0.882 at k=20, and true recall from 0.384 to 0.551. Most remaining failures are therefore ranking failures rather than indexing failures: the evidence is already retrieved, just below the visible cutoff.
+
+`retrieval/promotion.py` adds a promotion layer between retrieval and the final top-k cut. Its design is constrained by three measured results this project already paid for:
+
+- **Pool invariance.** Every signal is an absolute function of a candidate's own rank and payload. `rank_prior(rank) = 1 / (1 + rank/10)` reads no other candidate, so widening the pool cannot rescale a candidate already in it. That coupling is what made naive oversampling drop Recall@10 from 0.76 to 0.69.
+- **No dependence on rerank scores.** In the free-tier path `blended_score` and `rerank_score` do not exist on candidates, because the preserve-order fallback short-circuits before scoring. Promotion reads rank position, `section_hint`, and enriched metadata fields only. This also makes it the only deterministic signal-injection point in the deployed configuration.
+- **Clustering by default, diversity only on request.** Parent-paper caps are applied per query intent, not globally, and they demote to the tail rather than dropping. This is deliberately unlike MMR, which compared chunk text and destroyed the same-paper multi-chunk answers that 19 of 36 labeled queries need.
+
+The bonus budget is capped at 0.12, which is roughly the rank-prior gap between rank 10 and rank 15. Promotion can move a well-matched candidate across the visible cutoff; it cannot reorder the head of the list.
+
+Decision:
+- Ship promotion, wider candidate pools, and the broader query-expansion table behind flags that all default to off (`--promotion`, `--pool-multiplier`, `--extended-expansions`).
+- Exclude the metadata/ranked-list route entirely. It is the one route already behaving correctly, and it answers bibliography questions where corpus ordering is the answer rather than an approximation of it.
+- Defaults are unchanged, so the currently published numbers remain reproducible and each flag can be A/B'd independently against the same fixture.
+
+## 2026-08-06: Fix The hybrid_both Evaluation Cutoff
+
+`select_results()` returned `paper_results + chunk_results` for `hybrid_both`, and `id_hits()` then took `results[:top_k]`. Because the evaluator sets `paper_top_k` and `chunk_top_k` both to `max(top_ks)`, the first `max(top_ks)` entries of that concatenation are always *all papers*. At k=10 the measured window therefore contained ten papers and zero chunks, and raising the probe to k=20 only lengthened the paper prefix.
+
+Every chunk-ID label on a `hybrid_both` query was structurally unreachable, no matter how well retrieval performed. That accounts for the 12 `cross_topic_comparison` failures in `docs/eval_failure_analysis_v2.md` — 100% of that category — which are exactly the queries whose ground truth is half chunk IDs.
+
+Decision:
+- Add `merge_ranked_lists()`, which interleaves the two lists by reciprocal rank. Paper scores (weighted fusion) and chunk scores (dense cosine) are on incomparable scales, so the merge uses rank position only and breaks ties deterministically toward papers.
+- Gate it behind `--merge-hybrid`, default off. This is a change to what the metric *means*, not just to its value, so merged numbers are not comparable to any previously published run and must be reported as a separate column.
+
+The trade-off to measure: merging halves the number of paper slots in the visible window for `hybrid_both` queries. That should help the comparison queries substantially and may cost recall on paper-heavy `route_selection` queries.

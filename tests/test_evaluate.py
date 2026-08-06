@@ -12,9 +12,12 @@ from retrieval.evaluate import (
     format_rate,
     keyword_hit,
     load_eval_queries,
+    merge_ranked_lists,
     parse_top_ks,
     reciprocal_rank,
+    result_id,
     run_evaluation,
+    select_results,
     summary_to_text,
     topic_hit,
 )
@@ -371,3 +374,53 @@ def test_evaluate_cli_json_loads_fixture_without_live_search_for_bad_query_file(
     payload = json.loads(completed.stdout)
     assert payload["summary"]["queries"] == 0
     assert payload["summary"]["queries_with_relevant_ids"] == 0
+
+
+def test_merge_ranked_lists_interleaves_by_reciprocal_rank():
+    response = make_response("q", "hybrid_both", paper_ids=["p1", "p2"], chunk_ids=["c1", "c2"])
+    merged = merge_ranked_lists(list(response.paper_results), list(response.chunk_results))
+
+    assert [result_id(result) for result in merged] == ["p1", "c1", "p2", "c2"]
+
+
+def test_merge_ranked_lists_handles_one_empty_list():
+    response = make_response("q", "hybrid_both", paper_ids=["p1", "p2"])
+    merged = merge_ranked_lists(list(response.paper_results), [])
+
+    assert [result_id(result) for result in merged] == ["p1", "p2"]
+
+
+def test_select_results_concatenation_hides_chunks_at_the_cutoff():
+    """Documents the structural defect that --merge-hybrid exists to address."""
+
+    response = make_response(
+        "q",
+        "hybrid_both",
+        paper_ids=[f"p{index}" for index in range(1, 11)],
+        chunk_ids=[f"c{index}" for index in range(1, 11)],
+    )
+    concatenated = select_results(response, "hybrid_both")
+
+    assert all(result_id(result).startswith("p") for result in concatenated[:10])
+
+
+def test_select_results_merge_hybrid_makes_chunks_reachable_at_the_cutoff():
+    response = make_response(
+        "q",
+        "hybrid_both",
+        paper_ids=[f"p{index}" for index in range(1, 11)],
+        chunk_ids=[f"c{index}" for index in range(1, 11)],
+    )
+    merged = select_results(response, "hybrid_both", merge_hybrid=True)
+    visible = [result_id(result) for result in merged[:10]]
+
+    assert any(identifier.startswith("c") for identifier in visible)
+    assert len(merged) == 20
+
+
+def test_select_results_merge_hybrid_does_not_affect_other_routes():
+    response = make_response("q", "paper_level", paper_ids=["p1"], chunk_ids=["c1"])
+
+    assert select_results(response, "paper_level", merge_hybrid=True) == select_results(
+        response, "paper_level"
+    )

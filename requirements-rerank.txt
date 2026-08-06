@@ -1,0 +1,6 @@
+# Optional extras for local cross-encoder reranking experiments.
+# Not installed in the deployed free-tier configuration: torch exceeds the
+# memory budget there, and retrieval.rerank.rerank_and_blend() falls back to
+# preserving retrieval order when the cross-encoder is unavailable.
+-r requirements.txt
+sentence-transformers>=3.0.0
