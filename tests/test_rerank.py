@@ -153,7 +153,29 @@ def test_normalized_citation_scores_uses_log_scale():
 
     assert scores[0] == 0.0
     assert 0.0 < scores[1] < scores[2]
-    assert math.isclose(scores[2], 1.0)
+    # Scaling is against a fixed reference, so the batch maximum is not 1.0.
+    assert scores[2] < 1.0
+
+
+def test_normalized_citation_scores_clip_at_the_reference():
+    scores = normalized_citation_scores(
+        [{"citation_count": 10_000}, {"citation_count": 500_000}],
+        reference_citations=10_000,
+    )
+
+    assert math.isclose(scores[0], 1.0)
+    assert scores[1] == 1.0
+
+
+def test_normalized_citation_scores_are_pool_invariant():
+    """Adding a very highly cited paper must not rescale the others."""
+
+    narrow = normalized_citation_scores([{"citation_count": 10}, {"citation_count": 100}])
+    widened = normalized_citation_scores(
+        [{"citation_count": 10}, {"citation_count": 100}, {"citation_count": 50_000}]
+    )
+
+    assert narrow == widened[:2]
 
 
 def test_score_with_cross_encoder_uses_query_candidate_pairs():

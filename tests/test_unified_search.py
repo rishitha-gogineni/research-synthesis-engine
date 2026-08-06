@@ -9,8 +9,10 @@ import pytest
 from retrieval.unified_search import (
     UnifiedSearchError,
     expand_query_for_retrieval,
+    maybe_promote,
     metadata_filter_papers,
     qdrant_chunk_point_to_candidate,
+    rerank_candidate_pool_size,
     retrieve_chunks,
     run_unified_search,
 )
@@ -371,3 +373,138 @@ def test_run_unified_search_uses_expanded_query_for_retrievers_but_keeps_visible
     assert response.query == "How can I stop a chatbot from making things up?"
     assert seen
     assert all("hallucination detection mitigation" in query for query in seen)
+
+
+def test_extended_expansions_are_opt_in():
+    query = "Which datasets are used to evaluate hallucination detection methods?"
+
+    assert expand_query_for_retrieval(query) == query
+    assert "dataset benchmark corpus" in expand_query_for_retrieval(query, extended=True)
+
+
+def test_extended_expansions_do_not_replace_the_base_table():
+    query = "How can I stop a chatbot from making things up?"
+    expanded = expand_query_for_retrieval(query, extended=True)
+
+    assert "hallucination detection mitigation" in expanded
+
+
+def test_rerank_candidate_pool_size_defaults_to_no_oversampling():
+    assert rerank_candidate_pool_size(10, True) == 10
+    assert rerank_candidate_pool_size(10, False) == 10
+    assert rerank_candidate_pool_size(10, True, multiplier=3) == 30
+
+    with pytest.raises(ValueError):
+        rerank_candidate_pool_size(10, True, multiplier=0)
+
+
+def test_maybe_promote_disabled_is_plain_truncation():
+    candidates = [{"chunk_id": f"c{index}", "paper_id": f"p{index}"} for index in range(1, 6)]
+    reduced = maybe_promote("q", candidates, enabled=False, top_k=3, level="chunk")
+
+    assert [candidate["chunk_id"] for candidate in reduced] == ["c1", "c2", "c3"]
+    assert "promotion_score" not in reduced[0]
+
+
+def test_maybe_promote_enabled_annotates_and_reduces():
+    candidates = [
+        {"chunk_id": f"c{index}", "paper_id": f"p{index}", "section_hint": "results"}
+        for index in range(1, 6)
+    ]
+    reduced = maybe_promote("What results are reported?", candidates, enabled=True, top_k=3, level="chunk")
+
+    assert len(reduced) == 3
+    assert "promotion_score" in reduced[0]
+
+
+def test_run_unified_search_promotion_is_off_by_default():
+    def chunk_retriever(query, **kwargs):
+        return [
+            {"chunk_id": f"c{index}", "paper_id": f"p{index}", "section_hint": "limitations"}
+            for index in range(1, 6)
+        ]
+
+    response = run_unified_search(
+        "What are the limitations of retrieval augmented generation?",
+        top_k=3,
+        paper_retriever=lambda query, **kwargs: [],
+        chunk_retriever=chunk_retriever,
+        router=fake_router("chunk_level"),
+        openai_client=object(),
+        qdrant_client=object(),
+        bm25_artifact=make_bm25_artifact(),
+        apply_reranking=False,
+    )
+
+    assert [chunk.chunk_id for chunk in response.chunk_results] == ["c1", "c2", "c3"]
+
+
+def test_run_unified_search_pool_multiplier_widens_the_internal_request():
+    requested = {}
+
+    def chunk_retriever(query, **kwargs):
+        requested["top_k"] = kwargs["top_k"]
+        return [{"chunk_id": f"c{index}", "paper_id": f"p{index}"} for index in range(1, 21)]
+
+    response = run_unified_search(
+        "What are the limitations of retrieval augmented generation?",
+        top_k=5,
+        paper_retriever=lambda query, **kwargs: [],
+        chunk_retriever=chunk_retriever,
+        router=fake_router("chunk_level"),
+        openai_client=object(),
+        qdrant_client=object(),
+        bm25_artifact=make_bm25_artifact(),
+        apply_reranking=False,
+        pool_multiplier=3,
+        apply_promotion=True,
+    )
+
+    assert requested["top_k"] == 15
+    # The wider pool is internal only; the caller still sees top_k results.
+    assert len(response.chunk_results) == 5
+
+
+def test_run_unified_search_promotion_uses_the_original_query_not_the_expansion():
+    """Expansion text contains intent words the user never typed."""
+
+    def chunk_retriever(query, **kwargs):
+        return [
+            {"chunk_id": "c1", "paper_id": "p1", "section_hint": "introduction"},
+            {"chunk_id": "c2", "paper_id": "p2", "section_hint": "experiments"},
+        ]
+
+    response = run_unified_search(
+        "How can I stop a chatbot from making things up?",
+        top_k=2,
+        paper_retriever=lambda query, **kwargs: [],
+        chunk_retriever=chunk_retriever,
+        router=fake_router("chunk_level"),
+        openai_client=object(),
+        qdrant_client=object(),
+        bm25_artifact=make_bm25_artifact(),
+        apply_reranking=False,
+        apply_promotion=True,
+        extended_expansions=True,
+    )
+
+    # The user asked nothing about datasets or experiments, so the experiments
+    # chunk must not be promoted over the rank-1 result.
+    assert [chunk.chunk_id for chunk in response.chunk_results] == ["c1", "c2"]
+
+
+def test_run_unified_search_metadata_route_ignores_pool_widening():
+    """The metadata/ranked-list path must stay on its existing top_k behavior."""
+
+    response = run_unified_search(
+        "Most cited papers after 2020",
+        top_k=1,
+        router=fake_router("metadata_filter"),
+        bm25_artifact=make_bm25_artifact(),
+        apply_reranking=False,
+        pool_multiplier=5,
+        apply_promotion=True,
+    )
+
+    assert response.paper_result_count == 1
+    assert "promotion_score" not in response.paper_results[0].model_dump()

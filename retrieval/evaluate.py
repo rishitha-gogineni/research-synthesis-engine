@@ -18,6 +18,7 @@ from shared.schemas import ConfidenceAssessment, EvaluationQuery, UnifiedSearchR
 
 DEFAULT_EVAL_QUERIES = Path("tests/fixtures/eval_queries.json")
 DEFAULT_TOP_KS = (5, 10)
+DEFAULT_MERGE_RRF_K = 60
 
 SearchRunner = Callable[..., UnifiedSearchResponse]
 RewriteRunner = Callable[[str, list[ChatTurn]], QueryRewriteResult]
@@ -59,10 +60,53 @@ def result_id(result: object) -> str | None:
     return identifiers[0] if identifiers else None
 
 
-def select_results(response: UnifiedSearchResponse, route: str) -> list[object]:
+def merge_ranked_lists(
+    papers: list[object],
+    chunks: list[object],
+    *,
+    rrf_k: int = DEFAULT_MERGE_RRF_K,
+) -> list[object]:
+    """Interleave two independently-ranked lists by reciprocal rank.
+
+    Paper scores (weighted fusion) and chunk scores (dense cosine) are on
+    different scales and cannot be compared directly, so the merge uses rank
+    position only. Ties -- and rank r in both lists always ties -- break toward
+    papers, then toward the better rank, which makes the merge deterministic.
+    """
+
+    scored: list[tuple[float, int, int, object]] = []
+    for list_order, results in enumerate((papers, chunks)):
+        for rank, result in enumerate(results, start=1):
+            scored.append((1.0 / (rrf_k + rank), list_order, rank, result))
+    scored.sort(key=lambda item: (-item[0], item[1], item[2]))
+    return [result for _, _, _, result in scored]
+
+
+def select_results(response: UnifiedSearchResponse, route: str, *, merge_hybrid: bool = False) -> list[object]:
+    """Return the result list that a route's metrics should be computed over.
+
+    For hybrid_both the default is plain concatenation, which is what every
+    published number for this project was measured with. That concatenation has
+    a structural consequence worth stating plainly: with paper_top_k and
+    chunk_top_k both equal to max(top_ks), the first max(top_ks) entries are
+    *all papers*, so `results[:10]` at k=10 contains zero chunks. Every
+    chunk-ID label on a hybrid_both query is therefore unreachable at k<=10 no
+    matter how well retrieval performs, and raising the probe to k=20 only
+    lengthens the paper prefix. That accounts for the 12 cross_topic_comparison
+    failures in docs/eval_failure_analysis_v2.md, which are exactly the queries
+    whose ground truth is half chunk IDs.
+
+    Passing merge_hybrid=True instead interleaves the two lists so both levels
+    compete for the visible slots. It measures the same retrieval more
+    faithfully, but it is not comparable to the concatenation numbers, so it is
+    opt-in rather than default.
+    """
+
     if route == "chunk_level":
         return list(response.chunk_results)
     if route == "hybrid_both":
+        if merge_hybrid:
+            return merge_ranked_lists(list(response.paper_results), list(response.chunk_results))
         return list(response.paper_results) + list(response.chunk_results)
     return list(response.paper_results)
 
@@ -165,6 +209,7 @@ def evaluate_response(
     *,
     rewrite_result: QueryRewriteResult | None = None,
     confidence: ConfidenceAssessment | None = None,
+    merge_hybrid: bool = False,
 ) -> dict[str, object]:
     rewrite_result = rewrite_result or QueryRewriteResult(
         original_query=query.query,
@@ -174,7 +219,7 @@ def evaluate_response(
     )
     accepted_routes = effective_routes(query)
     route_correct = response.route.route in accepted_routes
-    route_results = select_results(response, query.expected_route)
+    route_results = select_results(response, query.expected_route, merge_hybrid=merge_hybrid)
     combined_results = all_results(response)
     has_relevant_ids = bool(query.expected_relevant_ids)
     confidence_decision = confidence.decision if confidence else None
@@ -300,6 +345,10 @@ def run_evaluation(
     qdrant_url: str | None = None,
     rewriter: RewriteRunner = rewrite_query,
     confidence_checker: ConfidenceRunner = assess_confidence,
+    apply_promotion: bool = False,
+    pool_multiplier: int = 1,
+    extended_expansions: bool = False,
+    merge_hybrid: bool = False,
 ) -> tuple[dict[str, object], list[dict[str, object]]]:
     evaluations = []
     max_top_k = max(top_ks)
@@ -312,9 +361,21 @@ def run_evaluation(
             fusion_method=fusion_method,
             local_path=local_path,
             qdrant_url=qdrant_url,
+            apply_promotion=apply_promotion,
+            pool_multiplier=pool_multiplier,
+            extended_expansions=extended_expansions,
         )
         confidence = confidence_checker(response) if query.expected_confidence_decision is not None else None
-        evaluations.append(evaluate_response(query, response, top_ks, rewrite_result=rewrite_result, confidence=confidence))
+        evaluations.append(
+            evaluate_response(
+                query,
+                response,
+                top_ks,
+                rewrite_result=rewrite_result,
+                confidence=confidence,
+                merge_hybrid=merge_hybrid,
+            )
+        )
     return summarize_evaluations(evaluations, top_ks), evaluations
 
 
@@ -361,6 +422,30 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--local-path", type=Path, default=None, help="Use an embedded/local Qdrant snapshot instead of a running server.")
     parser.add_argument("--qdrant-url", default=None, help="URL of a running Qdrant server (ignored if --local-path is set).")
     parser.add_argument("--json", action="store_true", help="Print machine-readable JSON summary.")
+    parser.add_argument(
+        "--promotion",
+        action="store_true",
+        help="Re-order paper/chunk candidates with route-aware promotion before the top-k cut.",
+    )
+    parser.add_argument(
+        "--pool-multiplier",
+        type=int,
+        default=1,
+        help="Retrieve this many times top_k internally before reducing to top_k.",
+    )
+    parser.add_argument(
+        "--extended-expansions",
+        action="store_true",
+        help="Also apply the broader research-vocabulary query expansion table.",
+    )
+    parser.add_argument(
+        "--merge-hybrid",
+        action="store_true",
+        help=(
+            "Interleave paper and chunk results for hybrid_both instead of concatenating them. "
+            "Changes metric semantics; numbers are not comparable to previous runs."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -374,6 +459,10 @@ def main() -> None:
         fusion_method=args.fusion_method,
         local_path=args.local_path,
         qdrant_url=args.qdrant_url,
+        apply_promotion=args.promotion,
+        pool_multiplier=args.pool_multiplier,
+        extended_expansions=args.extended_expansions,
+        merge_hybrid=args.merge_hybrid,
     )
     if args.json:
         print(json.dumps({"summary": summary, "evaluations": evaluations}, indent=2, default=str))
