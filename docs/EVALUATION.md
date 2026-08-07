@@ -4,28 +4,25 @@ The evaluation suite is designed to check whether the system retrieves the right
 
 ## Fixture Summary
 
-The main fixture is `tests/fixtures/eval_queries.json`.
+The main fixture is `tests/fixtures/eval_queries_v2.json`.
 
 ```text
-queries: 50
-queries_with_relevant_ids: 36
-single_turn_queries: 39
-multi_turn_queries: 5
-out_of_corpus_queries: 4
-weak_evidence_queries: 2
+queries: 82
+queries_with_relevant_ids: 68
+queries_topic_keyword_only: 14
+out_of_corpus_queries: 12
 ```
 
 ## Coverage By Focus
 
 | Evaluation Focus | Query Count | Purpose |
 | --- | ---: | --- |
-| `full_text_evidence` | 19 | Checks dataset, metric, method, result, and limitation questions that should retrieve chunks. |
-| `cross_topic_comparison` | 7 | Checks questions that need evidence across topics or retrieval granularities. |
-| `confidence_gate` | 6 | Checks out-of-corpus or under-specified queries that should not produce unsupported answers. |
-| `metadata_filter` | 6 | Checks top-cited and year-filtered questions. |
-| `contextual_rewrite` | 5 | Checks follow-up questions that require chat history to become standalone queries. |
-| `route_selection` | 6 | Checks broad overview questions. |
-| `reading_path` | 1 | Checks reading recommendation behavior. |
+| `full_text_evidence` | 18 | Checks dataset, metric, method, result, and limitation questions that should retrieve chunks. |
+| `cross_topic_comparison` | 14 | Checks questions that need evidence across topics or retrieval granularities. |
+| `confidence_gate` | 12 | Checks out-of-corpus or under-specified queries that should not produce unsupported answers. |
+| `metadata_filter` | 8 | Checks top-cited and year-filtered questions. |
+| `route_selection` | 22 | Checks broad overview questions. |
+| `reading_path` | 8 | Checks reading recommendation behavior. |
 
 ## Metrics Reported
 
@@ -61,16 +58,49 @@ docker compose up -d qdrant
 Then run:
 
 ```bash
-python -m retrieval.evaluate --queries tests/fixtures/eval_queries.json
+python -m retrieval.evaluate --queries tests/fixtures/eval_queries_v2.json
 ```
 
 Machine-readable output:
 
 ```bash
-python -m retrieval.evaluate --queries tests/fixtures/eval_queries.json --json
+python -m retrieval.evaluate --queries tests/fixtures/eval_queries_v2.json --json
 ```
 
 ## Latest Local Run
+
+Run date: 2026-08-07, real run against the current Qdrant-backed retrieval stack after enabling route-aware candidate promotion by default (`apply_promotion=True`, `pool_multiplier=2`). The command used was:
+
+```bash
+python -m retrieval.evaluate --queries tests/fixtures/eval_queries_v2.json --json > eval_results/promo_default_on.json
+```
+
+```text
+queries: 82
+queries_with_relevant_ids: 68
+queries_topic_keyword_only: 14
+out_of_corpus_queries: 12
+evaluation_focus_counts: confidence_gate=12, cross_topic_comparison=14, full_text_evidence=18, metadata_filter=8, reading_path=8, route_selection=22
+route_accuracy: 1.00
+confidence_decision_accuracy: 1.00 (labeled confidence subset, n=12)
+crag_fallback_success_rate: 1.00 (expected fallback subset, n=12)
+topic_hit_rate@5: 1.00 (sanity check, n=70)
+keyword_hit_rate@5: 1.00 (sanity check, n=70)
+relevant_id_hit_rate@5 (labeled subset, n=68): 0.56
+recall@5 (fraction of relevant ids retrieved, labeled subset, n=68): 0.29
+topic_hit_rate@10: 1.00 (sanity check, n=70)
+keyword_hit_rate@10: 1.00 (sanity check, n=70)
+relevant_id_hit_rate@10 (labeled subset, n=68): 0.72
+recall@10 (fraction of relevant ids retrieved, labeled subset, n=68): 0.39
+mrr (labeled subset, n=68): 0.41
+```
+
+The 82-query v2 fixture is stricter than the older 50-query fixture: it has more exact-ID labels, more cross-topic comparisons, more reading-path checks, and more confidence-gate refusals. The current numbers should therefore be compared to the 82-query baseline, not the older 50-query run.
+
+Promotion was kept because the A/B run improved Hit Rate@10 from 0.691 to 0.721, Recall@10 from 0.384 to 0.393, and MRR from 0.408 to 0.412, while preserving route accuracy and leaving `metadata_filter` result IDs unchanged.
+
+### Prior run (2026-07-28) — 50-query fixture
+### Prior run (2026-07-28) — 50-query fixture
 
 Run date: 2026-07-28, real live run against a correctly rebuilt Docker Qdrant instance (4,909/4,909 chunks verified against `data/embedded_full_text_chunks.json` beforehand). This replaces the 2026-07-24 run below, whose `recall@K` figures were computed under the old, mislabeled hit-rate definition.
 
@@ -96,7 +126,9 @@ recall@10 (fraction of relevant ids retrieved, labeled subset, n=36): 0.76
 mrr (labeled subset, n=36): 0.75
 ```
 
-A genuine gap between Hit Rate@10 (1.00) and true Recall@10 (0.76) is expected and correct: several labeled queries have more than one relevant ID, and retrieving at least one of them (hit rate) is an easier bar than retrieving all of them (recall). See the 2026-07-28 decisions log entry for two retrieval-ranking changes (MMR diversity selection, candidate-pool oversampling) that were measured against this exact fixture and reverted because they reduced these numbers rather than improved them.
+A genuine gap between Hit Rate@10 (1.00) and true Recall@10 (0.76) was expected and correct: several labeled queries have more than one relevant ID, and retrieving at least one of them (hit rate) is an easier bar than retrieving all of them (recall). See the 2026-07-28 decisions log entry for two retrieval-ranking changes (MMR diversity selection, candidate-pool oversampling) that were measured against this exact fixture and reverted because they reduced these numbers rather than improved them.
+
+
 
 ### Prior run (2026-07-24) — kept for history, recall figures were mislabeled at the time
 
@@ -122,7 +154,7 @@ relevant_id_hit_rate@10 (labeled subset, n=36): 1.00   # previously mislabeled "
 mrr (labeled subset, n=36): 0.86
 ```
 
-The latest run uses the 50-question golden fixture. It reflects three evaluation hardening changes: route labels support explicit acceptable alternatives, exact-ID labels include multiple manually inspected relevant papers/chunks when appropriate, and the confidence gate filters generic off-topic matches more aggressively.
+The 2026-07-24 run used the 50-question golden fixture. It reflects three evaluation hardening changes: route labels support explicit acceptable alternatives, exact-ID labels include multiple manually inspected relevant papers/chunks when appropriate, and the confidence gate filters generic off-topic matches more aggressively.
 
 ## Labeling Policy
 

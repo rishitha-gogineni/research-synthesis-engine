@@ -28,15 +28,15 @@ SUGGESTED_QUESTIONS = [
 ]
 
 EVALUATION_SUMMARY = {
-    "Route accuracy": {"value": "1.00", "scope": "50 queries"},
-    "Topic hit@10": {"value": "1.00", "scope": "44 topic-labeled queries"},
-    "Keyword hit@10": {"value": "0.94", "scope": "48 keyword-labeled queries"},
-    "Relevant-ID hit rate@10": {"value": "1.00", "scope": "36 exact-ID labels"},
-    "Recall@10": {"value": "0.76", "scope": "36 exact-ID labels"},
-    "MRR": {"value": "0.75", "scope": "36 exact-ID labels"},
-    "Rewrite hit rate": {"value": "1.00", "scope": "5 contextual queries"},
-    "Confidence accuracy": {"value": "1.00", "scope": "6 confidence labels"},
-    "CRAG fallback success": {"value": "1.00", "scope": "6 fallback labels"},
+    "Route accuracy": {"value": "1.00", "scope": "82-query v2 fixture"},
+    "Topic hit@10": {"value": "1.00", "scope": "70 topic-labeled queries"},
+    "Keyword hit@10": {"value": "1.00", "scope": "70 keyword-labeled queries"},
+    "Relevant-ID hit rate@10": {"value": "0.72", "scope": "68 exact-ID labels"},
+    "Recall@10": {"value": "0.39", "scope": "68 exact-ID labels"},
+    "MRR": {"value": "0.41", "scope": "68 exact-ID labels"},
+    "Rewrite hit rate": {"value": "n/a", "scope": "not included in v2 fixture"},
+    "Confidence accuracy": {"value": "1.00", "scope": "12 confidence labels"},
+    "CRAG fallback success": {"value": "1.00", "scope": "12 fallback labels"},
 }
 
 

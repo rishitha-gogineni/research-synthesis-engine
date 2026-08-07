@@ -679,3 +679,22 @@ Decision:
 - Gate it behind `--merge-hybrid`, default off. This is a change to what the metric *means*, not just to its value, so merged numbers are not comparable to any previously published run and must be reported as a separate column.
 
 The trade-off to measure: merging halves the number of paper slots in the visible window for `hybrid_both` queries. That should help the comparison queries substantially and may cost recall on paper-heavy `route_selection` queries.
+
+## 2026-08-07: Enable Route-Aware Promotion By Default
+
+The 82-query v2 evaluation showed that most remaining retrieval misses are ranking misses, not indexing misses. A top-20 diagnostic already showed many expected IDs just below the visible top-10 cutoff, so the next reasonable fix was not another index rebuild; it was a conservative promotion layer that widens the internal candidate pool and promotes candidates using stable, route-aware signals.
+
+Measured on `tests/fixtures/eval_queries_v2.json`:
+
+| Run | Route Accuracy | Hit@5 | Hit@10 | Recall@5 | Recall@10 | MRR |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Baseline, promotion off | 1.000 | 0.559 | 0.691 | 0.287 | 0.384 | 0.408 |
+| Promotion on, pool x2 | 1.000 | 0.559 | 0.721 | 0.292 | 0.393 | 0.412 |
+
+Decision:
+- Enable route-aware promotion by default with `apply_promotion=True` and `pool_multiplier=2`.
+- Keep `metadata_filter` excluded from promotion and pool widening. The A/B check confirmed identical metadata result IDs and ordering; only serialized set ordering differed in debug fields.
+- Keep `merge_hybrid` off because it changes metric semantics and reduced aggregate Hit@10 in the A/B run.
+- Keep `extended_expansions` off because it improved some early-rank metrics but caused a real Recall@10 regression on an agent-limitations query.
+
+This is a small improvement, not a rewritten retrieval system. It is valuable because it improves top-10 evidence coverage while preserving route accuracy and the stable metadata-list behavior used by bibliography-style questions.

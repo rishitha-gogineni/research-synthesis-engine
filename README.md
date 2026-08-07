@@ -13,11 +13,11 @@ The project combines an offline data pipeline with a live question-answering wor
 
 | Metric | Value | Scope |
 | --- | ---: | --- |
-| Route accuracy | 1.00 | 50 queries |
-| Confidence decision accuracy | 1.00 | 6 confidence-labeled queries |
-| Relevant-ID hit rate@10 | 1.00 | 36 exact-ID labeled queries |
-| Recall@10 | 0.76 | 36 exact-ID labeled queries |
-| MRR | 0.75 | 36 exact-ID labeled queries |
+| Route accuracy | 1.00 | 82-query v2 fixture |
+| Confidence decision accuracy | 1.00 | 12 confidence-labeled queries |
+| Relevant-ID hit rate@10 | 0.72 | 68 exact-ID labeled queries |
+| Recall@10 | 0.39 | 68 exact-ID labeled queries |
+| MRR | 0.41 | 68 exact-ID labeled queries |
 | Initial response latency | 21.3s to 8.8s | fast-first response redesign |
 
 Full methodology in [`docs/EVALUATION.md`](docs/EVALUATION.md).
@@ -62,8 +62,8 @@ Result: no grounded answer shown
 | Papers | 250 |
 | Papers with extracted full text | 152 |
 | Full-text chunks | 4,909 |
-| Evaluation queries | 50 |
-| Test suite | 303 passing tests |
+| Evaluation queries | 82 |
+| Test suite | 344 passing tests |
 
 Research areas: Retrieval-Augmented Generation (RAG), Transformers / Attention Mechanisms, LLM Evaluation & Hallucination Detection, AI Agents & Tool Use, Fine-tuning (LoRA / PEFT)
 
@@ -93,6 +93,7 @@ flowchart TD
 - The confidence gate is conservative: declining to answer is preferred over a fluent but ungrounded answer.
 - Cross-encoder reranking is disabled in the deployed version (`RSE_APPLY_RERANKING=false`) to stay inside Render's free-tier memory limit; it's available locally.
 - The UI returns the direct answer and evidence matrix before heavier sections (reading path, open problems), which cut initial latency from ~21.3s to ~8.8s.
+- Route-aware candidate promotion is enabled by default for paper and chunk retrieval. It widens the internal pool, promotes stable evidence signals, and leaves metadata-list queries unchanged.
 
 ## Tech Stack
 
@@ -154,7 +155,7 @@ python -m full_text.embed_chunks --input data/full_text_chunks.json --output dat
 python -m full_text.index_chunks_qdrant --input data/embedded_full_text_chunks.json --collection research_paper_chunks
 
 # Evaluation and tests
-python -m retrieval.evaluate --queries tests/fixtures/eval_queries.json
+python -m retrieval.evaluate --queries tests/fixtures/eval_queries_v2.json
 python -m pytest tests/ -q
 ```
 
