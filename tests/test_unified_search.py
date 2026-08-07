@@ -42,7 +42,7 @@ def fake_paper_retriever(query, **kwargs):
     assert kwargs["collection_name"] == "research_papers"
     assert kwargs["dense_top_k"] == 4
     assert kwargs["sparse_top_k"] == 5
-    assert kwargs["final_top_k"] == 2
+    assert kwargs["final_top_k"] == 4
     return [
         {
             "paper_id": "paper-1",
@@ -68,7 +68,7 @@ def fake_paper_retriever(query, **kwargs):
 def fake_chunk_retriever(query, **kwargs):
     assert query
     assert kwargs["collection_name"] == "research_paper_chunks"
-    assert kwargs["top_k"] == 2
+    assert kwargs["top_k"] == 4
     return [
         {
             "chunk_id": "chunk-1",
@@ -417,11 +417,14 @@ def test_maybe_promote_enabled_annotates_and_reduces():
     assert "promotion_score" in reduced[0]
 
 
-def test_run_unified_search_promotion_is_off_by_default():
+def test_run_unified_search_promotion_is_on_by_default():
+    requested = {}
+
     def chunk_retriever(query, **kwargs):
+        requested["top_k"] = kwargs["top_k"]
         return [
             {"chunk_id": f"c{index}", "paper_id": f"p{index}", "section_hint": "limitations"}
-            for index in range(1, 6)
+            for index in range(1, 7)
         ]
 
     response = run_unified_search(
@@ -436,6 +439,8 @@ def test_run_unified_search_promotion_is_off_by_default():
         apply_reranking=False,
     )
 
+    assert requested["top_k"] == 6
+    assert len(response.chunk_results) == 3
     assert [chunk.chunk_id for chunk in response.chunk_results] == ["c1", "c2", "c3"]
 
 

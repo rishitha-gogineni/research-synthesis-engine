@@ -12,7 +12,11 @@ from pydantic import ValidationError
 
 from agent.query_rewriter import ChatTurn, QueryRewriteResult, rewrite_query
 from retrieval.confidence import assess_confidence
-from retrieval.unified_search import run_unified_search
+from retrieval.unified_search import (
+    DEFAULT_APPLY_PROMOTION,
+    DEFAULT_PROMOTION_POOL_MULTIPLIER,
+    run_unified_search,
+)
 from shared.schemas import ConfidenceAssessment, EvaluationQuery, UnifiedSearchResponse
 
 
@@ -345,8 +349,8 @@ def run_evaluation(
     qdrant_url: str | None = None,
     rewriter: RewriteRunner = rewrite_query,
     confidence_checker: ConfidenceRunner = assess_confidence,
-    apply_promotion: bool = False,
-    pool_multiplier: int = 1,
+    apply_promotion: bool = DEFAULT_APPLY_PROMOTION,
+    pool_multiplier: int = DEFAULT_PROMOTION_POOL_MULTIPLIER,
     extended_expansions: bool = False,
     merge_hybrid: bool = False,
 ) -> tuple[dict[str, object], list[dict[str, object]]]:
@@ -424,13 +428,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--json", action="store_true", help="Print machine-readable JSON summary.")
     parser.add_argument(
         "--promotion",
-        action="store_true",
+        action=argparse.BooleanOptionalAction,
+        default=DEFAULT_APPLY_PROMOTION,
         help="Re-order paper/chunk candidates with route-aware promotion before the top-k cut.",
     )
     parser.add_argument(
         "--pool-multiplier",
         type=int,
-        default=1,
+        default=DEFAULT_PROMOTION_POOL_MULTIPLIER,
         help="Retrieve this many times top_k internally before reducing to top_k.",
     )
     parser.add_argument(

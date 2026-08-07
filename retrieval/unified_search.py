@@ -43,6 +43,8 @@ ChunkRetriever = Callable[..., list[dict[str, Any]]]
 Reranker = Callable[..., list[dict[str, Any]]]
 Router = Callable[[str], QueryRoute]
 
+DEFAULT_APPLY_PROMOTION = True
+DEFAULT_PROMOTION_POOL_MULTIPLIER = 2
 RERANK_CANDIDATE_POOL_MULTIPLIER = 3
 COMPARISON_QUERY_PATTERNS = (
     re.compile(r"\bdifference\s+between\b", re.IGNORECASE),
@@ -400,8 +402,8 @@ def run_unified_search(
     local_path: Path | None = None,
     bm25_index: Path = DEFAULT_BM25_PATH,
     corpus_index: CorpusIndex | None = None,
-    apply_promotion: bool = False,
-    pool_multiplier: int = 1,
+    apply_promotion: bool = DEFAULT_APPLY_PROMOTION,
+    pool_multiplier: int = DEFAULT_PROMOTION_POOL_MULTIPLIER,
     extended_expansions: bool = False,
 ) -> UnifiedSearchResponse:
     try:
@@ -577,13 +579,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--env-file", type=Path, default=Path(".env"))
     parser.add_argument(
         "--promotion",
-        action="store_true",
+        action=argparse.BooleanOptionalAction,
+        default=DEFAULT_APPLY_PROMOTION,
         help="Re-order paper/chunk candidates with route-aware promotion before the top-k cut.",
     )
     parser.add_argument(
         "--pool-multiplier",
         type=int,
-        default=1,
+        default=DEFAULT_PROMOTION_POOL_MULTIPLIER,
         help="Retrieve this many times top_k internally before reducing to top_k.",
     )
     parser.add_argument(
