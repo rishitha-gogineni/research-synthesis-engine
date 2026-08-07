@@ -72,6 +72,11 @@ def env_bool(name: str, default: bool) -> bool:
 
 
 DEFAULT_APPLY_RERANKING = env_bool("RSE_APPLY_RERANKING", True)
+DEFAULT_FUSION_METHOD = os.getenv("RSE_FUSION_METHOD", "weighted")
+DEFAULT_APPLY_PROMOTION = env_bool("RSE_APPLY_PROMOTION", False)
+DEFAULT_POOL_MULTIPLIER = int(os.getenv("RSE_POOL_MULTIPLIER", "1"))
+DEFAULT_READING_PATH_BOOST = env_bool("RSE_READING_PATH_BOOST", False)
+DEFAULT_AFFINITY_BOOST = env_bool("RSE_AFFINITY_BOOST", False)
 
 
 class RetrievalCache:
@@ -474,6 +479,11 @@ def retrieve_for_request(request: ApiQueryRequest, *, query_override: str | None
         dense_top_k=request.dense_top_k,
         sparse_top_k=request.sparse_top_k,
         apply_reranking=request.apply_reranking,
+        fusion_method=DEFAULT_FUSION_METHOD,
+        apply_promotion=DEFAULT_APPLY_PROMOTION,
+        pool_multiplier=DEFAULT_POOL_MULTIPLIER,
+        reading_path_boost=DEFAULT_READING_PATH_BOOST,
+        affinity_boost=DEFAULT_AFFINITY_BOOST,
     )
     RETRIEVAL_CACHE.set(cache_key, response)
     return response
