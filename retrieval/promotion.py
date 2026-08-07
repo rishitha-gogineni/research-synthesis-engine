@@ -47,6 +47,9 @@ RANK_DECAY = 10.0
 SECTION_BONUS = 0.05
 VOCAB_BONUS = 0.03
 PAPER_FIELD_BONUS = 0.04
+READING_PATH_CITATION_BONUS = 0.04
+READING_PATH_SURVEY_BONUS = 0.05
+AFFINITY_BONUS = 0.03
 MAX_PROMOTION_BONUS = 0.12
 
 # Parent-paper caps, applied by demotion rather than removal.
@@ -107,6 +110,31 @@ DIVERSITY_QUERY_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"\bapproaches to\b", re.IGNORECASE),
     re.compile(r"\bdiffer(?:s|ent)?\s+from\b", re.IGNORECASE),
 )
+
+
+READING_PATH_PATTERNS: tuple[re.Pattern[str], ...] = (
+    re.compile(r"\bread(?:ing)?\s+(?:first|path|order|list)\b", re.IGNORECASE),
+    re.compile(r"\bfoundational\b", re.IGNORECASE),
+    re.compile(r"\bessential\b", re.IGNORECASE),
+    re.compile(r"\bstart with\b", re.IGNORECASE),
+    re.compile(r"\bbeginner\b", re.IGNORECASE),
+    re.compile(r"\bbackground reading\b", re.IGNORECASE),
+    re.compile(r"\brecommend\b", re.IGNORECASE),
+    re.compile(r"\bkey surveys?\b", re.IGNORECASE),
+    re.compile(r"\bshould I read\b", re.IGNORECASE),
+    re.compile(r"\bmost important .+ papers?\b", re.IGNORECASE),
+    re.compile(r"\bwhere should .+ start\b", re.IGNORECASE),
+    re.compile(r"\bbest introduce\b", re.IGNORECASE),
+)
+
+READING_PATH_CITATION_THRESHOLD = 200
+READING_PATH_SURVEY_CITATION_THRESHOLD = 500
+
+
+def is_reading_path_query(query: str) -> bool:
+    """True when the query asks for reading recommendations or foundational papers."""
+
+    return any(pattern.search(query) for pattern in READING_PATH_PATTERNS)
 
 
 def detect_query_intents(query: str) -> tuple[str, ...]:
@@ -204,11 +232,36 @@ def paper_field_bonus(candidate: dict[str, Any], intents: tuple[str, ...]) -> fl
     return 0.0
 
 
+def reading_path_bonus(candidate: dict[str, Any]) -> float:
+    """Reward high-citation or survey papers for reading-path queries."""
+
+    title = str(candidate.get("title") or "").lower()
+    topic = str(candidate.get("topic") or "").lower()
+    citations = int(candidate.get("citation_count") or 0)
+
+    if "survey" in title or "survey" in topic or citations >= READING_PATH_SURVEY_CITATION_THRESHOLD:
+        return READING_PATH_SURVEY_BONUS
+    if citations >= READING_PATH_CITATION_THRESHOLD:
+        return READING_PATH_CITATION_BONUS
+    return 0.0
+
+
+def affinity_bonus(candidate: dict[str, Any]) -> float:
+    """Reward chunks whose parent paper was independently retrieved."""
+
+    if candidate.get("parent_retrieved"):
+        return AFFINITY_BONUS
+    return 0.0
+
+
 def promotion_bonus(
     candidate: dict[str, Any],
     intents: tuple[str, ...],
     *,
     level: str,
+    query: str = "",
+    enable_reading_path: bool = False,
+    enable_affinity: bool = False,
 ) -> tuple[float, list[str]]:
     """Return the clamped bonus for one candidate plus the signals that fired."""
 
@@ -230,6 +283,18 @@ def promotion_bonus(
     if earned:
         total += earned
         signals.append("intent_vocab")
+
+    if enable_reading_path and level == "paper" and is_reading_path_query(query):
+        earned = reading_path_bonus(candidate)
+        if earned:
+            total += earned
+            signals.append("reading_path")
+
+    if enable_affinity and level == "chunk":
+        earned = affinity_bonus(candidate)
+        if earned:
+            total += earned
+            signals.append("parent_affinity")
 
     return min(total, MAX_PROMOTION_BONUS), signals
 
@@ -284,6 +349,8 @@ def promote_candidates(
     *,
     top_k: int,
     level: str = "chunk",
+    enable_reading_path: bool = False,
+    enable_affinity: bool = False,
 ) -> list[dict[str, Any]]:
     """Re-order a candidate pool with bounded, pool-invariant signals.
 
@@ -308,13 +375,16 @@ def promote_candidates(
 
     scored: list[tuple[float, int, dict[str, Any]]] = []
     for index, candidate in enumerate(candidates):
-        bonus, signals = promotion_bonus(candidate, intents, level=level)
+        bonus, signals = promotion_bonus(
+            candidate, intents, level=level, query=query,
+            enable_reading_path=enable_reading_path,
+            enable_affinity=enable_affinity,
+        )
         score = rank_prior(index + 1) + bonus
         candidate["promotion_score"] = score
         candidate["promotion_signals"] = signals
         scored.append((score, index, candidate))
 
-    # Ties break on original retrieval rank, so promotion is a stable sort.
     scored.sort(key=lambda item: (-item[0], item[1]))
     ordered = [candidate for _, _, candidate in scored]
 

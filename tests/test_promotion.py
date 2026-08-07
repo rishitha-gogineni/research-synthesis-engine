@@ -190,3 +190,61 @@ def test_promote_candidates_keeps_same_paper_chunks_for_evidence_queries():
     promoted = promote_candidates("How much does LoRA reduce GPU memory?", candidates, top_k=4)
 
     assert [candidate["chunk_id"] for candidate in promoted] == ["c1", "c2", "c3", "c4"]
+
+
+def test_is_reading_path_query_matches_expected_patterns():
+    from retrieval.promotion import is_reading_path_query
+
+    assert is_reading_path_query("Which LoRA papers should I read first?")
+    assert is_reading_path_query("What are the foundational papers to understand RAG?")
+    assert is_reading_path_query("Where should a beginner start with LLM agents?")
+    assert is_reading_path_query("Recommend key surveys covering autonomous agents.")
+    assert is_reading_path_query("What are the most important RAG evaluation papers to study?")
+    assert not is_reading_path_query("How much does LoRA reduce GPU memory?")
+    assert not is_reading_path_query("What datasets are used?")
+
+
+def test_reading_path_bonus_rewards_high_citation_surveys():
+    from retrieval.promotion import reading_path_bonus
+
+    survey = {"paper_id": "p1", "title": "A Survey on LLM Agents", "topic": "AI Agents", "citation_count": 1200}
+    high_cite = {"paper_id": "p2", "title": "LoRA Paper", "topic": "Fine-tuning", "citation_count": 300}
+    low_cite = {"paper_id": "p3", "title": "Minor Paper", "topic": "RAG", "citation_count": 50}
+
+    assert reading_path_bonus(survey) == 0.05
+    assert reading_path_bonus(high_cite) == 0.04
+    assert reading_path_bonus(low_cite) == 0.0
+
+
+def test_reading_path_boost_integrates_with_promote_candidates():
+    papers = [
+        {"paper_id": f"p{i}", "title": "Regular Paper", "topic": "RAG", "citation_count": 50}
+        for i in range(1, 13)
+    ]
+    papers[11]["title"] = "A Survey on Retrieval-Augmented Generation"
+    papers[11]["citation_count"] = 600
+
+    promoted = promote_candidates(
+        "What are the foundational papers to understand RAG?",
+        papers, top_k=10, level="paper", enable_reading_path=True,
+    )
+
+    assert "p12" in [p["paper_id"] for p in promoted]
+
+
+def test_affinity_bonus_fires_when_parent_retrieved():
+    from retrieval.promotion import affinity_bonus
+
+    assert affinity_bonus({"paper_id": "p1", "parent_retrieved": True}) == 0.03
+    assert affinity_bonus({"paper_id": "p1"}) == 0.0
+
+
+def test_promote_candidates_with_affinity_lifts_affiliated_chunk():
+    candidates = [make_chunk(f"c{i}", f"p{i}") for i in range(1, 12)]
+    candidates[10]["parent_retrieved"] = True
+
+    promoted = promote_candidates(
+        "plain query", candidates, top_k=10, level="chunk", enable_affinity=True,
+    )
+
+    assert "c11" in [c["chunk_id"] for c in promoted]

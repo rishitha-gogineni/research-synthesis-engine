@@ -286,6 +286,8 @@ def maybe_promote(
     enabled: bool,
     top_k: int,
     level: str,
+    enable_reading_path: bool = False,
+    enable_affinity: bool = False,
 ) -> list[dict[str, Any]]:
     """Reduce a candidate pool to top_k, optionally re-ordering it first.
 
@@ -297,7 +299,11 @@ def maybe_promote(
         return []
     if not enabled:
         return candidates[:top_k]
-    return promote_candidates(query, candidates, top_k=top_k, level=level)
+    return promote_candidates(
+        query, candidates, top_k=top_k, level=level,
+        enable_reading_path=enable_reading_path,
+        enable_affinity=enable_affinity,
+    )
 
 
 def parse_year_filters(query: str) -> tuple[int | None, int | None]:
@@ -405,6 +411,9 @@ def run_unified_search(
     apply_promotion: bool = DEFAULT_APPLY_PROMOTION,
     pool_multiplier: int = DEFAULT_PROMOTION_POOL_MULTIPLIER,
     extended_expansions: bool = False,
+    conditional_merge: bool = False,
+    reading_path_boost: bool = False,
+    affinity_boost: bool = False,
 ) -> UnifiedSearchResponse:
     try:
         request = UnifiedSearchRequest(
@@ -528,6 +537,7 @@ def run_unified_search(
                     enabled=apply_promotion,
                     top_k=request.paper_top_k,
                     level="paper",
+                    enable_reading_path=reading_path_boost,
                 )
             if needs_chunks:
                 chunk_candidates = chunk_retriever(
@@ -546,12 +556,18 @@ def run_unified_search(
                     top_k=chunk_pool_size,
                     apply_mmr=apply_mmr,
                 )
+                if affinity_boost and paper_candidates:
+                    retrieved_paper_ids = {c.get("paper_id") for c in paper_candidates if c.get("paper_id")}
+                    for chunk in chunk_candidates:
+                        if chunk.get("paper_id") in retrieved_paper_ids:
+                            chunk["parent_retrieved"] = True
                 chunk_candidates = maybe_promote(
                     promotion_query,
                     chunk_candidates,
                     enabled=apply_promotion,
                     top_k=request.chunk_top_k,
                     level="chunk",
+                    enable_affinity=affinity_boost,
                 )
     except Exception as exc:  # noqa: BLE001 - normalize provider/retriever errors for callers.
         raise UnifiedSearchError(f"unified retrieval failed: {exc}") from exc
@@ -594,6 +610,16 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Also apply the broader research-vocabulary query expansion table.",
     )
+    parser.add_argument(
+        "--reading-path-boost",
+        action="store_true",
+        help="Boost high-citation surveys for reading-path queries.",
+    )
+    parser.add_argument(
+        "--affinity",
+        action="store_true",
+        help="Boost chunks whose parent paper was also retrieved (hybrid_both only).",
+    )
     return parser.parse_args()
 
 
@@ -619,6 +645,8 @@ def main() -> None:
         apply_promotion=args.promotion,
         pool_multiplier=args.pool_multiplier,
         extended_expansions=args.extended_expansions,
+        reading_path_boost=args.reading_path_boost,
+        affinity_boost=args.affinity,
     )
     print(response.model_dump_json(indent=2))
 

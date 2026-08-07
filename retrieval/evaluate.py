@@ -12,6 +12,7 @@ from pydantic import ValidationError
 
 from agent.query_rewriter import ChatTurn, QueryRewriteResult, rewrite_query
 from retrieval.confidence import assess_confidence
+from retrieval.promotion import is_diversity_query
 from retrieval.unified_search import (
     DEFAULT_APPLY_PROMOTION,
     DEFAULT_PROMOTION_POOL_MULTIPLIER,
@@ -86,7 +87,7 @@ def merge_ranked_lists(
     return [result for _, _, _, result in scored]
 
 
-def select_results(response: UnifiedSearchResponse, route: str, *, merge_hybrid: bool = False) -> list[object]:
+def select_results(response: UnifiedSearchResponse, route: str, *, merge_hybrid: bool = False, conditional_merge: bool = False) -> list[object]:
     """Return the result list that a route's metrics should be computed over.
 
     For hybrid_both the default is plain concatenation, which is what every
@@ -104,12 +105,17 @@ def select_results(response: UnifiedSearchResponse, route: str, *, merge_hybrid:
     compete for the visible slots. It measures the same retrieval more
     faithfully, but it is not comparable to the concatenation numbers, so it is
     opt-in rather than default.
+
+    Passing conditional_merge=True applies the interleave ONLY when the query
+    is a diversity/comparison query (detected by is_diversity_query). This
+    preserves paper-first ordering for non-comparison hybrid_both queries.
     """
 
     if route == "chunk_level":
         return list(response.chunk_results)
     if route == "hybrid_both":
-        if merge_hybrid:
+        should_merge = merge_hybrid or (conditional_merge and is_diversity_query(response.query))
+        if should_merge:
             return merge_ranked_lists(list(response.paper_results), list(response.chunk_results))
         return list(response.paper_results) + list(response.chunk_results)
     return list(response.paper_results)
@@ -214,6 +220,7 @@ def evaluate_response(
     rewrite_result: QueryRewriteResult | None = None,
     confidence: ConfidenceAssessment | None = None,
     merge_hybrid: bool = False,
+    conditional_merge: bool = False,
 ) -> dict[str, object]:
     rewrite_result = rewrite_result or QueryRewriteResult(
         original_query=query.query,
@@ -223,7 +230,7 @@ def evaluate_response(
     )
     accepted_routes = effective_routes(query)
     route_correct = response.route.route in accepted_routes
-    route_results = select_results(response, query.expected_route, merge_hybrid=merge_hybrid)
+    route_results = select_results(response, query.expected_route, merge_hybrid=merge_hybrid, conditional_merge=conditional_merge)
     combined_results = all_results(response)
     has_relevant_ids = bool(query.expected_relevant_ids)
     confidence_decision = confidence.decision if confidence else None
@@ -353,6 +360,9 @@ def run_evaluation(
     pool_multiplier: int = DEFAULT_PROMOTION_POOL_MULTIPLIER,
     extended_expansions: bool = False,
     merge_hybrid: bool = False,
+    conditional_merge: bool = False,
+    reading_path_boost: bool = False,
+    affinity_boost: bool = False,
 ) -> tuple[dict[str, object], list[dict[str, object]]]:
     evaluations = []
     max_top_k = max(top_ks)
@@ -368,6 +378,8 @@ def run_evaluation(
             apply_promotion=apply_promotion,
             pool_multiplier=pool_multiplier,
             extended_expansions=extended_expansions,
+            reading_path_boost=reading_path_boost,
+            affinity_boost=affinity_boost,
         )
         confidence = confidence_checker(response) if query.expected_confidence_decision is not None else None
         evaluations.append(
@@ -378,6 +390,7 @@ def run_evaluation(
                 rewrite_result=rewrite_result,
                 confidence=confidence,
                 merge_hybrid=merge_hybrid,
+                conditional_merge=conditional_merge,
             )
         )
     return summarize_evaluations(evaluations, top_ks), evaluations
@@ -451,6 +464,21 @@ def parse_args() -> argparse.Namespace:
             "Changes metric semantics; numbers are not comparable to previous runs."
         ),
     )
+    parser.add_argument(
+        "--conditional-merge",
+        action="store_true",
+        help="Interleave paper/chunk results only for diversity/comparison queries.",
+    )
+    parser.add_argument(
+        "--reading-path-boost",
+        action="store_true",
+        help="Boost high-citation surveys for reading-path queries (requires --promotion).",
+    )
+    parser.add_argument(
+        "--affinity",
+        action="store_true",
+        help="Boost chunks whose parent paper was also retrieved (requires --promotion).",
+    )
     return parser.parse_args()
 
 
@@ -468,6 +496,9 @@ def main() -> None:
         pool_multiplier=args.pool_multiplier,
         extended_expansions=args.extended_expansions,
         merge_hybrid=args.merge_hybrid,
+        conditional_merge=args.conditional_merge,
+        reading_path_boost=args.reading_path_boost,
+        affinity_boost=args.affinity,
     )
     if args.json:
         print(json.dumps({"summary": summary, "evaluations": evaluations}, indent=2, default=str))

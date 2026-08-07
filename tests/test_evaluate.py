@@ -424,3 +424,29 @@ def test_select_results_merge_hybrid_does_not_affect_other_routes():
     assert select_results(response, "paper_level", merge_hybrid=True) == select_results(
         response, "paper_level"
     )
+
+
+def test_select_results_conditional_merge_applies_to_diversity_queries():
+    response = make_response(
+        "Compare RAG and fine-tuning approaches",
+        "hybrid_both",
+        paper_ids=[f"p{i}" for i in range(1, 11)],
+        chunk_ids=[f"c{i}" for i in range(1, 11)],
+    )
+    merged = select_results(response, "hybrid_both", conditional_merge=True)
+    visible = [result_id(r) for r in merged[:10]]
+
+    assert any(i.startswith("c") for i in visible)
+
+
+def test_select_results_conditional_merge_leaves_non_diversity_hybrid_alone():
+    response = make_response(
+        "How does RAG reduce hallucination?",
+        "hybrid_both",
+        paper_ids=[f"p{i}" for i in range(1, 11)],
+        chunk_ids=[f"c{i}" for i in range(1, 11)],
+    )
+    conditional = select_results(response, "hybrid_both", conditional_merge=True)
+    default = select_results(response, "hybrid_both")
+
+    assert conditional == default
