@@ -17,7 +17,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -42,7 +43,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -65,7 +67,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -90,7 +93,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -113,7 +117,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -137,7 +142,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -160,7 +166,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -184,7 +191,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -207,7 +215,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -231,7 +240,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -255,7 +265,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -278,7 +289,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -302,7 +314,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -325,7 +338,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -350,7 +364,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -374,7 +389,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -397,7 +413,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -420,7 +437,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -444,7 +462,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -468,7 +487,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -493,7 +513,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -518,7 +539,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -541,7 +563,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -566,7 +589,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -589,7 +613,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -613,7 +638,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -636,7 +662,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -661,7 +688,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -684,7 +712,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -709,7 +738,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -733,7 +763,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -757,7 +788,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -781,7 +813,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -805,7 +838,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -828,7 +862,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -852,7 +887,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -876,7 +912,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -899,7 +936,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -923,7 +961,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -947,7 +986,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -971,7 +1011,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -995,7 +1036,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1019,7 +1061,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1043,7 +1086,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1066,7 +1110,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1090,7 +1135,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1114,7 +1160,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1138,7 +1185,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1162,7 +1210,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1186,7 +1235,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1210,7 +1260,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1234,7 +1285,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1258,7 +1310,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1282,7 +1335,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1306,7 +1360,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1617,7 +1672,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1642,7 +1698,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1667,7 +1724,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1692,7 +1750,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1717,7 +1776,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1742,7 +1802,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1767,7 +1828,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1792,7 +1854,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1817,7 +1880,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -1842,7 +1906,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -3228,7 +3293,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "metadata_filter",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -3252,7 +3318,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "metadata_filter",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -3279,7 +3346,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "metadata_filter",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -3306,7 +3374,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "metadata_filter",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -3333,7 +3402,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "metadata_filter",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -3361,7 +3431,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "metadata_filter",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -3389,7 +3460,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "metadata_filter",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -3417,7 +3489,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "metadata_filter",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -3445,7 +3518,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "metadata_filter",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -3472,7 +3546,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "metadata_filter",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -3497,7 +3572,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "metadata_filter",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -3522,7 +3598,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "metadata_filter",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -3547,7 +3624,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "metadata_filter",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -3572,7 +3650,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "metadata_filter",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -3597,7 +3676,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "metadata_filter",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -3620,7 +3700,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "metadata_filter",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -3645,7 +3726,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "metadata_filter",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -3668,7 +3750,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "metadata_filter",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -3693,7 +3776,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "metadata_filter",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -3718,7 +3802,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "metadata_filter",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -4165,7 +4250,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -4188,7 +4274,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -4211,7 +4298,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -4234,7 +4322,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -4257,7 +4346,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -4280,7 +4370,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -4303,7 +4394,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -4326,7 +4418,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -4349,7 +4442,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -4372,7 +4466,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -4395,7 +4490,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -4418,7 +4514,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -4441,7 +4538,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -4464,7 +4562,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -4487,7 +4586,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -4510,7 +4610,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -4533,7 +4634,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -4556,7 +4658,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -4579,7 +4682,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -4602,7 +4706,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -6459,7 +6564,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "paper_level",
-      "metadata_filter"
+      "metadata_filter",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -6538,7 +6644,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "chunk_level",
-      "paper_level"
+      "paper_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
@@ -6619,7 +6726,8 @@
     "chat_history": [],
     "acceptable_routes": [
       "paper_level",
-      "chunk_level"
+      "chunk_level",
+      "hybrid_both"
     ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
