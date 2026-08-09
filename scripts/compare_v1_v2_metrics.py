@@ -38,16 +38,24 @@ def main() -> None:
     v1 = json.loads(V1.read_text())["summary"]
     v2 = json.loads(V2.read_text())["summary"]
 
+    # Metric dicts use string keys after JSON round-trip
+    def get_k(section: dict, k: int) -> dict | None:
+        return section.get(str(k)) or section.get(k)
+
     print("=" * 80)
     print("RSE v1 (pypdf) vs v2 (PyMuPDF + paragraph chunking)")
     print("=" * 80)
 
+    def val(section: dict, k: int) -> float | None:
+        entry = get_k(section, k)
+        return entry.get("value") if entry else None
+
     rows = [
         ("route_accuracy", v1["route_accuracy"], v2["route_accuracy"]),
-        ("hit_rate@10", v1["id_relevant_hit_rate"][10]["value"], v2["id_relevant_hit_rate"][10]["value"]),
-        ("hit_rate@20", v1["id_relevant_hit_rate"].get(20, {}).get("value"), v2["id_relevant_hit_rate"].get(20, {}).get("value")),
-        ("recall@10", v1["recall"][10]["value"], v2["recall"][10]["value"]),
-        ("recall@20", v1["recall"].get(20, {}).get("value"), v2["recall"].get(20, {}).get("value")),
+        ("hit_rate@10", val(v1["id_relevant_hit_rate"], 10), val(v2["id_relevant_hit_rate"], 10)),
+        ("hit_rate@20", val(v1["id_relevant_hit_rate"], 20), val(v2["id_relevant_hit_rate"], 20)),
+        ("recall@10", val(v1["recall"], 10), val(v2["recall"], 10)),
+        ("recall@20", val(v1["recall"], 20), val(v2["recall"], 20)),
         ("mrr", v1["mrr"]["value"], v2["mrr"]["value"]),
         ("confidence_accuracy", v1["confidence_decision_accuracy"]["value"], v2["confidence_decision_accuracy"]["value"]),
     ]
@@ -60,8 +68,8 @@ def main() -> None:
         print(f"{name:<25} {a_str:>10} {b_str:>10} {delta(a, b):>18}")
 
     print("\nInterpretation:")
-    r1 = v1["recall"][10]["value"] or 0
-    r2 = v2["recall"][10]["value"] or 0
+    r1 = val(v1["recall"], 10) or 0
+    r2 = val(v2["recall"], 10) or 0
     if r2 > r1 + 0.02:
         print(f"  ✅ Recall improved meaningfully (+{(r2-r1)*100:.1f} pts)")
     elif r2 > r1 - 0.02:

@@ -72,26 +72,26 @@ def main() -> None:
         f"Index v2 chunks to Qdrant collection '{COLLECTION_V2}'"
     )
 
-    # Step 3: Baseline eval (v1 collection) — for direct comparison
-    run(
-        ["python", "-m", "retrieval.evaluate",
-         "--queries", str(EVAL_QUERIES),
-         "--json"],
-        "Baseline eval on v1 collection (research_paper_chunks)"
-    )
-    # Redirect via subprocess — capture in a second run
-    print("\nRe-running baseline to capture JSON...")
+    # Step 3: Baseline eval (v1 collection) — capture JSON directly
+    print("\n" + "=" * 70)
+    print("STEP: Baseline eval on v1 collection (research_paper_chunks)")
+    print("=" * 70 + "\n")
     result = subprocess.run(
         ["python", "-m", "retrieval.evaluate",
          "--queries", str(EVAL_QUERIES),
          "--json"],
         cwd=ROOT, capture_output=True, text=True,
     )
+    if result.returncode != 0:
+        print(f"❌ Baseline eval failed:\n{result.stderr}")
+        sys.exit(1)
     RESULTS_BASELINE.write_text(result.stdout)
     print(f"✅ Baseline saved: {RESULTS_BASELINE}")
 
     # Step 4: v2 eval
-    print("\nRunning eval on v2 collection...")
+    print("\n" + "=" * 70)
+    print(f"STEP: v2 eval on collection '{COLLECTION_V2}'")
+    print("=" * 70 + "\n")
     result = subprocess.run(
         ["python", "-m", "retrieval.evaluate",
          "--queries", str(EVAL_QUERIES),
@@ -99,6 +99,9 @@ def main() -> None:
          "--json"],
         cwd=ROOT, capture_output=True, text=True,
     )
+    if result.returncode != 0:
+        print(f"❌ v2 eval failed:\n{result.stderr}")
+        sys.exit(1)
     RESULTS_V2.write_text(result.stdout)
     print(f"✅ v2 saved: {RESULTS_V2}")
 
