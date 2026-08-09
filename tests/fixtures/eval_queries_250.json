@@ -11,7 +11,12 @@
       "faster"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W3034573343"
+      "https://openalex.org/W2626778328",
+      "https://openalex.org/W3034573343",
+      "https://openalex.org/W3126721948",
+      "https://openalex.org/W3116489684",
+      "https://openalex.org/W3151130473",
+      "https://openalex.org/W4386075524"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -61,7 +66,12 @@
       "navigation"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4390204337"
+      "https://openalex.org/W4387835442",
+      "https://openalex.org/W4390874280",
+      "https://openalex.org/W4390204337",
+      "https://openalex.org/W4393065402",
+      "https://openalex.org/W4304195432",
+      "https://openalex.org/W4363624465"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -111,7 +121,12 @@
       "models"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4388823522"
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4388823522",
+      "https://openalex.org/W4391136507",
+      "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -137,7 +152,12 @@
       "accuracy"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4395050972"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4395050972",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -185,7 +205,12 @@
       "evalplus"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4367860052"
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4367860052",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4391136507",
+      "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -209,7 +234,11 @@
       "llm-planner"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4390874280"
+      "https://openalex.org/W4387835442",
+      "https://openalex.org/W4390874280",
+      "https://openalex.org/W4393065402",
+      "https://openalex.org/W4304195432",
+      "https://openalex.org/W4363624465"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -235,7 +264,12 @@
       "llm"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4389523765"
+      "https://openalex.org/W4389523765",
+      "https://openalex.org/W4387835442",
+      "https://openalex.org/W4390874280",
+      "https://openalex.org/W4393065402",
+      "https://openalex.org/W4304195432",
+      "https://openalex.org/W4363624465"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -260,7 +294,12 @@
       "detection"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4393160204"
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4393160204",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4391136507",
+      "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -286,7 +325,12 @@
       "tuning"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4390872859"
+      "https://openalex.org/W3176828726",
+      "https://openalex.org/W4390872859",
+      "https://openalex.org/W4389524317",
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4361229539",
+      "https://openalex.org/W4322766882"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -312,7 +356,12 @@
       "generation"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4399738410"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4399738410",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -337,7 +386,12 @@
       "generation"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4404852772"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4404852772",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -363,7 +417,12 @@
       "retrieval-augmented-related"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W3123811550"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W3123811550",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -389,7 +448,12 @@
       "models"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4319452268"
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4319452268",
+      "https://openalex.org/W4391136507",
+      "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -415,6 +479,11 @@
       "exist"
     ],
     "expected_relevant_ids": [
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W3177813494",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4391136507",
       "https://openalex.org/W4408226143"
     ],
     "category": "single_turn",
@@ -441,7 +510,12 @@
       "evaluating-related"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4384484700"
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4384484700",
+      "https://openalex.org/W4391136507",
+      "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -541,7 +615,12 @@
       "gpt-4"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4372047097"
+      "https://openalex.org/W4372047097",
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4391136507",
+      "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -566,7 +645,12 @@
       "large"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4324129637"
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4324129637",
+      "https://openalex.org/W4391136507",
+      "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -591,7 +675,12 @@
       "attention"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4386075553"
+      "https://openalex.org/W2626778328",
+      "https://openalex.org/W4386075553",
+      "https://openalex.org/W3126721948",
+      "https://openalex.org/W3116489684",
+      "https://openalex.org/W3151130473",
+      "https://openalex.org/W4386075524"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -641,7 +730,12 @@
       "augmentation,"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4411203672"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4411203672",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -741,7 +835,12 @@
       "tuning"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4389520700"
+      "https://openalex.org/W3176828726",
+      "https://openalex.org/W4389524317",
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4389520700",
+      "https://openalex.org/W4361229539",
+      "https://openalex.org/W4322766882"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -767,7 +866,11 @@
       "large"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4399803256"
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4391136507",
+      "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -793,7 +896,12 @@
       "multidimensional"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W2998108143"
+      "https://openalex.org/W2626778328",
+      "https://openalex.org/W2998108143",
+      "https://openalex.org/W3126721948",
+      "https://openalex.org/W3116489684",
+      "https://openalex.org/W3151130473",
+      "https://openalex.org/W4386075524"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -817,7 +925,12 @@
       "evalplus"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4367860052"
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4367860052",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4391136507",
+      "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -843,7 +956,12 @@
       "linking"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W3166143997"
+      "https://openalex.org/W3176828726",
+      "https://openalex.org/W3166143997",
+      "https://openalex.org/W4389524317",
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4361229539",
+      "https://openalex.org/W4322766882"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -893,6 +1011,11 @@
       "agents"
     ],
     "expected_relevant_ids": [
+      "https://openalex.org/W4387835442",
+      "https://openalex.org/W4390874280",
+      "https://openalex.org/W4393065402",
+      "https://openalex.org/W4304195432",
+      "https://openalex.org/W4363624465",
       "https://openalex.org/W4396833393"
     ],
     "category": "single_turn",
@@ -917,7 +1040,12 @@
       "quest"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4402909345"
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4402909345",
+      "https://openalex.org/W4391136507",
+      "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -943,7 +1071,12 @@
       "accuracy?"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4394745858"
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4394745858",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4391136507",
+      "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -967,6 +1100,11 @@
       "twins"
     ],
     "expected_relevant_ids": [
+      "https://openalex.org/W2626778328",
+      "https://openalex.org/W3126721948",
+      "https://openalex.org/W3116489684",
+      "https://openalex.org/W3151130473",
+      "https://openalex.org/W4386075524",
       "https://openalex.org/W3157528469"
     ],
     "category": "single_turn",
@@ -1017,7 +1155,12 @@
       "prediction"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4404852772"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4404852772",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -1067,6 +1210,10 @@
       "criter"
     ],
     "expected_relevant_ids": [
+      "https://openalex.org/W3176828726",
+      "https://openalex.org/W4389524317",
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4361229539",
       "https://openalex.org/W4322766882"
     ],
     "category": "single_turn",
@@ -1093,7 +1240,12 @@
       "language"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4386556635"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4386556635",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -1167,7 +1319,12 @@
       "analysis"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4393203759"
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4393203759",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4391136507",
+      "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -1217,7 +1374,11 @@
       "llms"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4401857375"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -1243,7 +1404,12 @@
       "interactive-related"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4396941482"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4396941482",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -1293,7 +1459,12 @@
       "retriev"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4402670290"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4402670290",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -1318,7 +1489,12 @@
       "mitigation"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4400324908"
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4400324908",
+      "https://openalex.org/W4391136507",
+      "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -1344,7 +1520,12 @@
       "multi-agent"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4403203873"
+      "https://openalex.org/W4387835442",
+      "https://openalex.org/W4390874280",
+      "https://openalex.org/W4403203873",
+      "https://openalex.org/W4393065402",
+      "https://openalex.org/W4304195432",
+      "https://openalex.org/W4363624465"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -1370,7 +1551,12 @@
       "tuning"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4296151208"
+      "https://openalex.org/W3176828726",
+      "https://openalex.org/W4389524317",
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4361229539",
+      "https://openalex.org/W4296151208",
+      "https://openalex.org/W4322766882"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -1682,7 +1868,11 @@
       "llms"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4401857375"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -1708,7 +1898,12 @@
       "artificial"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4383710066"
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4383710066",
+      "https://openalex.org/W4391136507",
+      "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -1734,7 +1929,12 @@
       "retrieval"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W7118085507"
+      "https://openalex.org/W7118085507",
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -1760,7 +1960,12 @@
       "photo-r"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4402753889"
+      "https://openalex.org/W4387835442",
+      "https://openalex.org/W4390874280",
+      "https://openalex.org/W4393065402",
+      "https://openalex.org/W4304195432",
+      "https://openalex.org/W4402753889",
+      "https://openalex.org/W4363624465"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -1786,6 +1991,11 @@
       "with"
     ],
     "expected_relevant_ids": [
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066",
       "https://openalex.org/W4409690035"
     ],
     "category": "single_turn",
@@ -1812,7 +2022,12 @@
       "retrieval"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4392487838"
+      "https://openalex.org/W4392487838",
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -1862,7 +2077,12 @@
       "language"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4408184874"
+      "https://openalex.org/W3176828726",
+      "https://openalex.org/W4389524317",
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4408184874",
+      "https://openalex.org/W4361229539",
+      "https://openalex.org/W4322766882"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -1888,7 +2108,12 @@
       "generation"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4411203672"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4411203672",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -1914,7 +2139,12 @@
       "models"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4385571232"
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4385571232",
+      "https://openalex.org/W4391136507",
+      "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -4200,7 +4430,11 @@
       "llms"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4393147129"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -4250,7 +4484,12 @@
       "approach"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4400526126"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4400526126",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -4276,7 +4515,12 @@
       "experiments"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4402670290"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4402670290",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -4302,7 +4546,12 @@
       "linking"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W3166143997"
+      "https://openalex.org/W3176828726",
+      "https://openalex.org/W3166143997",
+      "https://openalex.org/W4389524317",
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4361229539",
+      "https://openalex.org/W4322766882"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -4328,6 +4577,11 @@
       "large"
     ],
     "expected_relevant_ids": [
+      "https://openalex.org/W3176828726",
+      "https://openalex.org/W4389524317",
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4361229539",
+      "https://openalex.org/W4322766882",
       "https://openalex.org/W4401043416"
     ],
     "category": "single_turn",
@@ -4378,7 +4632,12 @@
       "prediction"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4404852772"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4404852772",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -4404,7 +4663,12 @@
       "points"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4399530612"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4399530612",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -4454,7 +4718,12 @@
       "agent-based"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4403904079"
+      "https://openalex.org/W4387835442",
+      "https://openalex.org/W4390874280",
+      "https://openalex.org/W4393065402",
+      "https://openalex.org/W4304195432",
+      "https://openalex.org/W4403904079",
+      "https://openalex.org/W4363624465"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -4528,7 +4797,12 @@
       "retrieval"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4396823873"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4396823873",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -4553,7 +4827,12 @@
       "self-attention"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W3176153963"
+      "https://openalex.org/W2626778328",
+      "https://openalex.org/W3176153963",
+      "https://openalex.org/W3126721948",
+      "https://openalex.org/W3116489684",
+      "https://openalex.org/W3151130473",
+      "https://openalex.org/W4386075524"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -4579,7 +4858,12 @@
       "hallucination"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4389523832"
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4389523832",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4391136507",
+      "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -4605,7 +4889,12 @@
       "practices"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4404782883"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4404782883",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -4630,7 +4919,12 @@
       "performance"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4388823522"
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4388823522",
+      "https://openalex.org/W4391136507",
+      "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -4656,7 +4950,12 @@
       "retrieval"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4392487838"
+      "https://openalex.org/W4392487838",
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "full_text_evidence",
@@ -4752,7 +5051,11 @@
       "augmented"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4389519118"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "route_selection",
@@ -4775,7 +5078,11 @@
       "llm-planner"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4390874280"
+      "https://openalex.org/W4387835442",
+      "https://openalex.org/W4390874280",
+      "https://openalex.org/W4393065402",
+      "https://openalex.org/W4304195432",
+      "https://openalex.org/W4363624465"
     ],
     "category": "single_turn",
     "evaluation_focus": "route_selection",
@@ -4799,7 +5106,11 @@
       "agents"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4387835442"
+      "https://openalex.org/W4387835442",
+      "https://openalex.org/W4390874280",
+      "https://openalex.org/W4393065402",
+      "https://openalex.org/W4304195432",
+      "https://openalex.org/W4363624465"
     ],
     "category": "single_turn",
     "evaluation_focus": "route_selection",
@@ -4847,6 +5158,10 @@
       "domain"
     ],
     "expected_relevant_ids": [
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
       "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
@@ -4872,7 +5187,11 @@
       "translation"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W2626778328"
+      "https://openalex.org/W2626778328",
+      "https://openalex.org/W3126721948",
+      "https://openalex.org/W3116489684",
+      "https://openalex.org/W3151130473",
+      "https://openalex.org/W4386075524"
     ],
     "category": "single_turn",
     "evaluation_focus": "route_selection",
@@ -4920,6 +5239,10 @@
       "criter"
     ],
     "expected_relevant_ids": [
+      "https://openalex.org/W3176828726",
+      "https://openalex.org/W4389524317",
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4361229539",
       "https://openalex.org/W4322766882"
     ],
     "category": "single_turn",
@@ -4945,7 +5268,11 @@
       "capability"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4304195432"
+      "https://openalex.org/W4387835442",
+      "https://openalex.org/W4390874280",
+      "https://openalex.org/W4393065402",
+      "https://openalex.org/W4304195432",
+      "https://openalex.org/W4363624465"
     ],
     "category": "single_turn",
     "evaluation_focus": "route_selection",
@@ -4968,7 +5295,11 @@
       "llm-adapters"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4389524317"
+      "https://openalex.org/W3176828726",
+      "https://openalex.org/W4389524317",
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4361229539",
+      "https://openalex.org/W4322766882"
     ],
     "category": "single_turn",
     "evaluation_focus": "route_selection",
@@ -4993,7 +5324,11 @@
       "large"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4391136507"
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4391136507",
+      "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
     "evaluation_focus": "route_selection",
@@ -5018,7 +5353,11 @@
       "large"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4404534210"
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4391136507",
+      "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
     "evaluation_focus": "route_selection",
@@ -5042,7 +5381,11 @@
       "attention"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W3126721948"
+      "https://openalex.org/W2626778328",
+      "https://openalex.org/W3126721948",
+      "https://openalex.org/W3116489684",
+      "https://openalex.org/W3151130473",
+      "https://openalex.org/W4386075524"
     ],
     "category": "single_turn",
     "evaluation_focus": "route_selection",
@@ -5067,6 +5410,10 @@
       "programming"
     ],
     "expected_relevant_ids": [
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4391136507",
       "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
@@ -5092,7 +5439,11 @@
       "large"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4399803256"
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4404534210",
+      "https://openalex.org/W4391136507",
+      "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
     "evaluation_focus": "route_selection",
@@ -5117,7 +5468,11 @@
       "language"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4393065402"
+      "https://openalex.org/W4387835442",
+      "https://openalex.org/W4390874280",
+      "https://openalex.org/W4393065402",
+      "https://openalex.org/W4304195432",
+      "https://openalex.org/W4363624465"
     ],
     "category": "single_turn",
     "evaluation_focus": "route_selection",
@@ -5142,7 +5497,11 @@
       "language"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4393147129"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "route_selection",
@@ -5167,7 +5526,11 @@
       "llms"
     ],
     "expected_relevant_ids": [
-      "https://openalex.org/W4401857375"
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
     "evaluation_focus": "route_selection",
