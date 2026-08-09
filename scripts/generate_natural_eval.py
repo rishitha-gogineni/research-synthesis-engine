@@ -18,6 +18,10 @@ Ground truth is deterministic from paper metadata:
 This eval is deliberately CHUNKING-AGNOSTIC — it does not encode any specific
 chunk_id, only paper_id + keyword presence. Any chunking strategy that retrieves
 the correct paper AND surfaces the right content will score well.
+
+evaluation_focus values must be one of the schema-allowed literals:
+route_selection, full_text_evidence, metadata_filter, cross_topic_comparison,
+contextual_rewrite, confidence_gate, reading_path.
 """
 
 from __future__ import annotations
@@ -82,7 +86,7 @@ def concept_overview_queries(papers: list[dict]) -> list[dict]:
             "expected_keywords": kws,
             "expected_relevant_ids": ids,
             "category": "single_turn",
-            "evaluation_focus": "concept_overview",
+            "evaluation_focus": "full_text_evidence",
             "rationale": f"[factual] concept overview for {concept}",
         })
         queries.append({
@@ -92,7 +96,7 @@ def concept_overview_queries(papers: list[dict]) -> list[dict]:
             "expected_keywords": kws,
             "expected_relevant_ids": ids,
             "category": "single_turn",
-            "evaluation_focus": "concept_overview",
+            "evaluation_focus": "full_text_evidence",
             "rationale": f"[factual] how-does-X-work for {concept}",
         })
     return queries
@@ -129,7 +133,7 @@ def method_specific_queries(papers: list[dict]) -> list[dict]:
             "expected_keywords": kws,
             "expected_relevant_ids": ids[:5],
             "category": "single_turn",
-            "evaluation_focus": "method_mechanism",
+            "evaluation_focus": "full_text_evidence",
             "rationale": f"[factual] how {method} achieves its stated purpose",
         })
         queries.append({
@@ -139,7 +143,7 @@ def method_specific_queries(papers: list[dict]) -> list[dict]:
             "expected_keywords": kws,
             "expected_relevant_ids": ids[:5],
             "category": "single_turn",
-            "evaluation_focus": "method_definition",
+            "evaluation_focus": "full_text_evidence",
             "rationale": f"[factual] method definition for {method}",
         })
     return queries
@@ -255,7 +259,7 @@ def dataset_benchmark_queries(papers: list[dict]) -> list[dict]:
             "expected_keywords": kws,
             "expected_relevant_ids": ids,
             "category": "single_turn",
-            "evaluation_focus": "dataset_discovery",
+            "evaluation_focus": "metadata_filter",
             "rationale": "[factual] dataset / benchmark discovery",
         })
     return queries
@@ -268,8 +272,8 @@ def paper_anchored_queries(papers: list[dict]) -> list[dict]:
     picks = ranked[:40]
     queries = []
     templates = [
-        ("What does the paper '{title}' propose?", "paper_contribution", ["propose", "method", "novel"]),
-        ("What is the main contribution of '{title}'?", "paper_contribution", ["contribution", "novel"]),
+        ("What does the paper '{title}' propose?", "full_text_evidence", ["propose", "method", "novel"]),
+        ("What is the main contribution of '{title}'?", "full_text_evidence", ["contribution", "novel"]),
     ]
     for p in picks:
         title = normalize_title(p.get("title") or "")
@@ -293,7 +297,7 @@ def section_specific_queries(papers: list[dict]) -> list[dict]:
     """Section-specific questions — 'what are the limitations of X?' etc."""
     queries = []
     section_templates = [
-        ("What are the limitations of {topic}?", ["limitation", "future work", "shortcoming"], "limitations"),
+        ("What are the limitations of {topic}?", ["limitation", "future work", "shortcoming"], "full_text_evidence"),
         ("What results do {topic} papers report?", ["result", "performance", "achieve"], "results"),
         ("What methodology do {topic} papers use?", ["method", "approach", "architecture"], "methodology"),
     ]

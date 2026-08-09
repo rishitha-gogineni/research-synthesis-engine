@@ -18,7 +18,7 @@
       "https://openalex.org/W4402670290"
     ],
     "category": "single_turn",
-    "evaluation_focus": "concept_overview",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] concept overview for retrieval-augmented generation",
     "chat_history": [],
     "acceptable_routes": [],
@@ -44,7 +44,7 @@
       "https://openalex.org/W4402670290"
     ],
     "category": "single_turn",
-    "evaluation_focus": "concept_overview",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how-does-X-work for retrieval-augmented generation",
     "chat_history": [],
     "acceptable_routes": [],
@@ -69,7 +69,7 @@
       "https://openalex.org/W4402670290"
     ],
     "category": "single_turn",
-    "evaluation_focus": "concept_overview",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] concept overview for RAG",
     "chat_history": [],
     "acceptable_routes": [],
@@ -94,7 +94,7 @@
       "https://openalex.org/W4402670290"
     ],
     "category": "single_turn",
-    "evaluation_focus": "concept_overview",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how-does-X-work for RAG",
     "chat_history": [],
     "acceptable_routes": [],
@@ -119,7 +119,7 @@
       "https://openalex.org/W2953273646"
     ],
     "category": "single_turn",
-    "evaluation_focus": "concept_overview",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] concept overview for transformer attention",
     "chat_history": [],
     "acceptable_routes": [],
@@ -144,7 +144,7 @@
       "https://openalex.org/W2953273646"
     ],
     "category": "single_turn",
-    "evaluation_focus": "concept_overview",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how-does-X-work for transformer attention",
     "chat_history": [],
     "acceptable_routes": [],
@@ -169,7 +169,7 @@
       "https://openalex.org/W2953273646"
     ],
     "category": "single_turn",
-    "evaluation_focus": "concept_overview",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] concept overview for self-attention",
     "chat_history": [],
     "acceptable_routes": [],
@@ -194,7 +194,7 @@
       "https://openalex.org/W2953273646"
     ],
     "category": "single_turn",
-    "evaluation_focus": "concept_overview",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how-does-X-work for self-attention",
     "chat_history": [],
     "acceptable_routes": [],
@@ -219,7 +219,7 @@
       "https://openalex.org/W4389520749"
     ],
     "category": "single_turn",
-    "evaluation_focus": "concept_overview",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] concept overview for hallucination detection",
     "chat_history": [],
     "acceptable_routes": [],
@@ -244,7 +244,7 @@
       "https://openalex.org/W4389520749"
     ],
     "category": "single_turn",
-    "evaluation_focus": "concept_overview",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how-does-X-work for hallucination detection",
     "chat_history": [],
     "acceptable_routes": [],
@@ -269,7 +269,7 @@
       "https://openalex.org/W4389520749"
     ],
     "category": "single_turn",
-    "evaluation_focus": "concept_overview",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] concept overview for LLM evaluation",
     "chat_history": [],
     "acceptable_routes": [],
@@ -294,7 +294,7 @@
       "https://openalex.org/W4389520749"
     ],
     "category": "single_turn",
-    "evaluation_focus": "concept_overview",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how-does-X-work for LLM evaluation",
     "chat_history": [],
     "acceptable_routes": [],
@@ -319,7 +319,7 @@
       "https://openalex.org/W4386794445"
     ],
     "category": "single_turn",
-    "evaluation_focus": "concept_overview",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] concept overview for AI agents",
     "chat_history": [],
     "acceptable_routes": [],
@@ -344,7 +344,7 @@
       "https://openalex.org/W4386794445"
     ],
     "category": "single_turn",
-    "evaluation_focus": "concept_overview",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how-does-X-work for AI agents",
     "chat_history": [],
     "acceptable_routes": [],
@@ -369,7 +369,7 @@
       "https://openalex.org/W4386794445"
     ],
     "category": "single_turn",
-    "evaluation_focus": "concept_overview",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] concept overview for tool use in LLMs",
     "chat_history": [],
     "acceptable_routes": [],
@@ -394,7 +394,7 @@
       "https://openalex.org/W4386794445"
     ],
     "category": "single_turn",
-    "evaluation_focus": "concept_overview",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how-does-X-work for tool use in LLMs",
     "chat_history": [],
     "acceptable_routes": [],
@@ -420,7 +420,7 @@
       "https://openalex.org/W4361229539"
     ],
     "category": "single_turn",
-    "evaluation_focus": "concept_overview",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] concept overview for parameter-efficient fine-tuning",
     "chat_history": [],
     "acceptable_routes": [],
@@ -446,7 +446,7 @@
       "https://openalex.org/W4361229539"
     ],
     "category": "single_turn",
-    "evaluation_focus": "concept_overview",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how-does-X-work for parameter-efficient fine-tuning",
     "chat_history": [],
     "acceptable_routes": [],
@@ -471,7 +471,7 @@
       "https://openalex.org/W4361229539"
     ],
     "category": "single_turn",
-    "evaluation_focus": "concept_overview",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] concept overview for LoRA",
     "chat_history": [],
     "acceptable_routes": [],
@@ -496,7 +496,7 @@
       "https://openalex.org/W4361229539"
     ],
     "category": "single_turn",
-    "evaluation_focus": "concept_overview",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how-does-X-work for LoRA",
     "chat_history": [],
     "acceptable_routes": [],
@@ -520,7 +520,7 @@
       "https://openalex.org/W4401042811"
     ],
     "category": "single_turn",
-    "evaluation_focus": "method_mechanism",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how LoRA achieves its stated purpose",
     "chat_history": [],
     "acceptable_routes": [],
@@ -544,7 +544,7 @@
       "https://openalex.org/W4401042811"
     ],
     "category": "single_turn",
-    "evaluation_focus": "method_definition",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] method definition for LoRA",
     "chat_history": [],
     "acceptable_routes": [],
@@ -564,7 +564,7 @@
       "https://openalex.org/W4389519128"
     ],
     "category": "single_turn",
-    "evaluation_focus": "method_mechanism",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how QLoRA achieves its stated purpose",
     "chat_history": [],
     "acceptable_routes": [],
@@ -584,7 +584,7 @@
       "https://openalex.org/W4389519128"
     ],
     "category": "single_turn",
-    "evaluation_focus": "method_definition",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] method definition for QLoRA",
     "chat_history": [],
     "acceptable_routes": [],
@@ -604,7 +604,7 @@
       "https://openalex.org/W3176828726"
     ],
     "category": "single_turn",
-    "evaluation_focus": "method_mechanism",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how BitFit achieves its stated purpose",
     "chat_history": [],
     "acceptable_routes": [],
@@ -624,7 +624,7 @@
       "https://openalex.org/W3176828726"
     ],
     "category": "single_turn",
-    "evaluation_focus": "method_definition",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] method definition for BitFit",
     "chat_history": [],
     "acceptable_routes": [],
@@ -643,7 +643,7 @@
       "https://openalex.org/W4385570973"
     ],
     "category": "single_turn",
-    "evaluation_focus": "method_mechanism",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how prefix tuning achieves its stated purpose",
     "chat_history": [],
     "acceptable_routes": [],
@@ -662,7 +662,7 @@
       "https://openalex.org/W4385570973"
     ],
     "category": "single_turn",
-    "evaluation_focus": "method_definition",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] method definition for prefix tuning",
     "chat_history": [],
     "acceptable_routes": [],
@@ -686,7 +686,7 @@
       "https://openalex.org/W3166143997"
     ],
     "category": "single_turn",
-    "evaluation_focus": "method_mechanism",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how prompt tuning achieves its stated purpose",
     "chat_history": [],
     "acceptable_routes": [],
@@ -710,7 +710,7 @@
       "https://openalex.org/W3166143997"
     ],
     "category": "single_turn",
-    "evaluation_focus": "method_definition",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] method definition for prompt tuning",
     "chat_history": [],
     "acceptable_routes": [],
@@ -731,7 +731,7 @@
       "https://openalex.org/W4307123345"
     ],
     "category": "single_turn",
-    "evaluation_focus": "method_mechanism",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how TruthfulQA achieves its stated purpose",
     "chat_history": [],
     "acceptable_routes": [],
@@ -752,7 +752,7 @@
       "https://openalex.org/W4307123345"
     ],
     "category": "single_turn",
-    "evaluation_focus": "method_definition",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] method definition for TruthfulQA",
     "chat_history": [],
     "acceptable_routes": [],
@@ -772,7 +772,7 @@
       "https://openalex.org/W4389518784"
     ],
     "category": "single_turn",
-    "evaluation_focus": "method_mechanism",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how HaluEval achieves its stated purpose",
     "chat_history": [],
     "acceptable_routes": [],
@@ -792,7 +792,7 @@
       "https://openalex.org/W4389518784"
     ],
     "category": "single_turn",
-    "evaluation_focus": "method_definition",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] method definition for HaluEval",
     "chat_history": [],
     "acceptable_routes": [],
@@ -816,7 +816,7 @@
       "https://openalex.org/W3157528469"
     ],
     "category": "single_turn",
-    "evaluation_focus": "method_mechanism",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how attention achieves its stated purpose",
     "chat_history": [],
     "acceptable_routes": [],
@@ -840,7 +840,7 @@
       "https://openalex.org/W3157528469"
     ],
     "category": "single_turn",
-    "evaluation_focus": "method_definition",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] method definition for attention",
     "chat_history": [],
     "acceptable_routes": [],
@@ -861,7 +861,7 @@
       "https://openalex.org/W3174544005"
     ],
     "category": "single_turn",
-    "evaluation_focus": "method_mechanism",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how MiniLM achieves its stated purpose",
     "chat_history": [],
     "acceptable_routes": [],
@@ -882,7 +882,7 @@
       "https://openalex.org/W3174544005"
     ],
     "category": "single_turn",
-    "evaluation_focus": "method_definition",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] method definition for MiniLM",
     "chat_history": [],
     "acceptable_routes": [],
@@ -904,7 +904,7 @@
       "https://openalex.org/W3176693010"
     ],
     "category": "single_turn",
-    "evaluation_focus": "method_mechanism",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how adapter achieves its stated purpose",
     "chat_history": [],
     "acceptable_routes": [],
@@ -926,7 +926,7 @@
       "https://openalex.org/W3176693010"
     ],
     "category": "single_turn",
-    "evaluation_focus": "method_definition",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] method definition for adapter",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1149,7 +1149,7 @@
       "https://openalex.org/W4389520749"
     ],
     "category": "single_turn",
-    "evaluation_focus": "dataset_discovery",
+    "evaluation_focus": "metadata_filter",
     "rationale": "[factual] dataset / benchmark discovery",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1175,7 +1175,7 @@
       "https://openalex.org/W4389520749"
     ],
     "category": "single_turn",
-    "evaluation_focus": "dataset_discovery",
+    "evaluation_focus": "metadata_filter",
     "rationale": "[factual] dataset / benchmark discovery",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1201,7 +1201,7 @@
       "https://openalex.org/W4402670290"
     ],
     "category": "single_turn",
-    "evaluation_focus": "dataset_discovery",
+    "evaluation_focus": "metadata_filter",
     "rationale": "[factual] dataset / benchmark discovery",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1227,7 +1227,7 @@
       "https://openalex.org/W4386794445"
     ],
     "category": "single_turn",
-    "evaluation_focus": "dataset_discovery",
+    "evaluation_focus": "metadata_filter",
     "rationale": "[factual] dataset / benchmark discovery",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1253,7 +1253,7 @@
       "https://openalex.org/W4361229539"
     ],
     "category": "single_turn",
-    "evaluation_focus": "dataset_discovery",
+    "evaluation_focus": "metadata_filter",
     "rationale": "[factual] dataset / benchmark discovery",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1279,7 +1279,7 @@
       "https://openalex.org/W2953273646"
     ],
     "category": "single_turn",
-    "evaluation_focus": "dataset_discovery",
+    "evaluation_focus": "metadata_filter",
     "rationale": "[factual] dataset / benchmark discovery",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1301,7 +1301,7 @@
       "https://openalex.org/W2626778328"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Attention Is All You Need",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1322,7 +1322,7 @@
       "https://openalex.org/W2626778328"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Attention Is All You Need",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1344,7 +1344,7 @@
       "https://openalex.org/W4391136507"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for A Survey on Evaluation of Large Language",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1365,7 +1365,7 @@
       "https://openalex.org/W4391136507"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for A Survey on Evaluation of Large Language",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1387,7 +1387,7 @@
       "https://openalex.org/W3168867926"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for LoRA: Low-Rank Adaptation of Large Langu",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1408,7 +1408,7 @@
       "https://openalex.org/W3168867926"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for LoRA: Low-Rank Adaptation of Large Langu",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1430,7 +1430,7 @@
       "https://openalex.org/W3151130473"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for CrossViT: Cross-Attention Multi-Scale Vi",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1451,7 +1451,7 @@
       "https://openalex.org/W3151130473"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for CrossViT: Cross-Attention Multi-Scale Vi",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1473,7 +1473,7 @@
       "https://openalex.org/W4404534210"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for A Survey on Hallucination in Large Langu",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1494,7 +1494,7 @@
       "https://openalex.org/W4404534210"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for A Survey on Hallucination in Large Langu",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1516,7 +1516,7 @@
       "https://openalex.org/W4387835442"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Generative Agents: Interactive Simulacra",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1537,7 +1537,7 @@
       "https://openalex.org/W4387835442"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Generative Agents: Interactive Simulacra",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1559,7 +1559,7 @@
       "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Evaluating Large Language Models Trained",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1580,7 +1580,7 @@
       "https://openalex.org/W3177813494"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Evaluating Large Language Models Trained",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1602,7 +1602,7 @@
       "https://openalex.org/W3126721948"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Is Space-Time Attention All You Need for",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1623,7 +1623,7 @@
       "https://openalex.org/W3126721948"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Is Space-Time Attention All You Need for",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1645,7 +1645,7 @@
       "https://openalex.org/W4393065402"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for A survey on large language model based a",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1666,7 +1666,7 @@
       "https://openalex.org/W4393065402"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for A survey on large language model based a",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1688,7 +1688,7 @@
       "https://openalex.org/W4386075524"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for BiFormer: Vision Transformer with Bi-Lev",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1709,7 +1709,7 @@
       "https://openalex.org/W4386075524"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for BiFormer: Vision Transformer with Bi-Lev",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1731,7 +1731,7 @@
       "https://openalex.org/W3116489684"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Training data-efficient image transforme",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1752,7 +1752,7 @@
       "https://openalex.org/W3116489684"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Training data-efficient image transforme",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1774,7 +1774,7 @@
       "https://openalex.org/W4322766882"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Parameter-efficient fine-tuning of large",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1795,7 +1795,7 @@
       "https://openalex.org/W4322766882"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Parameter-efficient fine-tuning of large",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1817,7 +1817,7 @@
       "https://openalex.org/W3176828726"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for BitFit: Simple Parameter-efficient Fine-",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1838,7 +1838,7 @@
       "https://openalex.org/W3176828726"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for BitFit: Simple Parameter-efficient Fine-",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1860,7 +1860,7 @@
       "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Retrieval-Augmented Generation for Large",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1881,7 +1881,7 @@
       "https://openalex.org/W4389984066"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Retrieval-Augmented Generation for Large",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1903,7 +1903,7 @@
       "https://openalex.org/W4399803256"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Detecting hallucinations in large langua",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1924,7 +1924,7 @@
       "https://openalex.org/W4399803256"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Detecting hallucinations in large langua",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1946,7 +1946,7 @@
       "https://openalex.org/W3008374555"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for MiniLM: Deep Self-Attention Distillation",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1967,7 +1967,7 @@
       "https://openalex.org/W3008374555"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for MiniLM: Deep Self-Attention Distillation",
     "chat_history": [],
     "acceptable_routes": [],
@@ -1989,7 +1989,7 @@
       "https://openalex.org/W3157528469"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Twins: Revisiting the Design of Spatial ",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2010,7 +2010,7 @@
       "https://openalex.org/W3157528469"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Twins: Revisiting the Design of Spatial ",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2032,7 +2032,7 @@
       "https://openalex.org/W3201174429"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for TruthfulQA: Measuring How Models Mimic H",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2053,7 +2053,7 @@
       "https://openalex.org/W3201174429"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for TruthfulQA: Measuring How Models Mimic H",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2075,7 +2075,7 @@
       "https://openalex.org/W4400324908"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Evaluation and mitigation of the limitat",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2096,7 +2096,7 @@
       "https://openalex.org/W4400324908"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Evaluation and mitigation of the limitat",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2118,7 +2118,7 @@
       "https://openalex.org/W4401857375"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for A Survey on RAG Meeting LLMs: Towards Re",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2139,7 +2139,7 @@
       "https://openalex.org/W4401857375"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for A Survey on RAG Meeting LLMs: Towards Re",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2161,7 +2161,7 @@
       "https://openalex.org/W4304195432"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Distributing Accountability, Not Capabil",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2182,7 +2182,7 @@
       "https://openalex.org/W4304195432"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Distributing Accountability, Not Capabil",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2204,7 +2204,7 @@
       "https://openalex.org/W4386075553"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Neighborhood Attention Transformer",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2225,7 +2225,7 @@
       "https://openalex.org/W4386075553"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Neighborhood Attention Transformer",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2247,7 +2247,7 @@
       "https://openalex.org/W2953273646"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Set Transformer: A Framework for Attenti",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2268,7 +2268,7 @@
       "https://openalex.org/W2953273646"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Set Transformer: A Framework for Attenti",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2290,7 +2290,7 @@
       "https://openalex.org/W4389520749"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for SelfCheckGPT: Zero-Resource Black-Box Ha",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2311,7 +2311,7 @@
       "https://openalex.org/W4389520749"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for SelfCheckGPT: Zero-Resource Black-Box Ha",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2333,7 +2333,7 @@
       "https://openalex.org/W4386120650"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Evaluating large language models on medi",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2354,7 +2354,7 @@
       "https://openalex.org/W4386120650"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Evaluating large language models on medi",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2376,7 +2376,7 @@
       "https://openalex.org/W4389523832"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Evaluating Object Hallucination in Large",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2397,7 +2397,7 @@
       "https://openalex.org/W4389523832"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Evaluating Object Hallucination in Large",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2419,7 +2419,7 @@
       "https://openalex.org/W2998108143"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Axial Attention in Multidimensional Tran",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2440,7 +2440,7 @@
       "https://openalex.org/W2998108143"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Axial Attention in Multidimensional Tran",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2462,7 +2462,7 @@
       "https://openalex.org/W4390874280"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for LLM-Planner: Few-Shot Grounded Planning ",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2483,7 +2483,7 @@
       "https://openalex.org/W4390874280"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for LLM-Planner: Few-Shot Grounded Planning ",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2505,7 +2505,7 @@
       "https://openalex.org/W4386561400"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for TransAttUnet: Multi-Level Attention-Guid",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2526,7 +2526,7 @@
       "https://openalex.org/W4386561400"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for TransAttUnet: Multi-Level Attention-Guid",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2548,7 +2548,7 @@
       "https://openalex.org/W4389519118"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Active Retrieval Augmented Generation",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2569,7 +2569,7 @@
       "https://openalex.org/W4389519118"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Active Retrieval Augmented Generation",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2591,7 +2591,7 @@
       "https://openalex.org/W3037798801"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Transformers are RNNs: Fast Autoregressi",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2612,7 +2612,7 @@
       "https://openalex.org/W3037798801"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Transformers are RNNs: Fast Autoregressi",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2634,7 +2634,7 @@
       "https://openalex.org/W2997150500"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Channel Attention Is All You Need for Vi",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2655,7 +2655,7 @@
       "https://openalex.org/W2997150500"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Channel Attention Is All You Need for Vi",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2677,7 +2677,7 @@
       "https://openalex.org/W4393147129"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Benchmarking Large Language Models in Re",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2698,7 +2698,7 @@
       "https://openalex.org/W4393147129"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Benchmarking Large Language Models in Re",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2720,7 +2720,7 @@
       "https://openalex.org/W3034573343"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Transformers are RNNs: Fast Autoregressi",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2741,7 +2741,7 @@
       "https://openalex.org/W3034573343"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Transformers are RNNs: Fast Autoregressi",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2763,7 +2763,7 @@
       "https://openalex.org/W2890166583"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Paragraph-level Neural Question Generati",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2784,7 +2784,7 @@
       "https://openalex.org/W2890166583"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Paragraph-level Neural Question Generati",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2806,7 +2806,7 @@
       "https://openalex.org/W4402909345"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for A framework for human evaluation of larg",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2827,7 +2827,7 @@
       "https://openalex.org/W4402909345"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for A framework for human evaluation of larg",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2849,7 +2849,7 @@
       "https://openalex.org/W3209798173"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Facial Expression Recognition With Visua",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2870,7 +2870,7 @@
       "https://openalex.org/W3209798173"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Facial Expression Recognition With Visua",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2892,7 +2892,7 @@
       "https://openalex.org/W2946567085"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Adaptive Attention Span in Transformers",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2913,7 +2913,7 @@
       "https://openalex.org/W2946567085"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Adaptive Attention Span in Transformers",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2935,7 +2935,7 @@
       "https://openalex.org/W4411630045"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for RAGAs: Automated Evaluation of Retrieval",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2956,7 +2956,7 @@
       "https://openalex.org/W4411630045"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for RAGAs: Automated Evaluation of Retrieval",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2978,7 +2978,7 @@
       "https://openalex.org/W4393397034"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Large language models could change the f",
     "chat_history": [],
     "acceptable_routes": [],
@@ -2999,7 +2999,7 @@
       "https://openalex.org/W4393397034"
     ],
     "category": "single_turn",
-    "evaluation_focus": "paper_contribution",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Large language models could change the f",
     "chat_history": [],
     "acceptable_routes": [],
@@ -3025,7 +3025,7 @@
       "https://openalex.org/W4402670290"
     ],
     "category": "single_turn",
-    "evaluation_focus": "limitations",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on Retrieval-Augmented Generation (RAG)",
     "chat_history": [],
     "acceptable_routes": [],
@@ -3051,7 +3051,7 @@
       "https://openalex.org/W4402670290"
     ],
     "category": "single_turn",
-    "evaluation_focus": "results",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on Retrieval-Augmented Generation (RAG)",
     "chat_history": [],
     "acceptable_routes": [],
@@ -3077,7 +3077,7 @@
       "https://openalex.org/W4402670290"
     ],
     "category": "single_turn",
-    "evaluation_focus": "methodology",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on Retrieval-Augmented Generation (RAG)",
     "chat_history": [],
     "acceptable_routes": [],
@@ -3103,7 +3103,7 @@
       "https://openalex.org/W4386794445"
     ],
     "category": "single_turn",
-    "evaluation_focus": "limitations",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on AI Agents & Tool Use",
     "chat_history": [],
     "acceptable_routes": [],
@@ -3129,7 +3129,7 @@
       "https://openalex.org/W4386794445"
     ],
     "category": "single_turn",
-    "evaluation_focus": "results",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on AI Agents & Tool Use",
     "chat_history": [],
     "acceptable_routes": [],
@@ -3155,7 +3155,7 @@
       "https://openalex.org/W4386794445"
     ],
     "category": "single_turn",
-    "evaluation_focus": "methodology",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on AI Agents & Tool Use",
     "chat_history": [],
     "acceptable_routes": [],
@@ -3181,7 +3181,7 @@
       "https://openalex.org/W4361229539"
     ],
     "category": "single_turn",
-    "evaluation_focus": "limitations",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on Fine-tuning (LoRA / PEFT)",
     "chat_history": [],
     "acceptable_routes": [],
@@ -3207,7 +3207,7 @@
       "https://openalex.org/W4361229539"
     ],
     "category": "single_turn",
-    "evaluation_focus": "results",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on Fine-tuning (LoRA / PEFT)",
     "chat_history": [],
     "acceptable_routes": [],
@@ -3233,7 +3233,7 @@
       "https://openalex.org/W4361229539"
     ],
     "category": "single_turn",
-    "evaluation_focus": "methodology",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on Fine-tuning (LoRA / PEFT)",
     "chat_history": [],
     "acceptable_routes": [],
@@ -3259,7 +3259,7 @@
       "https://openalex.org/W4389520749"
     ],
     "category": "single_turn",
-    "evaluation_focus": "limitations",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on LLM Evaluation & Hallucination Detection",
     "chat_history": [],
     "acceptable_routes": [],
@@ -3285,7 +3285,7 @@
       "https://openalex.org/W4389520749"
     ],
     "category": "single_turn",
-    "evaluation_focus": "results",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on LLM Evaluation & Hallucination Detection",
     "chat_history": [],
     "acceptable_routes": [],
@@ -3311,7 +3311,7 @@
       "https://openalex.org/W4389520749"
     ],
     "category": "single_turn",
-    "evaluation_focus": "methodology",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on LLM Evaluation & Hallucination Detection",
     "chat_history": [],
     "acceptable_routes": [],
@@ -3337,7 +3337,7 @@
       "https://openalex.org/W2953273646"
     ],
     "category": "single_turn",
-    "evaluation_focus": "limitations",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on Transformers / Attention Mechanisms",
     "chat_history": [],
     "acceptable_routes": [],
@@ -3363,7 +3363,7 @@
       "https://openalex.org/W2953273646"
     ],
     "category": "single_turn",
-    "evaluation_focus": "results",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on Transformers / Attention Mechanisms",
     "chat_history": [],
     "acceptable_routes": [],
@@ -3389,7 +3389,7 @@
       "https://openalex.org/W2953273646"
     ],
     "category": "single_turn",
-    "evaluation_focus": "methodology",
+    "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on Transformers / Attention Mechanisms",
     "chat_history": [],
     "acceptable_routes": [],
