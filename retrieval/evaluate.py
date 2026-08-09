@@ -239,7 +239,14 @@ def evaluate_response(
 
     topic_hits = {k: topic_hit(combined_results, query.expected_topics, k) for k in top_ks}
     keyword_hits = {k: keyword_hit(combined_results, query.expected_keywords, k) for k in top_ks}
-    id_hit_sets = {k: id_hits(route_results, query.expected_relevant_ids, k) for k in top_ks}
+    # Keep evaluation records JSON-native.  The previous set values were
+    # stringified by ``json.dumps(default=str)``; notably, an empty set became
+    # the non-empty string ``"set()"``.  Downstream reports then counted every
+    # miss as a hit because that string is truthy.
+    id_hit_sets = {
+        k: sorted(id_hits(route_results, query.expected_relevant_ids, k))
+        for k in top_ks
+    }
     expected_id_count = len(set(query.expected_relevant_ids))
     id_hit_fractions = {
         k: (len(id_hit_sets[k]) / expected_id_count if expected_id_count else None) for k in top_ks
@@ -255,6 +262,7 @@ def evaluate_response(
         "query": query.query,
         "category": query.category,
         "evaluation_focus": query.evaluation_focus,
+        "rationale": query.rationale,
         "standalone_query": rewrite_result.standalone_query,
         "rewrite_used": rewrite_result.rewrite_used,
         "rewrite_keyword_hit": rewrite_keyword_hit,

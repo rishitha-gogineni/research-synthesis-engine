@@ -134,7 +134,7 @@ def test_evaluate_response_accepts_valid_route_alternative():
 
     assert evaluation["route_correct"] is True
     assert evaluation["acceptable_routes"] == ["chunk_level", "hybrid_both"]
-    assert evaluation["id_hit_sets"][1] == {"c1"}
+    assert evaluation["id_hit_sets"][1] == ["c1"]
 
 
 def test_evaluate_response_true_recall_differs_from_any_hit():
@@ -152,8 +152,23 @@ def test_evaluate_response_true_recall_differs_from_any_hit():
 
     evaluation = evaluate_response(query, response, (5,))
 
-    assert evaluation["id_hit_sets"][5] == {"c1"}
+    assert evaluation["id_hit_sets"][5] == ["c1"]
     assert evaluation["id_hit_fractions"][5] == pytest.approx(0.5)
+
+
+def test_evaluate_response_is_json_native_and_preserves_rationale():
+    query = EvaluationQuery(
+        query="What accuracy does the paper report?",
+        expected_route="chunk_level",
+        expected_relevant_ids=["c1"],
+        rationale="[factual] regression fixture",
+    )
+    response = make_response("q", "chunk_level", chunk_ids=["c1"])
+
+    evaluation = evaluate_response(query, response, (5,))
+
+    assert evaluation["rationale"] == "[factual] regression fixture"
+    assert json.loads(json.dumps(evaluation))["id_hit_sets"]["5"] == ["c1"]
 
 
 def test_summarize_evaluations_reports_hit_rate_and_recall_as_distinct_numbers():
@@ -187,8 +202,8 @@ def test_evaluate_response_uses_expected_route_result_set_for_ids():
     evaluation = evaluate_response(query, response, (1, 2))
 
     assert evaluation["route_correct"] is True
-    assert evaluation["id_hit_sets"][1] == set()
-    assert evaluation["id_hit_sets"][2] == {"c2"}
+    assert evaluation["id_hit_sets"][1] == []
+    assert evaluation["id_hit_sets"][2] == ["c2"]
     assert evaluation["reciprocal_rank"] == pytest.approx(0.5)
 
 

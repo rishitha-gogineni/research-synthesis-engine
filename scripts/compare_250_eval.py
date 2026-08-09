@@ -40,7 +40,7 @@ def main() -> None:
     v1, v2, v3 = load(V1), load(V2), load(V3)
     print("=" * 100)
     print("RSE — three-way retrieval comparison on 250-query eval fixture")
-    print("(250 queries, 13 categories, chunking-agnostic ground truth)")
+    print("(same 250-query fixture and paper-ID ground truth for all three runs)")
     print("=" * 100)
 
     if v1 is None:
