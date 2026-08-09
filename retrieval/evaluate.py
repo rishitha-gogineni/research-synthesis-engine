@@ -13,6 +13,8 @@ from pydantic import ValidationError
 from agent.query_rewriter import ChatTurn, QueryRewriteResult, rewrite_query
 from retrieval.confidence import assess_confidence
 from retrieval.promotion import is_diversity_query
+from full_text.index_chunks_qdrant import DEFAULT_COLLECTION as DEFAULT_CHUNK_COLLECTION
+from retrieval.index_qdrant import DEFAULT_COLLECTION as DEFAULT_PAPER_COLLECTION
 from retrieval.unified_search import (
     DEFAULT_APPLY_PROMOTION,
     DEFAULT_PROMOTION_POOL_MULTIPLIER,
@@ -363,6 +365,8 @@ def run_evaluation(
     conditional_merge: bool = False,
     reading_path_boost: bool = False,
     affinity_boost: bool = False,
+    paper_collection: str = DEFAULT_PAPER_COLLECTION,
+    chunk_collection: str = DEFAULT_CHUNK_COLLECTION,
 ) -> tuple[dict[str, object], list[dict[str, object]]]:
     evaluations = []
     max_top_k = max(top_ks)
@@ -380,6 +384,8 @@ def run_evaluation(
             extended_expansions=extended_expansions,
             reading_path_boost=reading_path_boost,
             affinity_boost=affinity_boost,
+            paper_collection=paper_collection,
+            chunk_collection=chunk_collection,
         )
         confidence = confidence_checker(response) if query.expected_confidence_decision is not None else None
         evaluations.append(
@@ -479,6 +485,16 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Boost chunks whose parent paper was also retrieved (requires --promotion).",
     )
+    parser.add_argument(
+        "--paper-collection",
+        default=DEFAULT_PAPER_COLLECTION,
+        help="Qdrant collection for paper-level vectors.",
+    )
+    parser.add_argument(
+        "--chunk-collection",
+        default=DEFAULT_CHUNK_COLLECTION,
+        help="Qdrant collection for chunk-level vectors (use e.g. research_paper_chunks_v2).",
+    )
     return parser.parse_args()
 
 
@@ -499,6 +515,8 @@ def main() -> None:
         conditional_merge=args.conditional_merge,
         reading_path_boost=args.reading_path_boost,
         affinity_boost=args.affinity,
+        paper_collection=args.paper_collection,
+        chunk_collection=args.chunk_collection,
     )
     if args.json:
         print(json.dumps({"summary": summary, "evaluations": evaluations}, indent=2, default=str))
