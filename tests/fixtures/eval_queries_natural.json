@@ -21,7 +21,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] concept overview for retrieval-augmented generation",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -47,7 +49,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how-does-X-work for retrieval-augmented generation",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -72,7 +76,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] concept overview for RAG",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -97,7 +103,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how-does-X-work for RAG",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -122,7 +130,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] concept overview for transformer attention",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -147,7 +157,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how-does-X-work for transformer attention",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -172,7 +184,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] concept overview for self-attention",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -197,7 +211,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how-does-X-work for self-attention",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -222,7 +238,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] concept overview for hallucination detection",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -247,7 +265,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how-does-X-work for hallucination detection",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -272,7 +292,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] concept overview for LLM evaluation",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -297,7 +319,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how-does-X-work for LLM evaluation",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -322,7 +346,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] concept overview for AI agents",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -347,7 +373,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how-does-X-work for AI agents",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -372,7 +400,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] concept overview for tool use in LLMs",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -397,7 +427,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how-does-X-work for tool use in LLMs",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -423,7 +455,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] concept overview for parameter-efficient fine-tuning",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -449,7 +483,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how-does-X-work for parameter-efficient fine-tuning",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -474,7 +510,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] concept overview for LoRA",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -499,7 +537,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how-does-X-work for LoRA",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -523,7 +563,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how LoRA achieves its stated purpose",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -547,7 +589,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] method definition for LoRA",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -567,7 +611,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how QLoRA achieves its stated purpose",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -587,7 +633,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] method definition for QLoRA",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -607,7 +655,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how BitFit achieves its stated purpose",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -627,7 +677,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] method definition for BitFit",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -646,7 +698,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how prefix tuning achieves its stated purpose",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -665,7 +719,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] method definition for prefix tuning",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -689,7 +745,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how prompt tuning achieves its stated purpose",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -713,7 +771,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] method definition for prompt tuning",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -734,7 +794,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how TruthfulQA achieves its stated purpose",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -755,7 +817,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] method definition for TruthfulQA",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -775,7 +839,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how HaluEval achieves its stated purpose",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -795,7 +861,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] method definition for HaluEval",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -819,7 +887,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how attention achieves its stated purpose",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -843,7 +913,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] method definition for attention",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -864,7 +936,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how MiniLM achieves its stated purpose",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -885,7 +959,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] method definition for MiniLM",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -907,7 +983,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] how adapter achieves its stated purpose",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -929,7 +1007,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] method definition for adapter",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -957,7 +1037,10 @@
     "evaluation_focus": "cross_topic_comparison",
     "rationale": "[synthesis] cross-topic comparison",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "paper_level",
+      "chunk_level"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -981,7 +1064,10 @@
     "evaluation_focus": "cross_topic_comparison",
     "rationale": "[synthesis] cross-topic comparison",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "paper_level",
+      "chunk_level"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1005,7 +1091,10 @@
     "evaluation_focus": "cross_topic_comparison",
     "rationale": "[synthesis] cross-topic comparison",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "paper_level",
+      "chunk_level"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1029,7 +1118,10 @@
     "evaluation_focus": "cross_topic_comparison",
     "rationale": "[synthesis] cross-topic comparison",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "paper_level",
+      "chunk_level"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1053,7 +1145,10 @@
     "evaluation_focus": "cross_topic_comparison",
     "rationale": "[synthesis] cross-topic comparison",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "paper_level",
+      "chunk_level"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1077,7 +1172,10 @@
     "evaluation_focus": "cross_topic_comparison",
     "rationale": "[synthesis] cross-topic comparison",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "paper_level",
+      "chunk_level"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1101,7 +1199,10 @@
     "evaluation_focus": "cross_topic_comparison",
     "rationale": "[synthesis] cross-topic comparison",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "paper_level",
+      "chunk_level"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1125,7 +1226,10 @@
     "evaluation_focus": "cross_topic_comparison",
     "rationale": "[synthesis] cross-topic comparison",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "paper_level",
+      "chunk_level"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1152,7 +1256,9 @@
     "evaluation_focus": "metadata_filter",
     "rationale": "[factual] dataset / benchmark discovery",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1178,7 +1284,9 @@
     "evaluation_focus": "metadata_filter",
     "rationale": "[factual] dataset / benchmark discovery",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1204,7 +1312,9 @@
     "evaluation_focus": "metadata_filter",
     "rationale": "[factual] dataset / benchmark discovery",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1230,7 +1340,9 @@
     "evaluation_focus": "metadata_filter",
     "rationale": "[factual] dataset / benchmark discovery",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1256,7 +1368,9 @@
     "evaluation_focus": "metadata_filter",
     "rationale": "[factual] dataset / benchmark discovery",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1282,7 +1396,9 @@
     "evaluation_focus": "metadata_filter",
     "rationale": "[factual] dataset / benchmark discovery",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1304,7 +1420,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Attention Is All You Need",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1325,7 +1443,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Attention Is All You Need",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1347,7 +1467,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for A Survey on Evaluation of Large Language",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1368,7 +1490,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for A Survey on Evaluation of Large Language",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1390,7 +1514,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for LoRA: Low-Rank Adaptation of Large Langu",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1411,7 +1537,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for LoRA: Low-Rank Adaptation of Large Langu",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1433,7 +1561,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for CrossViT: Cross-Attention Multi-Scale Vi",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1454,7 +1584,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for CrossViT: Cross-Attention Multi-Scale Vi",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1476,7 +1608,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for A Survey on Hallucination in Large Langu",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1497,7 +1631,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for A Survey on Hallucination in Large Langu",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1519,7 +1655,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Generative Agents: Interactive Simulacra",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1540,7 +1678,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Generative Agents: Interactive Simulacra",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1562,7 +1702,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Evaluating Large Language Models Trained",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1583,7 +1725,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Evaluating Large Language Models Trained",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1605,7 +1749,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Is Space-Time Attention All You Need for",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1626,7 +1772,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Is Space-Time Attention All You Need for",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1648,7 +1796,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for A survey on large language model based a",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1669,7 +1819,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for A survey on large language model based a",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1691,7 +1843,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for BiFormer: Vision Transformer with Bi-Lev",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1712,7 +1866,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for BiFormer: Vision Transformer with Bi-Lev",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1734,7 +1890,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Training data-efficient image transforme",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1755,7 +1913,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Training data-efficient image transforme",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1777,7 +1937,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Parameter-efficient fine-tuning of large",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1798,7 +1960,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Parameter-efficient fine-tuning of large",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1820,7 +1984,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for BitFit: Simple Parameter-efficient Fine-",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1841,7 +2007,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for BitFit: Simple Parameter-efficient Fine-",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1863,7 +2031,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Retrieval-Augmented Generation for Large",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1884,7 +2054,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Retrieval-Augmented Generation for Large",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1906,7 +2078,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Detecting hallucinations in large langua",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1927,7 +2101,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Detecting hallucinations in large langua",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1949,7 +2125,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for MiniLM: Deep Self-Attention Distillation",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1970,7 +2148,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for MiniLM: Deep Self-Attention Distillation",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -1992,7 +2172,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Twins: Revisiting the Design of Spatial ",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2013,7 +2195,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Twins: Revisiting the Design of Spatial ",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2035,7 +2219,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for TruthfulQA: Measuring How Models Mimic H",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2056,7 +2242,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for TruthfulQA: Measuring How Models Mimic H",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2078,7 +2266,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Evaluation and mitigation of the limitat",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2099,7 +2289,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Evaluation and mitigation of the limitat",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2121,7 +2313,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for A Survey on RAG Meeting LLMs: Towards Re",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2142,7 +2336,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for A Survey on RAG Meeting LLMs: Towards Re",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2164,7 +2360,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Distributing Accountability, Not Capabil",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2185,7 +2383,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Distributing Accountability, Not Capabil",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2207,7 +2407,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Neighborhood Attention Transformer",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2228,7 +2430,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Neighborhood Attention Transformer",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2250,7 +2454,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Set Transformer: A Framework for Attenti",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2271,7 +2477,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Set Transformer: A Framework for Attenti",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2293,7 +2501,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for SelfCheckGPT: Zero-Resource Black-Box Ha",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2314,7 +2524,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for SelfCheckGPT: Zero-Resource Black-Box Ha",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2336,7 +2548,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Evaluating large language models on medi",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2357,7 +2571,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Evaluating large language models on medi",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2379,7 +2595,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Evaluating Object Hallucination in Large",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2400,7 +2618,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Evaluating Object Hallucination in Large",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2422,7 +2642,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Axial Attention in Multidimensional Tran",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2443,7 +2665,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Axial Attention in Multidimensional Tran",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2465,7 +2689,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for LLM-Planner: Few-Shot Grounded Planning ",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2486,7 +2712,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for LLM-Planner: Few-Shot Grounded Planning ",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2508,7 +2736,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for TransAttUnet: Multi-Level Attention-Guid",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2529,7 +2759,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for TransAttUnet: Multi-Level Attention-Guid",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2551,7 +2783,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Active Retrieval Augmented Generation",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2572,7 +2806,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Active Retrieval Augmented Generation",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2594,7 +2830,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Transformers are RNNs: Fast Autoregressi",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2615,7 +2853,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Transformers are RNNs: Fast Autoregressi",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2637,7 +2877,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Channel Attention Is All You Need for Vi",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2658,7 +2900,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Channel Attention Is All You Need for Vi",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2680,7 +2924,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Benchmarking Large Language Models in Re",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2701,7 +2947,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Benchmarking Large Language Models in Re",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2723,7 +2971,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Transformers are RNNs: Fast Autoregressi",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2744,7 +2994,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Transformers are RNNs: Fast Autoregressi",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2766,7 +3018,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Paragraph-level Neural Question Generati",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2787,7 +3041,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Paragraph-level Neural Question Generati",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2809,7 +3065,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for A framework for human evaluation of larg",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2830,7 +3088,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for A framework for human evaluation of larg",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2852,7 +3112,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Facial Expression Recognition With Visua",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2873,7 +3135,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Facial Expression Recognition With Visua",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2895,7 +3159,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Adaptive Attention Span in Transformers",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2916,7 +3182,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Adaptive Attention Span in Transformers",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2938,7 +3206,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for RAGAs: Automated Evaluation of Retrieval",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2959,7 +3229,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for RAGAs: Automated Evaluation of Retrieval",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -2981,7 +3253,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Large language models could change the f",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -3002,7 +3276,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] paper-anchored recall for Large language models could change the f",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -3028,7 +3304,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on Retrieval-Augmented Generation (RAG)",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -3054,7 +3332,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on Retrieval-Augmented Generation (RAG)",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -3080,7 +3360,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on Retrieval-Augmented Generation (RAG)",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -3106,7 +3388,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on AI Agents & Tool Use",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -3132,7 +3416,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on AI Agents & Tool Use",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -3158,7 +3444,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on AI Agents & Tool Use",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -3184,7 +3472,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on Fine-tuning (LoRA / PEFT)",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -3210,7 +3500,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on Fine-tuning (LoRA / PEFT)",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -3236,7 +3528,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on Fine-tuning (LoRA / PEFT)",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -3262,7 +3556,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on LLM Evaluation & Hallucination Detection",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -3288,7 +3584,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on LLM Evaluation & Hallucination Detection",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -3314,7 +3612,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on LLM Evaluation & Hallucination Detection",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -3340,7 +3640,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on Transformers / Attention Mechanisms",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -3366,7 +3668,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on Transformers / Attention Mechanisms",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -3392,7 +3696,9 @@
     "evaluation_focus": "full_text_evidence",
     "rationale": "[factual] section-specific recall on Transformers / Attention Mechanisms",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": [],
     "expected_confidence_decision": null
   },
@@ -3407,7 +3713,9 @@
     "evaluation_focus": "confidence_gate",
     "rationale": "[gate] out-of-corpus, gate must decline",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": []
   },
   {
@@ -3421,7 +3729,9 @@
     "evaluation_focus": "confidence_gate",
     "rationale": "[gate] out-of-corpus, gate must decline",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": []
   },
   {
@@ -3435,7 +3745,9 @@
     "evaluation_focus": "confidence_gate",
     "rationale": "[gate] out-of-corpus, gate must decline",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": []
   },
   {
@@ -3449,7 +3761,9 @@
     "evaluation_focus": "confidence_gate",
     "rationale": "[gate] out-of-corpus, gate must decline",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": []
   },
   {
@@ -3463,7 +3777,9 @@
     "evaluation_focus": "confidence_gate",
     "rationale": "[gate] out-of-corpus, gate must decline",
     "chat_history": [],
-    "acceptable_routes": [],
+    "acceptable_routes": [
+      "hybrid_both"
+    ],
     "expected_standalone_keywords": []
   }
 ]
