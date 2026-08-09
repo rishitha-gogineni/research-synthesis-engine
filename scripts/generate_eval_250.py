@@ -55,6 +55,30 @@ def short_title(title: str) -> str:
     return title
 
 
+# Valid schema values for evaluation_focus (from shared/schemas.py EvaluationFocusName)
+VALID_FOCUS = {
+    "route_selection", "full_text_evidence", "metadata_filter",
+    "cross_topic_comparison", "contextual_rewrite", "confidence_gate", "reading_path",
+}
+
+# Map our semantic categories to valid schema values
+FOCUS_MAP = {
+    "factual_recall": "full_text_evidence",
+    "methodology_evidence": "full_text_evidence",
+    "dataset_discovery": "full_text_evidence",
+    "limitation_analysis": "full_text_evidence",
+    "cross_topic_comparison": "cross_topic_comparison",
+    "temporal_evolution": "full_text_evidence",
+    "metadata_filter": "metadata_filter",
+    "reading_path": "reading_path",
+    "section_specific": "full_text_evidence",
+    "abstract_overview": "route_selection",
+    "confidence_gate": "confidence_gate",
+    "multi_turn": "contextual_rewrite",
+    "adversarial": "route_selection",
+}
+
+
 def make_query(
     query: str,
     expected_route: str,
@@ -70,6 +94,9 @@ def make_query(
     chat_history: list[dict] | None = None,
     expected_standalone_keywords: list[str] | None = None,
 ) -> dict:
+    mapped_focus = FOCUS_MAP.get(evaluation_focus, evaluation_focus)
+    if mapped_focus not in VALID_FOCUS:
+        mapped_focus = "route_selection"
     return {
         "query": query,
         "expected_route": expected_route,
@@ -77,7 +104,7 @@ def make_query(
         "expected_keywords": expected_keywords or [],
         "expected_relevant_ids": expected_relevant_ids,
         "category": category,
-        "evaluation_focus": evaluation_focus,
+        "evaluation_focus": mapped_focus,
         "rationale": rationale,
         "chat_history": chat_history or [],
         "acceptable_routes": acceptable_routes or [expected_route],
