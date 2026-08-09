@@ -64,11 +64,15 @@ V2_TO_V1_SECTION = {
     "appendix": "methodology",  # appendix usually has methods details
 }
 
-# Sentence splitter that respects common academic abbreviations
-_ABBREV = r"(?:e\.g|i\.e|cf|vs|etc|Fig|Tab|Eq|Ref|al|Dr|Mr|Mrs|Ms|Prof|Sec|Ch|St|Jr|Sr|No|Vol|pp|Eq)\."
-SENTENCE_SPLIT_RE = re.compile(
-    r"(?<!\b" + _ABBREV + r")(?<=[.!?])\s+(?=[A-Z\d])"
+# Sentence splitter — dodge Python's fixed-width lookbehind restriction by
+# temporarily masking abbreviation dots, splitting, then unmasking.
+_ABBREVIATIONS = (
+    "e.g.", "i.e.", "cf.", "vs.", "etc.", "Fig.", "Tab.", "Eq.", "Ref.",
+    "al.", "Dr.", "Mr.", "Mrs.", "Ms.", "Prof.", "Sec.", "Ch.", "St.",
+    "Jr.", "Sr.", "No.", "Vol.", "pp.",
 )
+_DOT_PLACEHOLDER = "\x00DOT\x00"
+SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+(?=[A-Z\d])")
 
 
 def word_count(text: str) -> int:
@@ -80,8 +84,11 @@ def split_sentences(text: str) -> list[str]:
     text = re.sub(r"\s+", " ", text).strip()
     if not text:
         return []
-    parts = SENTENCE_SPLIT_RE.split(text)
-    return [p.strip() for p in parts if p.strip()]
+    masked = text
+    for abbr in _ABBREVIATIONS:
+        masked = masked.replace(abbr, abbr.replace(".", _DOT_PLACEHOLDER))
+    parts = SENTENCE_SPLIT_RE.split(masked)
+    return [p.replace(_DOT_PLACEHOLDER, ".").strip() for p in parts if p.strip()]
 
 
 def stable_chunk_id(paper_id: str, chunk_index: int) -> str:
