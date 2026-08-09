@@ -45,8 +45,14 @@ def papers_by_topic(papers: list[dict]) -> dict[str, list[dict]]:
 
 
 def has_field(paper: dict, field: str) -> bool:
-    val = paper.get(field, "")
-    return bool(val) and val.lower() != "not specified"
+    val = str(paper.get(field, "")).strip().lower().rstrip(".")
+    return bool(val) and val not in {
+        "n/a",
+        "not specified",
+        "not stated",
+        "not stated in abstract",
+        "unknown",
+    }
 
 
 def short_title(title: str) -> str:

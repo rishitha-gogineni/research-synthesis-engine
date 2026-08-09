@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from collections import Counter
+from functools import lru_cache
 from pathlib import Path
 from typing import Callable
 
@@ -24,6 +25,7 @@ from shared.schemas import ConfidenceAssessment, EvaluationQuery, UnifiedSearchR
 
 
 DEFAULT_EVAL_QUERIES = Path("tests/fixtures/eval_queries.json")
+DEFAULT_PAPER_ID_ALIASES = Path("data/paper_id_aliases.json")
 DEFAULT_TOP_KS = (5, 10)
 DEFAULT_MERGE_RRF_K = 60
 
@@ -34,6 +36,27 @@ ConfidenceRunner = Callable[[UnifiedSearchResponse], ConfidenceAssessment]
 
 class EvaluationError(RuntimeError):
     """Raised when the retrieval evaluation cannot run cleanly."""
+
+
+@lru_cache(maxsize=1)
+def load_paper_id_aliases(path: Path = DEFAULT_PAPER_ID_ALIASES) -> dict[str, str]:
+    """Load duplicate-record aliases used to compare stable paper identities."""
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise EvaluationError(f"failed to load paper ID aliases from {path}: {exc}") from exc
+    aliases = payload.get("aliases", payload)
+    if not isinstance(aliases, dict):
+        raise EvaluationError(f"paper ID aliases at {path} must be a JSON object")
+    return {str(alias): str(canonical) for alias, canonical in aliases.items()}
+
+
+def canonical_identifier(value: str, aliases: dict[str, str] | None = None) -> str:
+    """Resolve a paper ID alias while leaving chunk IDs and unknown IDs intact."""
+    mapping = load_paper_id_aliases() if aliases is None else aliases
+    return mapping.get(value, value)
 
 
 def load_eval_queries(path: Path) -> list[EvaluationQuery]:
@@ -59,6 +82,10 @@ paper ID, so evaluation should consider both identifiers.
         value = getattr(result, attr, None)
         if value and str(value) not in identifiers:
             identifiers.append(str(value))
+        if attr == "paper_id" and value:
+            canonical = canonical_identifier(str(value))
+            if canonical not in identifiers:
+                identifiers.append(canonical)
     return identifiers
 
 
@@ -183,15 +210,20 @@ def maybe_rewrite_query(
 
 
 def id_hits(results: list[object], expected_relevant_ids: list[str], top_k: int) -> set[str]:
-    expected = set(expected_relevant_ids)
-    retrieved = {identifier for result in results[:top_k] for identifier in result_identifiers(result)}
+    expected = {canonical_identifier(identifier) for identifier in expected_relevant_ids}
+    retrieved = {
+        canonical_identifier(identifier)
+        for result in results[:top_k]
+        for identifier in result_identifiers(result)
+    }
     return expected & retrieved
 
 
 def reciprocal_rank(results: list[object], expected_relevant_ids: list[str]) -> float:
-    expected = set(expected_relevant_ids)
+    expected = {canonical_identifier(identifier) for identifier in expected_relevant_ids}
     for index, result in enumerate(results, start=1):
-        if expected & set(result_identifiers(result)):
+        result_ids = {canonical_identifier(identifier) for identifier in result_identifiers(result)}
+        if expected & result_ids:
             return 1.0 / index
     return 0.0
 
@@ -247,7 +279,9 @@ def evaluate_response(
         k: sorted(id_hits(route_results, query.expected_relevant_ids, k))
         for k in top_ks
     }
-    expected_id_count = len(set(query.expected_relevant_ids))
+    expected_id_count = len(
+        {canonical_identifier(identifier) for identifier in query.expected_relevant_ids}
+    )
     id_hit_fractions = {
         k: (len(id_hit_sets[k]) / expected_id_count if expected_id_count else None) for k in top_ks
     }

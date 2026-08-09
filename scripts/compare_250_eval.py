@@ -1,7 +1,8 @@
-"""Compare v1/v2/v3 on the 250-query eval fixture."""
+"""Compare v1/v2/v3 evaluation result files."""
 
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 
@@ -36,15 +37,24 @@ def delta(a: float | None, b: float | None) -> str:
     return f"{sign}{d:.3f} ({sign}{pct:.1f}%)"
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--v1", type=Path, default=V1, help=f"v1 result JSON (default: {V1.name})")
+    parser.add_argument("--v2", type=Path, default=V2, help=f"v2 result JSON (default: {V2.name})")
+    parser.add_argument("--v3", type=Path, default=V3, help=f"v3 result JSON (default: {V3.name})")
+    return parser.parse_args()
+
+
 def main() -> None:
-    v1, v2, v3 = load(V1), load(V2), load(V3)
+    args = parse_args()
+    v1, v2, v3 = load(args.v1), load(args.v2), load(args.v3)
     print("=" * 100)
     print("RSE — three-way retrieval comparison on 250-query eval fixture")
     print("(same 250-query fixture and paper-ID ground truth for all three runs)")
     print("=" * 100)
 
     if v1 is None:
-        print(f"\n❌ Missing {V1.name} — run: python -m retrieval.evaluate --queries tests/fixtures/eval_queries_250.json --json > eval_250_v1.json")
+        print(f"\n❌ Missing {args.v1}")
         return
 
     rows = [

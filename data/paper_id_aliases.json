@@ -1,0 +1,107 @@
+{
+  "description": "Canonical OpenAlex IDs for duplicate normalized paper titles in the local RSE corpus.",
+  "source": "data/enriched_papers_final.json",
+  "aliases": {
+    "https://openalex.org/W4307123345": "https://openalex.org/W3201174429",
+    "https://openalex.org/W4386184788": "https://openalex.org/W4393065402",
+    "https://openalex.org/W4386556635": "https://openalex.org/W4393147129",
+    "https://openalex.org/W4387835442": "https://openalex.org/W4363671832",
+    "https://openalex.org/W4391136507": "https://openalex.org/W4383605161",
+    "https://openalex.org/W4391451889": "https://openalex.org/W3204250462",
+    "https://openalex.org/W4403863303": "https://openalex.org/W4319452268",
+    "https://openalex.org/W4404534210": "https://openalex.org/W4388585881",
+    "https://openalex.org/W4412158322": "https://openalex.org/W4386501849",
+    "https://openalex.org/W7118085507": "https://openalex.org/W4393299232",
+    "https://openalex.org/W7125799258": "https://openalex.org/W4390047809"
+  },
+  "duplicate_groups": [
+    {
+      "normalized_title": "a survey on evaluation of large language models",
+      "title": "A Survey on Evaluation of Large Language Models",
+      "canonical_id": "https://openalex.org/W4383605161",
+      "alias_ids": [
+        "https://openalex.org/W4391136507"
+      ]
+    },
+    {
+      "normalized_title": "a survey on hallucination in large language models principles taxonomy challenges and open questions",
+      "title": "A Survey on Hallucination in Large Language Models: Principles, Taxonomy, Challenges, and Open Questions",
+      "canonical_id": "https://openalex.org/W4388585881",
+      "alias_ids": [
+        "https://openalex.org/W4404534210"
+      ]
+    },
+    {
+      "normalized_title": "a survey on large language model based autonomous agents",
+      "title": "A survey on large language model based autonomous agents",
+      "canonical_id": "https://openalex.org/W4393065402",
+      "alias_ids": [
+        "https://openalex.org/W4386184788"
+      ]
+    },
+    {
+      "normalized_title": "benchmarking large language models in retrieval augmented generation",
+      "title": "Benchmarking Large Language Models in Retrieval-Augmented Generation",
+      "canonical_id": "https://openalex.org/W4393147129",
+      "alias_ids": [
+        "https://openalex.org/W4386556635"
+      ]
+    },
+    {
+      "normalized_title": "cpt colorful prompt tuning for pre trained vision language models",
+      "title": "CPT: Colorful Prompt Tuning for Pre-trained Vision-Language Models",
+      "canonical_id": "https://openalex.org/W3204250462",
+      "alias_ids": [
+        "https://openalex.org/W4391451889"
+      ]
+    },
+    {
+      "normalized_title": "evaluating large language models in theory of mind tasks",
+      "title": "Evaluating Large Language Models in Theory of Mind Tasks",
+      "canonical_id": "https://openalex.org/W4319452268",
+      "alias_ids": [
+        "https://openalex.org/W4403863303"
+      ]
+    },
+    {
+      "normalized_title": "generative agents interactive simulacra of human behavior",
+      "title": "Generative Agents: Interactive Simulacra of Human Behavior",
+      "canonical_id": "https://openalex.org/W4363671832",
+      "alias_ids": [
+        "https://openalex.org/W4387835442"
+      ]
+    },
+    {
+      "normalized_title": "parameter efficient fine tuning methods for pretrained language models a critical review and assessment",
+      "title": "Parameter-Efficient Fine-Tuning Methods for Pretrained Language Models: A Critical Review and Assessment",
+      "canonical_id": "https://openalex.org/W4390047809",
+      "alias_ids": [
+        "https://openalex.org/W7125799258"
+      ]
+    },
+    {
+      "normalized_title": "retrieval augmented generation for ai generated content a survey",
+      "title": "Retrieval-Augmented Generation for AI-Generated Content: A Survey",
+      "canonical_id": "https://openalex.org/W4393299232",
+      "alias_ids": [
+        "https://openalex.org/W7118085507"
+      ]
+    },
+    {
+      "normalized_title": "sirens song in the ai ocean a survey on hallucination in large language models",
+      "title": "Siren's Song in the AI Ocean: A Survey on Hallucination in Large Language Models",
+      "canonical_id": "https://openalex.org/W4386501849",
+      "alias_ids": [
+        "https://openalex.org/W4412158322"
+      ]
+    },
+    {
+      "normalized_title": "truthfulqa measuring how models mimic human falsehoods",
+      "title": "TruthfulQA: Measuring How Models Mimic Human Falsehoods",
+      "canonical_id": "https://openalex.org/W3201174429",
+      "alias_ids": [
+        "https://openalex.org/W4307123345"
+      ]
+    }
+  ]
+}
