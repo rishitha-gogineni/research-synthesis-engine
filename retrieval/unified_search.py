@@ -76,6 +76,16 @@ QUERY_EXPANSIONS: tuple[tuple[re.Pattern[str], str], ...] = (
 # These are broader than QUERY_EXPANSIONS -- they fire on ordinary research
 # words rather than colloquial paraphrases -- so they stay opt-in until a run of
 # the v2 fixture shows whether the extra terms help or dilute the query vector.
+DATASET_ALIAS_EXPANSIONS: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r"\bimagenet\b", re.IGNORECASE), "ImageNet image classification benchmark dataset"),
+    (re.compile(r"\bcoco\b", re.IGNORECASE), "COCO common objects in context object detection dataset"),
+    (re.compile(r"\bpubmed\b", re.IGNORECASE), "PubMed biomedical abstracts dataset"),
+    (re.compile(r"\balfred\b", re.IGNORECASE), "ALFRED embodied agent instruction following benchmark dataset"),
+    (re.compile(r"\bade20k\b", re.IGNORECASE), "ADE20K semantic segmentation scene parsing dataset"),
+    (re.compile(r"\b(?:truthfulqa|truthful qa)\b", re.IGNORECASE), "TruthfulQA factuality benchmark dataset"),
+    (re.compile(r"\b(?:humaneval|human eval)\b", re.IGNORECASE), "HumanEval code generation benchmark dataset"),
+)
+
 EXTENDED_QUERY_EXPANSIONS: tuple[tuple[re.Pattern[str], str], ...] = (
     (
         re.compile(r"\b(?:datasets?|corpora)\b", re.IGNORECASE),
@@ -108,10 +118,19 @@ EXTENDED_QUERY_EXPANSIONS: tuple[tuple[re.Pattern[str], str], ...] = (
 )
 
 
+DATASET_QUERY_PATTERN = re.compile(r"\b(?:dataset|datasets|benchmark|benchmarks|corpus|corpora)\b", re.IGNORECASE)
+
+
+def should_auto_expand_dataset_query(query: str) -> bool:
+    """Enable structured vocabulary for explicit dataset/benchmark questions."""
+
+    return bool(DATASET_QUERY_PATTERN.search(query))
+
+
 def expand_query_for_retrieval(query: str, *, extended: bool = False) -> str:
     """Append corpus vocabulary for common human phrasing without changing the visible query."""
 
-    tables = (QUERY_EXPANSIONS, EXTENDED_QUERY_EXPANSIONS) if extended else (QUERY_EXPANSIONS,)
+    tables = (QUERY_EXPANSIONS, EXTENDED_QUERY_EXPANSIONS, DATASET_ALIAS_EXPANSIONS) if extended else (QUERY_EXPANSIONS,)
     expansions = [
         expansion for table in tables for pattern, expansion in table if pattern.search(query)
     ]
@@ -453,7 +472,10 @@ def run_unified_search(
 
     question_pattern = classify_question_pattern(request.query)
     route = router(request.query)
-    retrieval_query = expand_query_for_retrieval(request.query, extended=extended_expansions)
+    retrieval_query = expand_query_for_retrieval(
+        request.query,
+        extended=extended_expansions or should_auto_expand_dataset_query(request.query),
+    )
     retrieval_filters = RetrievalFilters.from_values(
         topics=research_areas,
         year_min=publication_year_min,
@@ -527,8 +549,13 @@ def run_unified_search(
 
     paper_candidates: list[dict[str, Any]] = []
     chunk_candidates: list[dict[str, Any]] = []
-    paper_pool_size = rerank_candidate_pool_size(request.paper_top_k, request.apply_reranking, multiplier=pool_multiplier)
-    chunk_pool_size = rerank_candidate_pool_size(request.chunk_top_k, request.apply_reranking, multiplier=pool_multiplier)
+    comparison_pool_multiplier = max(pool_multiplier, 3) if question_pattern == "comparison" else pool_multiplier
+    paper_pool_size = rerank_candidate_pool_size(
+        request.paper_top_k, request.apply_reranking, multiplier=comparison_pool_multiplier
+    )
+    chunk_pool_size = rerank_candidate_pool_size(
+        request.chunk_top_k, request.apply_reranking, multiplier=comparison_pool_multiplier
+    )
     # Promotion reads the user's original question, never the expanded retrieval
     # query: the expansion text itself contains words like "dataset", "metric"
     # and "benchmark", which would otherwise trigger intents the user never
