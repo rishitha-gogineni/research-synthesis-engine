@@ -118,7 +118,12 @@ EXTENDED_QUERY_EXPANSIONS: tuple[tuple[re.Pattern[str], str], ...] = (
 )
 
 
-DATASET_QUERY_PATTERN = re.compile(r"\b(?:dataset|datasets|benchmark|benchmarks|corpus|corpora)\b", re.IGNORECASE)
+DATASET_QUERY_PATTERN = re.compile(
+    r"(?:\b(?:which|what)\s+(?:evaluation\s+)?(?:datasets?|benchmarks?)\b|"
+    r"\b(?:papers?|studies?)\s+(?:use|evaluate)\b.*\b(?:dataset|benchmark)\b|"
+    r"\b(?:imagenet|coco|pubmed|alfred|ade20k|truthfulqa|humaneval)\b)",
+    re.IGNORECASE,
+)
 
 
 def should_auto_expand_dataset_query(query: str) -> bool:
