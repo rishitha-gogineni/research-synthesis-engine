@@ -80,6 +80,7 @@ def search_bm25(
     query: str,
     top_k: int = 5,
     dedupe_titles: bool = True,
+    retrieval_filters: Any | None = None,
 ) -> list[dict[str, Any]]:
     query_tokens = tokenize(query)
     scores = artifact["bm25"].get_scores(query_tokens)
@@ -89,6 +90,8 @@ def search_bm25(
 
     for index in ranked_indices:
         paper = artifact["papers"][index]
+        if retrieval_filters is not None and not retrieval_filters.matches(paper):
+            continue
         title_key = normalize_title(paper.get("title"))
         if dedupe_titles and title_key in seen_titles:
             continue

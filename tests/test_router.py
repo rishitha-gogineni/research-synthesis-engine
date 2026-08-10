@@ -118,3 +118,16 @@ def test_router_cli_outputs_json():
     payload = json.loads(completed.stdout)
     assert payload["route"] == "chunk_level"
     assert payload["query"] == "Which benchmarks and metrics evaluate hallucination detection?"
+
+def test_router_selects_metadata_filter_for_published_year_bounds():
+    decision = route_query("Show me RAG papers published in 2024 or later.")
+
+    assert decision.route == "metadata_filter"
+    assert any("published in 20" in signal or "or later" in signal for signal in decision.matched_signals)
+
+
+def test_router_selects_chunk_level_for_explicit_quantitative_evidence():
+    decision = route_query("What are the quantitative results reported for evalplus?")
+
+    assert decision.route == "chunk_level"
+    assert any("quantitative results" in signal for signal in decision.matched_signals)

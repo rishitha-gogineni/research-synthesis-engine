@@ -554,7 +554,7 @@ def test_valid_filters_are_applied_with_warnings(monkeypatch):
     assert response.status_code == 200
     payload = response.json()
     assert payload["paper_result_count"] == 1
-    assert any("Filters are applied after retrieval" in warning for warning in payload["warnings"])
+    assert any("Filters were enforced during retrieval" in warning for warning in payload["warnings"])
 
 
 def test_invalid_research_area_returns_structured_validation_error():

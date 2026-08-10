@@ -142,6 +142,15 @@ PHRASE_SIGNALS: list[tuple[QueryRouteName, str, str, int]] = [
     ("metadata_filter", "highly cited", "ranking by citation count requested", 3),
     ("metadata_filter", "from 20", "year filter requested", 2),
     ("metadata_filter", "most influential", "ranking by influence requested", 3),
+    ("metadata_filter", "published in 20", "publication-year filter requested", 3),
+    ("metadata_filter", "or later", "lower publication-year bound requested", 3),
+    ("metadata_filter", "or earlier", "upper publication-year bound requested", 3),
+    ("metadata_filter", "published after", "publication-year filter requested", 3),
+    ("metadata_filter", "published before", "publication-year filter requested", 3),
+    ("metadata_filter", r"more than .* citation", "citation-count threshold requested", 3),
+    ("chunk_level", "quantitative results", "quantitative evidence requested", 2),
+    ("chunk_level", "what accuracy", "accuracy evidence requested", 2),
+    ("chunk_level", "how much faster", "speedup evidence requested", 2),
 ]
 
 ROUTE_REASONS: dict[QueryRouteName, str] = {

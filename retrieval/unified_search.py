@@ -16,6 +16,7 @@ from full_text.index_chunks_qdrant import DEFAULT_COLLECTION as DEFAULT_CHUNK_CO
 from ingestion.embed import DEFAULT_EMBEDDING_MODEL
 from retrieval.build_bm25 import load_bm25_artifact
 from retrieval.corpus_index import CorpusIndex, classify_question_pattern, load_corpus_index
+from retrieval.chunk_bm25 import DEFAULT_CHUNK_BM25_PATH, load_chunk_bm25_artifact, merge_chunk_candidates, search_chunk_bm25
 from retrieval.hybrid_search import (
     DEFAULT_BM25_PATH,
     DEFAULT_DENSE_TOP_K,
@@ -26,6 +27,7 @@ from retrieval.hybrid_search import (
 )
 from retrieval.index_qdrant import DEFAULT_COLLECTION as DEFAULT_PAPER_COLLECTION
 from retrieval.index_qdrant import DEFAULT_QDRANT_URL, get_qdrant_client, load_env_file
+from retrieval.filters import RetrievalFilters
 from retrieval.promotion import promote_candidates
 from retrieval.rerank import rerank_and_blend
 from retrieval.router import route_query
@@ -179,13 +181,13 @@ def search_chunks(
     collection_name: str,
     query_vector: list[float],
     top_k: int,
+    retrieval_filters: RetrievalFilters | None = None,
 ) -> list[dict[str, Any]]:
-    response = qdrant_client.query_points(
-        collection_name=collection_name,
-        query=query_vector,
-        limit=top_k,
-        with_payload=True,
-    )
+    kwargs: dict[str, Any] = {"collection_name": collection_name, "query": query_vector, "limit": top_k, "with_payload": True}
+    query_filter = retrieval_filters.to_qdrant_filter() if retrieval_filters else None
+    if query_filter is not None:
+        kwargs["query_filter"] = query_filter
+    response = qdrant_client.query_points(**kwargs)
     return [qdrant_chunk_point_to_candidate(point) for point in response.points]
 
 
@@ -197,6 +199,8 @@ def retrieve_chunks(
     collection_name: str = DEFAULT_CHUNK_COLLECTION,
     model: str = DEFAULT_EMBEDDING_MODEL,
     top_k: int = DEFAULT_FINAL_TOP_K,
+    retrieval_filters: RetrievalFilters | None = None,
+    bm25_artifact: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     if not query.strip():
         raise ValueError("query must not be empty")
@@ -204,7 +208,11 @@ def retrieve_chunks(
         raise ValueError("top_k must be greater than 0")
 
     query_vector = embed_query(openai_client, query, model)
-    return search_chunks(qdrant_client, collection_name, query_vector, top_k)
+    dense_candidates = search_chunks(qdrant_client, collection_name, query_vector, top_k, retrieval_filters=retrieval_filters)
+    if bm25_artifact is None:
+        return dense_candidates
+    sparse_candidates = search_chunk_bm25(bm25_artifact, query, top_k, retrieval_filters=retrieval_filters)
+    return merge_chunk_candidates(dense_candidates, sparse_candidates, top_k=top_k)
 
 
 def paper_to_schema(candidate: dict[str, Any]) -> RetrievedPaper:
@@ -356,12 +364,15 @@ def metadata_filter_papers(
     top_k: int,
     *,
     corpus_index: CorpusIndex | None = None,
+    retrieval_filters: RetrievalFilters | None = None,
 ) -> list[dict[str, Any]]:
     if corpus_index is not None:
-        return corpus_index.ranked_papers(query, top_k=top_k)
+        candidates = corpus_index.ranked_papers(query, top_k=top_k)
+        return [candidate for candidate in candidates if retrieval_filters is None or retrieval_filters.matches(candidate)]
 
     index = CorpusIndex.from_bm25_artifact(bm25_artifact or {})
-    return index.ranked_papers(query, top_k=top_k, matched_by=["metadata_filter"])
+    candidates = index.ranked_papers(query, top_k=top_k, matched_by=["metadata_filter"])
+    return [candidate for candidate in candidates if retrieval_filters is None or retrieval_filters.matches(candidate)]
 
 
 def build_unified_response(
@@ -405,8 +416,14 @@ def run_unified_search(
     env_file: Path = Path(".env"),
     qdrant_url: str | None = None,
     qdrant_api_key: str | None = None,
+    research_areas: list[str] | None = None,
+    publication_year_min: int | None = None,
+    publication_year_max: int | None = None,
+    full_text_only: bool = False,
     local_path: Path | None = None,
     bm25_index: Path = DEFAULT_BM25_PATH,
+    chunk_bm25_index: Path = DEFAULT_CHUNK_BM25_PATH,
+    chunk_bm25_artifact: dict[str, Any] | None = None,
     corpus_index: CorpusIndex | None = None,
     apply_promotion: bool = DEFAULT_APPLY_PROMOTION,
     pool_multiplier: int = DEFAULT_PROMOTION_POOL_MULTIPLIER,
@@ -431,6 +448,12 @@ def run_unified_search(
     question_pattern = classify_question_pattern(request.query)
     route = router(request.query)
     retrieval_query = expand_query_for_retrieval(request.query, extended=extended_expansions)
+    retrieval_filters = RetrievalFilters.from_values(
+        topics=research_areas,
+        year_min=publication_year_min,
+        year_max=publication_year_max,
+        full_text_only=full_text_only,
+    )
 
     if question_pattern == "ranked_list" and route.route != "metadata_filter":
         route = QueryRoute(
@@ -441,7 +464,7 @@ def run_unified_search(
             matched_signals=[*route.matched_signals, "pattern: ranked_list fast path"],
         )
 
-    if question_pattern == "paper_lookup":
+    if question_pattern == "paper_lookup" and not full_text_only:
         lookup_index = corpus_index or load_corpus_index()
         match = lookup_index.resolve_paper(request.query)
         if match is not None:
@@ -457,13 +480,26 @@ def run_unified_search(
             )
             return build_unified_response(request, lookup_route, paper_candidates, chunk_candidates)
 
-    needs_papers = route.route in {"paper_level", "hybrid_both", "metadata_filter"}
-    needs_chunks = route.route in {"chunk_level", "hybrid_both"}
+    if full_text_only and route.route != "metadata_filter":
+        route = route.model_copy(
+            update={
+                "route": "chunk_level",
+                "reason": "full_text_only requires chunk-level evidence, so paper-only retrieval is disabled.",
+                "confidence": max(route.confidence, 0.85),
+                "matched_signals": [*route.matched_signals, "filter: full_text_only"],
+            }
+        )
+    needs_papers = route.route in {"paper_level", "hybrid_both", "metadata_filter"} and not full_text_only
+    needs_chunks = route.route in {"chunk_level", "hybrid_both"} or full_text_only
 
     needs_vector_clients = route.route != "metadata_filter" and (needs_papers or needs_chunks)
     needs_bm25 = needs_papers and (route.route != "metadata_filter" or (corpus_index is None and bm25_artifact is None and bm25_index != DEFAULT_BM25_PATH))
 
-    if (needs_vector_clients and (openai_client is None or qdrant_client is None)) or (needs_bm25 and bm25_artifact is None):
+    if (
+        (needs_vector_clients and (openai_client is None or qdrant_client is None))
+        or (needs_bm25 and bm25_artifact is None)
+        or (needs_chunks and chunk_bm25_artifact is None and chunk_bm25_index.exists())
+    ):
         load_env_file(env_file)
         if needs_vector_clients and openai_client is None:
             api_key = os.getenv("OPENAI_API_KEY")
@@ -480,6 +516,8 @@ def run_unified_search(
             if not bm25_index.exists():
                 raise UnifiedSearchError(f"BM25 index not found at {bm25_index}. Run retrieval.build_bm25 first.")
             bm25_artifact = load_bm25_artifact(bm25_index)
+        if needs_chunks and chunk_bm25_artifact is None and chunk_bm25_index.exists():
+            chunk_bm25_artifact = load_chunk_bm25_artifact(chunk_bm25_index)
 
     paper_candidates: list[dict[str, Any]] = []
     chunk_candidates: list[dict[str, Any]] = []
@@ -500,7 +538,13 @@ def run_unified_search(
             # behaving correctly, and it answers bibliography questions where
             # corpus ordering is the answer rather than an approximation of it.
             lookup_index = corpus_index or (None if bm25_artifact is not None else load_corpus_index())
-            paper_candidates = metadata_filter_papers(request.query, bm25_artifact or {}, request.paper_top_k, corpus_index=lookup_index)
+            paper_candidates = metadata_filter_papers(
+                request.query,
+                bm25_artifact or {},
+                request.paper_top_k,
+                corpus_index=lookup_index,
+                retrieval_filters=retrieval_filters,
+            )
             paper_candidates = maybe_rerank(
                 request.query,
                 paper_candidates,
@@ -522,6 +566,7 @@ def run_unified_search(
                     sparse_top_k=request.sparse_top_k,
                     final_top_k=paper_pool_size,
                     fusion_method=fusion_method,
+                    retrieval_filters=retrieval_filters,
                 )
                 paper_candidates = maybe_rerank(
                     retrieval_query,
@@ -547,6 +592,8 @@ def run_unified_search(
                     collection_name=chunk_collection,
                     model=model,
                     top_k=chunk_pool_size,
+                    retrieval_filters=retrieval_filters,
+                    bm25_artifact=chunk_bm25_artifact,
                 )
                 chunk_candidates = maybe_rerank(
                     retrieval_query,
@@ -592,6 +639,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--qdrant-api-key", default=None)
     parser.add_argument("--local-path", type=Path, default=None)
     parser.add_argument("--bm25-index", type=Path, default=DEFAULT_BM25_PATH)
+    parser.add_argument("--chunk-bm25-index", type=Path, default=DEFAULT_CHUNK_BM25_PATH)
     parser.add_argument("--env-file", type=Path, default=Path(".env"))
     parser.add_argument(
         "--promotion",
@@ -642,6 +690,7 @@ def main() -> None:
         qdrant_api_key=args.qdrant_api_key,
         local_path=args.local_path,
         bm25_index=args.bm25_index,
+        chunk_bm25_index=args.chunk_bm25_index,
         apply_promotion=args.promotion,
         pool_multiplier=args.pool_multiplier,
         extended_expansions=args.extended_expansions,

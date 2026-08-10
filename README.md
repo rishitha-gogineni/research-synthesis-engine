@@ -114,9 +114,9 @@ flowchart TD
 ### Retrieval Detail
 
 Paper-level retrieval fuses dense Qdrant search with BM25. Full-text chunk
-retrieval currently uses dense Qdrant search; the system is hybrid across its
-paper and chunk paths, but it does not yet maintain a separate sparse chunk
-index.
+retrieval fuses dense Qdrant search with an optional local chunk BM25 index
+(data/chunk_bm25_index.pkl); if that artifact is absent, it safely falls back
+to dense-only chunk retrieval.
 
 ```mermaid
 flowchart TD
@@ -207,6 +207,7 @@ different `.env` cannot silently receive the new vectors:
 ```bash
 python retrieval/index_qdrant.py --qdrant-url http://localhost:6333
 python full_text/index_chunks_qdrant.py --qdrant-url http://localhost:6333
+python -m retrieval.chunk_bm25
 ```
 
 Optional — local cross-encoder:

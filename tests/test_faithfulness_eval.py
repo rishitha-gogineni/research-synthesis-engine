@@ -213,3 +213,12 @@ def test_load_brief_round_trips_a_saved_research_brief(tmp_path):
 def test_load_brief_raises_for_missing_file(tmp_path):
     with pytest.raises(FaithfulnessEvalError, match="failed to load research brief"):
         load_brief(tmp_path / "does-not-exist.json")
+
+def test_build_faithfulness_prompt_uses_only_cited_sources():
+    uncited = make_source(source_id="chunk:uncited", text="This unrelated evidence must not be shown to the judge.")
+    brief = make_brief(sources=[make_source(), uncited])
+
+    prompt = build_faithfulness_prompt(brief)
+
+    assert "[chunk:c1]" in prompt
+    assert "[chunk:uncited]" not in prompt

@@ -12,6 +12,7 @@ from openai import OpenAI
 
 from ingestion.embed import DEFAULT_EMBEDDING_MODEL, TRUNCATED_DIMENSIONS
 from retrieval.build_bm25 import load_bm25_artifact, normalize_title, search_bm25
+from retrieval.filters import RetrievalFilters
 from retrieval.index_qdrant import DEFAULT_COLLECTION, DEFAULT_QDRANT_URL, get_qdrant_client, load_env_file
 
 
@@ -43,15 +44,15 @@ def search_dense(
     collection_name: str,
     query_vector: list[float],
     top_k: int = DEFAULT_DENSE_TOP_K,
+    retrieval_filters: RetrievalFilters | None = None,
 ) -> list[dict[str, Any]]:
     """Search Qdrant and return payload-rich dense candidates."""
 
-    response = client.query_points(
-        collection_name=collection_name,
-        query=query_vector,
-        limit=top_k,
-        with_payload=True,
-    )
+    kwargs: dict[str, Any] = {"collection_name": collection_name, "query": query_vector, "limit": top_k, "with_payload": True}
+    query_filter = retrieval_filters.to_qdrant_filter() if retrieval_filters else None
+    if query_filter is not None:
+        kwargs["query_filter"] = query_filter
+    response = client.query_points(**kwargs)
     return [qdrant_point_to_candidate(point) for point in response.points]
 
 
@@ -260,6 +261,7 @@ def retrieve_papers(
     sparse_top_k: int = DEFAULT_SPARSE_TOP_K,
     final_top_k: int = DEFAULT_FINAL_TOP_K,
     fusion_method: FusionMethod = "weighted",
+    retrieval_filters: RetrievalFilters | None = None,
 ) -> list[dict[str, Any]]:
     """Retrieve candidate papers for a free-text research question."""
 
@@ -269,8 +271,8 @@ def retrieve_papers(
         raise ValueError("top-k values must be greater than 0")
 
     query_vector = embed_query(openai_client, query, model)
-    dense_candidates = search_dense(qdrant_client, collection_name, query_vector, dense_top_k)
-    sparse_candidates = [bm25_result_to_candidate(result) for result in search_bm25(bm25_artifact, query, sparse_top_k)]
+    dense_candidates = search_dense(qdrant_client, collection_name, query_vector, dense_top_k, retrieval_filters=retrieval_filters)
+    sparse_candidates = [bm25_result_to_candidate(result) for result in search_bm25(bm25_artifact, query, sparse_top_k, retrieval_filters=retrieval_filters)]
     return merge_candidates(dense_candidates, sparse_candidates, final_top_k=final_top_k, fusion_method=fusion_method)
 
 
