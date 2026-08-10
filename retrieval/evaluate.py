@@ -303,7 +303,10 @@ def evaluate_response(
         "expected_route": query.expected_route,
         "acceptable_routes": accepted_routes,
         "actual_route": response.route.route,
+        "route_confidence": response.route.confidence,
+        "route_matched_signals": list(response.route.matched_signals),
         "route_correct": route_correct,
+        "expected_relevant_ids": list(query.expected_relevant_ids),
         "expected_confidence_decision": query.expected_confidence_decision,
         "actual_confidence_decision": confidence_decision,
         "confidence_correct": confidence_correct,
@@ -331,6 +334,14 @@ def summarize_evaluations(evaluations: list[dict[str, object]], top_ks: tuple[in
         if evaluation.get("expected_confidence_decision") != "sufficient_evidence"
     ]
     focus_counts = dict(sorted(Counter(str(evaluation.get("evaluation_focus") or "unspecified") for evaluation in evaluations).items()))
+    route_confusion = dict(sorted(Counter(
+        f"{evaluation.get('expected_route')}->{evaluation.get('actual_route')}"
+        for evaluation in evaluations
+    ).items()))
+    fallback_routes = sum(
+        1 for evaluation in evaluations
+        if any("fallback:" in str(signal) for signal in evaluation.get("route_matched_signals", []))
+    )
 
     route_accuracy = safe_rate(sum(1 for evaluation in evaluations if evaluation["route_correct"]), total)
     rewrite_keyword_hit_rate = safe_rate(sum(1 for evaluation in rewrite_labeled if evaluation["rewrite_keyword_hit"]), len(rewrite_labeled))
@@ -376,6 +387,8 @@ def summarize_evaluations(evaluations: list[dict[str, object]], top_ks: tuple[in
         "multi_turn_queries": len(multi_turn),
         "out_of_corpus_queries": len(out_of_corpus),
         "evaluation_focus_counts": focus_counts,
+        "route_confusion": route_confusion,
+        "fallback_route_count": fallback_routes,
         "route_accuracy": route_accuracy,
         "rewrite_keyword_hit_rate": {"value": rewrite_keyword_hit_rate, "n": len(rewrite_labeled)},
         "confidence_decision_accuracy": {"value": confidence_decision_accuracy, "n": len(confidence_labeled)},

@@ -215,6 +215,8 @@ def test_evaluate_response_is_json_native_and_preserves_rationale():
 
     assert evaluation["rationale"] == "[factual] regression fixture"
     assert json.loads(json.dumps(evaluation))["id_hit_sets"]["5"] == ["c1"]
+    assert evaluation["expected_relevant_ids"] == ["c1"]
+    assert evaluation["route_matched_signals"] == []
 
 
 def test_summarize_evaluations_reports_hit_rate_and_recall_as_distinct_numbers():
