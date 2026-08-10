@@ -272,7 +272,7 @@ def classify_question_pattern(query: str, *, has_chat_history: bool = False) -> 
         return "follow_up"
     if re.search(r"\b(that|this|it|they|them|its)\b", lowered) and has_chat_history:
         return "follow_up"
-    comparison_tokens = ("compare", "versus", " vs ", "difference between", "contrast", "tradeoff")
+    comparison_tokens = ("compare", "versus", " vs ", "difference between", "contrast", "tradeoff", "trade-off", "tradeoffs")
     if any(token in lowered for token in comparison_tokens) or re.search(r"\bhow does\b.*\bdiffer\b", lowered):
         return "comparison"
     conceptual_phrases = (
@@ -285,10 +285,22 @@ def classify_question_pattern(query: str, *, has_chat_history: bool = False) -> 
     )
     if any(phrase in lowered for phrase in conceptual_phrases):
         return "concept_explanation"
-    if any(token in lowered for token in ("top", "most cited", "highly cited", "latest", "recent", "newest", "published", "after ", "before ", "between ", "list", "show me")):
-        return "ranked_list"
-    if (("explain" in lowered or "summarize" in lowered) and "paper" in lowered) or any(token in lowered for token in ("that paper", "this paper")) or re.search(r"""["\'][^"\']{8,}["\']""", query):
+    paper_lookup = (
+        (("explain" in lowered or "summarize" in lowered) and "paper" in lowered)
+        or any(token in lowered for token in ("that paper", "this paper"))
+        or re.search(r"""["\'][^"\']{8,}["\']""", query)
+    )
+    # A quoted title is a paper lookup even when the title contains words such
+    # as top, latest, or between. Check it before list/filter heuristics.
+    if paper_lookup:
         return "paper_lookup"
+    # Use word boundaries for short markers such as top and list. Year
+    # prepositions only count when followed by a four-digit year.
+    ranked_words = r"\b(?:top|published|list)\b|\b(?:latest|recent|newest)\s+(?:papers?|studies?|work)\b"
+    ranked_phrases = ("most cited", "highly cited", "show me")
+    ranked_year_filter = r"\b(?:after|before|between)\s+20\d{2}\b"
+    if re.search(ranked_words, lowered) or any(phrase in lowered for phrase in ranked_phrases) or re.search(ranked_year_filter, lowered):
+        return "ranked_list"
     if any(token in lowered for token in ("dataset", "benchmark", "metric", "method", "methodology", "experiment", "result", "evaluate", "evaluation")):
         return "dataset_method"
     if any(token in lowered for token in ("read first", "reading path", "what should i read", "papers should i read", "start with")):

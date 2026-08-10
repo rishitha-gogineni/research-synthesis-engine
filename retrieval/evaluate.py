@@ -420,6 +420,7 @@ def run_evaluation(
     conditional_merge: bool = False,
     reading_path_boost: bool = False,
     affinity_boost: bool = False,
+    parent_context: bool = False,
     paper_collection: str = DEFAULT_PAPER_COLLECTION,
     chunk_collection: str = DEFAULT_CHUNK_COLLECTION,
 ) -> tuple[dict[str, object], list[dict[str, object]]]:
@@ -439,6 +440,7 @@ def run_evaluation(
             extended_expansions=extended_expansions,
             reading_path_boost=reading_path_boost,
             affinity_boost=affinity_boost,
+            expand_parent_context=parent_context,
             paper_collection=paper_collection,
             chunk_collection=chunk_collection,
         )
@@ -541,6 +543,11 @@ def parse_args() -> argparse.Namespace:
         help="Boost chunks whose parent paper was also retrieved (requires --promotion).",
     )
     parser.add_argument(
+        "--parent-context",
+        action="store_true",
+        help="Expand top retrieved chunks with neighboring context and aggregate paper evidence.",
+    )
+    parser.add_argument(
         "--paper-collection",
         default=DEFAULT_PAPER_COLLECTION,
         help="Qdrant collection for paper-level vectors.",
@@ -570,6 +577,7 @@ def main() -> None:
         conditional_merge=args.conditional_merge,
         reading_path_boost=args.reading_path_boost,
         affinity_boost=args.affinity,
+        parent_context=args.parent_context,
         paper_collection=args.paper_collection,
         chunk_collection=args.chunk_collection,
     )

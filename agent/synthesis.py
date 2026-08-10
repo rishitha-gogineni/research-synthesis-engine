@@ -29,7 +29,7 @@ MAX_SOURCE_TEXT_CHARS = 900
 MAX_SOURCES = 12
 MMR_LAMBDA = 0.72
 MMR_CANDIDATE_POOL_MULTIPLIER = 3
-SOURCE_REFERENCE_PATTERN = re.compile(r"(?<![A-Za-z0-9_-])(?:paper|chunk|result):[A-Za-z0-9_.:/-]+")
+SOURCE_REFERENCE_PATTERN = re.compile(r"(?<![A-Za-z0-9_-])(?:paper|chunk|result):[A-Za-z0-9_:/-]+(?:\.[A-Za-z0-9_:/-]+)*")
 BriefGenerator = Callable[[str], str]
 
 
@@ -297,6 +297,9 @@ Direct-answer requirements:
 - First paragraph: give the plain-language conceptual answer before naming papers or methods.
 - Second paragraph: connect that concept to the strongest retrieved evidence using source IDs.
 - Every direct-answer paragraph should include at least one exact SOURCE_ID when evidence supports the claim.
+- Cite every factual sentence immediately with one or more exact SOURCE_IDs; a paragraph-level citation is not enough.
+- If a sentence combines claims from multiple sources, include every supporting SOURCE_ID after that sentence.
+- Omit any metric, dataset, method name, or result not explicitly supported by its cited evidence; state that the evidence does not specify it instead.
 - Optional third paragraph: add nuance, boundary conditions, or what the evidence does not establish.
 - For comparison or contrast questions, define both sides, state the key difference, and give one concrete example.
 - For agent/task questions, explicitly address planning, tool/API use, action execution, observation/feedback, and workflow completion when supported by evidence.

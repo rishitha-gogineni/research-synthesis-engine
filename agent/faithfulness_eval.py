@@ -44,7 +44,7 @@ def build_faithfulness_prompt(brief: ResearchBrief) -> str:
     if not brief.direct_answer.strip():
         raise FaithfulnessEvalError("cannot judge a brief with an empty direct_answer")
 
-    source_pattern = re.compile(r"(?<![A-Za-z0-9_-])(?:paper|chunk|result):[A-Za-z0-9_.:/-]+")
+    source_pattern = re.compile(r"(?<![A-Za-z0-9_-])(?:paper|chunk|result):[A-Za-z0-9_:/-]+(?:\.[A-Za-z0-9_:/-]+)*")
     cited_ids = {match.group(0) for match in source_pattern.finditer(brief.direct_answer)}
     if not cited_ids:
         raise FaithfulnessEvalError("cannot judge a brief with no source citations")
@@ -118,7 +118,7 @@ def assess_faithfulness(
     """Score a generated brief's faithfulness and answer relevancy via an LLM judge."""
 
     prompt = build_faithfulness_prompt(brief)
-    source_pattern = re.compile(r"(?<![A-Za-z0-9_-])(?:paper|chunk|result):[A-Za-z0-9_.:/-]+")
+    source_pattern = re.compile(r"(?<![A-Za-z0-9_-])(?:paper|chunk|result):[A-Za-z0-9_:/-]+(?:\.[A-Za-z0-9_:/-]+)*")
     cited_ids = {match.group(0) for match in source_pattern.finditer(brief.direct_answer)}
     raw_text = generator(prompt) if generator else call_openai_judge(prompt, model=model)
     payload = parse_faithfulness_payload(raw_text)

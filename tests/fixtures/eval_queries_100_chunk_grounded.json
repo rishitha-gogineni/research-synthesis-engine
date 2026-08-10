@@ -1,0 +1,3932 @@
+[
+  {
+    "query": "List transformer papers with over 1000 citations.",
+    "expected_route": "metadata_filter",
+    "expected_topics": [
+      "Transformers / Attention Mechanisms"
+    ],
+    "expected_keywords": [],
+    "expected_relevant_ids": [
+      "https://openalex.org/W2626778328",
+      "https://openalex.org/W3151130473",
+      "https://openalex.org/W3126721948",
+      "https://openalex.org/W4386075524",
+      "https://openalex.org/W3116489684"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "metadata_filter",
+    "rationale": "[metadata] List transformer papers with over 1000 c",
+    "chat_history": [],
+    "acceptable_routes": [
+      "metadata_filter"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "metadata",
+    "source_paper_ids": [
+      "https://openalex.org/W2626778328",
+      "https://openalex.org/W3151130473",
+      "https://openalex.org/W3126721948",
+      "https://openalex.org/W4386075524",
+      "https://openalex.org/W3116489684"
+    ],
+    "source_pdf_filenames": [
+      "W2626778328_7c31777646_attention_is_all_you_need.pdf",
+      "W3151130473_ae20d2d347_crossvit_cross-attention_multi-scale_vision_transformer_for_.pdf",
+      "W3126721948_0c388b7bb8_is_space-time_attention_all_you_need_for_video_understanding.pdf",
+      "W4386075524_bea65eb357_biformer_vision_transformer_with_bi-level_routing_attention.pdf",
+      "W3116489684_94e7c6674a_training_data-efficient_image_transformers_distillation_thro.pdf"
+    ],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-001"
+  },
+  {
+    "query": "Show me RAG papers published in 2024 or later.",
+    "expected_route": "metadata_filter",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "rag"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4402670290",
+      "https://openalex.org/W4395050972"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "metadata_filter",
+    "rationale": "[metadata] RAG after 2024",
+    "chat_history": [],
+    "acceptable_routes": [
+      "metadata_filter"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "metadata",
+    "source_paper_ids": [
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4411630045",
+      "https://openalex.org/W4402670290",
+      "https://openalex.org/W4395050972"
+    ],
+    "source_pdf_filenames": [
+      "W4401857375_5be65761cf_a_survey_on_rag_meeting_llms_towards_retrieval-augmented_lar.pdf",
+      "W4393147129_ead46253f5_benchmarking_large_language_models_in_retrieval-augmented_ge.pdf",
+      "W4411630045_1c551d1b5e_ragas_automated_evaluation_of_retrieval_augmented_generation.pdf",
+      "W4402670290_12edb076e1_benchmarking_retrieval-augmented_generation_for_medicine.pdf",
+      "W4395050972_9036051dae_optimization_of_hepatological_clinical_guidelines_interpreta.pdf"
+    ],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-002"
+  },
+  {
+    "query": "Show me highly cited RAG papers from 2023 or later.",
+    "expected_route": "metadata_filter",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [],
+    "expected_relevant_ids": [
+      "https://openalex.org/W4389984066",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4411630045"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "metadata_filter",
+    "rationale": "[metadata] Show me highly cited RAG papers from 202",
+    "chat_history": [],
+    "acceptable_routes": [
+      "metadata_filter"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "metadata",
+    "source_paper_ids": [
+      "https://openalex.org/W4389984066",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4411630045"
+    ],
+    "source_pdf_filenames": [
+      "W4389984066_5429e4d093_retrieval-augmented_generation_for_large_language_models_a_s.pdf",
+      "W4401857375_5be65761cf_a_survey_on_rag_meeting_llms_towards_retrieval-augmented_lar.pdf",
+      "W4389519118_db4c119f10_active_retrieval_augmented_generation.pdf",
+      "W4393147129_ead46253f5_benchmarking_large_language_models_in_retrieval-augmented_ge.pdf",
+      "W4411630045_1c551d1b5e_ragas_automated_evaluation_of_retrieval_augmented_generation.pdf"
+    ],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-003"
+  },
+  {
+    "query": "Show me transformer papers published in 2024 or later.",
+    "expected_route": "metadata_filter",
+    "expected_topics": [
+      "Transformers / Attention Mechanisms"
+    ],
+    "expected_keywords": [
+      "transformer"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W4396973073"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "metadata_filter",
+    "rationale": "[metadata] transformer after 2024",
+    "chat_history": [],
+    "acceptable_routes": [
+      "metadata_filter"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "metadata",
+    "source_paper_ids": [
+      "https://openalex.org/W4396973073"
+    ],
+    "source_pdf_filenames": [
+      "W4396973073_fa9e7618b7_da-transunet_integrating_spatial_and_channel_dual_attention_.pdf"
+    ],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-004"
+  },
+  {
+    "query": "What are the most cited papers on hallucination detection?",
+    "expected_route": "metadata_filter",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [],
+    "expected_relevant_ids": [
+      "https://openalex.org/W4388585881",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4389520749",
+      "https://openalex.org/W4389523832",
+      "https://openalex.org/W4386501849"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "metadata_filter",
+    "rationale": "[metadata] What are the most cited papers on halluc",
+    "chat_history": [],
+    "acceptable_routes": [
+      "metadata_filter"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "metadata",
+    "source_paper_ids": [
+      "https://openalex.org/W4388585881",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W4389520749",
+      "https://openalex.org/W4389523832",
+      "https://openalex.org/W4386501849"
+    ],
+    "source_pdf_filenames": [
+      "W4388585881_cb9f473c38_a_survey_on_hallucination_in_large_language_models_principle.pdf",
+      "W4399803256_8cb5ce93a5_detecting_hallucinations_in_large_language_models_using_sema.pdf",
+      "W4389520749_ae376be8f3_selfcheckgpt_zero-resource_black-box_hallucination_detection.pdf",
+      "W4389523832_51870e9aff_evaluating_object_hallucination_in_large_vision-language_mod.pdf",
+      "W4386501849_9c9c675aef_siren_s_song_in_the_ai_ocean_a_survey_on_hallucination_in_la.pdf"
+    ],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-005"
+  },
+  {
+    "query": "Which AI agent papers have more than 200 citations?",
+    "expected_route": "metadata_filter",
+    "expected_topics": [
+      "AI Agents & Tool Use"
+    ],
+    "expected_keywords": [
+      "ai agent",
+      "citation"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W4363671832",
+      "https://openalex.org/W4393065402",
+      "https://openalex.org/W4304195432",
+      "https://openalex.org/W4390874280",
+      "https://openalex.org/W4363624465"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "metadata_filter",
+    "rationale": "[metadata] high-cited AI agent",
+    "chat_history": [],
+    "acceptable_routes": [
+      "metadata_filter"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "metadata",
+    "source_paper_ids": [
+      "https://openalex.org/W4363671832",
+      "https://openalex.org/W4393065402",
+      "https://openalex.org/W4304195432",
+      "https://openalex.org/W4390874280",
+      "https://openalex.org/W4363624465"
+    ],
+    "source_pdf_filenames": [
+      "W4363671832_89e5ae844e_generative_agents_interactive_simulacra_of_human_behavior.pdf",
+      "W4393065402_2b91a4e4f3_a_survey_on_large_language_model_based_autonomous_agents.pdf",
+      "W4304195432_9296c79ca7_distributing_accountability_not_capability_phase_separation_.pdf",
+      "W4390874280_675b1b066c_llm-planner_few-shot_grounded_planning_for_embodied_agents_w.pdf",
+      "W4363624465_13596667c4_large_language_models_as_simulated_economic_agents_what_can_.pdf"
+    ],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-006"
+  },
+  {
+    "query": "Which LLM evaluation papers have more than 200 citations?",
+    "expected_route": "metadata_filter",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "llm evaluation",
+      "citation"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W4383605161",
+      "https://openalex.org/W4388585881",
+      "https://openalex.org/W3177813494",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W3201174429"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "metadata_filter",
+    "rationale": "[metadata] high-cited LLM evaluation",
+    "chat_history": [],
+    "acceptable_routes": [
+      "metadata_filter"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "metadata",
+    "source_paper_ids": [
+      "https://openalex.org/W4383605161",
+      "https://openalex.org/W4388585881",
+      "https://openalex.org/W3177813494",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W3201174429"
+    ],
+    "source_pdf_filenames": [
+      "W4383605161_3e133551fb_a_survey_on_evaluation_of_large_language_models.pdf",
+      "W4388585881_cb9f473c38_a_survey_on_hallucination_in_large_language_models_principle.pdf",
+      "W3177813494_b08f9cbbc1_evaluating_large_language_models_trained_on_code.pdf",
+      "W4399803256_8cb5ce93a5_detecting_hallucinations_in_large_language_models_using_sema.pdf",
+      "W3201174429_f46ef423a0_truthfulqa_measuring_how_models_mimic_human_falsehoods.pdf"
+    ],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-007"
+  },
+  {
+    "query": "Which RAG papers have more than 200 citations?",
+    "expected_route": "metadata_filter",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "rag",
+      "citation"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W4389984066",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4411630045"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "metadata_filter",
+    "rationale": "[metadata] high-cited RAG",
+    "chat_history": [],
+    "acceptable_routes": [
+      "metadata_filter"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "metadata",
+    "source_paper_ids": [
+      "https://openalex.org/W4389984066",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4411630045"
+    ],
+    "source_pdf_filenames": [
+      "W4389984066_5429e4d093_retrieval-augmented_generation_for_large_language_models_a_s.pdf",
+      "W4401857375_5be65761cf_a_survey_on_rag_meeting_llms_towards_retrieval-augmented_lar.pdf",
+      "W4389519118_db4c119f10_active_retrieval_augmented_generation.pdf",
+      "W4393147129_ead46253f5_benchmarking_large_language_models_in_retrieval-augmented_ge.pdf",
+      "W4411630045_1c551d1b5e_ragas_automated_evaluation_of_retrieval_augmented_generation.pdf"
+    ],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-008"
+  },
+  {
+    "query": "Which fine-tuning papers have more than 200 citations?",
+    "expected_route": "metadata_filter",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "fine-tuning",
+      "citation"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4322766882",
+      "https://openalex.org/W3176828726",
+      "https://openalex.org/W4389524317"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "metadata_filter",
+    "rationale": "[metadata] high-cited fine-tuning",
+    "chat_history": [],
+    "acceptable_routes": [
+      "metadata_filter"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "metadata",
+    "source_paper_ids": [
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4322766882",
+      "https://openalex.org/W3176828726",
+      "https://openalex.org/W4389524317"
+    ],
+    "source_pdf_filenames": [
+      "W3168867926_ccad9fd6f7_lora_low-rank_adaptation_of_large_language_models.pdf",
+      "W4322766882_345ae97a44_parameter-efficient_fine-tuning_of_large-scale_pre-trained_l.pdf",
+      "W3176828726_f825a9bc8d_bitfit_simple_parameter-efficient_fine-tuning_for_transforme.pdf",
+      "W4389524317_2bfd2db5c3_llm-adapters_an_adapter_family_for_parameter-efficient_fine-.pdf"
+    ],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-009"
+  },
+  {
+    "query": "Which transformer papers have more than 200 citations?",
+    "expected_route": "metadata_filter",
+    "expected_topics": [
+      "Transformers / Attention Mechanisms"
+    ],
+    "expected_keywords": [
+      "transformer",
+      "citation"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W2626778328",
+      "https://openalex.org/W3151130473",
+      "https://openalex.org/W3126721948",
+      "https://openalex.org/W4386075524",
+      "https://openalex.org/W3116489684"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "metadata_filter",
+    "rationale": "[metadata] high-cited transformer",
+    "chat_history": [],
+    "acceptable_routes": [
+      "metadata_filter"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "metadata",
+    "source_paper_ids": [
+      "https://openalex.org/W2626778328",
+      "https://openalex.org/W3151130473",
+      "https://openalex.org/W3126721948",
+      "https://openalex.org/W4386075524",
+      "https://openalex.org/W3116489684"
+    ],
+    "source_pdf_filenames": [
+      "W2626778328_7c31777646_attention_is_all_you_need.pdf",
+      "W3151130473_ae20d2d347_crossvit_cross-attention_multi-scale_vision_transformer_for_.pdf",
+      "W3126721948_0c388b7bb8_is_space-time_attention_all_you_need_for_video_understanding.pdf",
+      "W4386075524_bea65eb357_biformer_vision_transformer_with_bi-level_routing_attention.pdf",
+      "W3116489684_94e7c6674a_training_data-efficient_image_transformers_distillation_thro.pdf"
+    ],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-010"
+  },
+  {
+    "query": "Recommend key papers for someone new to LLM evaluation.",
+    "expected_route": "paper_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "foundational",
+      "read",
+      "start",
+      "recommend"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W4383605161",
+      "https://openalex.org/W4388585881",
+      "https://openalex.org/W3177813494",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W3201174429"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "reading_path",
+    "rationale": "[reading_path] foundational for LLM evaluation",
+    "chat_history": [],
+    "acceptable_routes": [
+      "paper_level"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "abstract",
+    "source_paper_ids": [
+      "https://openalex.org/W4383605161",
+      "https://openalex.org/W4388585881",
+      "https://openalex.org/W3177813494",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W3201174429"
+    ],
+    "source_pdf_filenames": [
+      "W4383605161_3e133551fb_a_survey_on_evaluation_of_large_language_models.pdf",
+      "W4388585881_cb9f473c38_a_survey_on_hallucination_in_large_language_models_principle.pdf",
+      "W3177813494_b08f9cbbc1_evaluating_large_language_models_trained_on_code.pdf",
+      "W4399803256_8cb5ce93a5_detecting_hallucinations_in_large_language_models_using_sema.pdf",
+      "W3201174429_f46ef423a0_truthfulqa_measuring_how_models_mimic_human_falsehoods.pdf"
+    ],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-011"
+  },
+  {
+    "query": "Recommend papers on hallucination mitigation strategies.",
+    "expected_route": "paper_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "hallucination",
+      "mitigation"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W4383605161",
+      "https://openalex.org/W4388585881",
+      "https://openalex.org/W3177813494",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W3201174429"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "reading_path",
+    "rationale": "[reading_path] Recommend papers on hallucination mitiga",
+    "chat_history": [],
+    "acceptable_routes": [
+      "paper_level"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "abstract",
+    "source_paper_ids": [
+      "https://openalex.org/W4383605161",
+      "https://openalex.org/W4388585881",
+      "https://openalex.org/W3177813494",
+      "https://openalex.org/W4399803256",
+      "https://openalex.org/W3201174429"
+    ],
+    "source_pdf_filenames": [
+      "W4383605161_3e133551fb_a_survey_on_evaluation_of_large_language_models.pdf",
+      "W4388585881_cb9f473c38_a_survey_on_hallucination_in_large_language_models_principle.pdf",
+      "W3177813494_b08f9cbbc1_evaluating_large_language_models_trained_on_code.pdf",
+      "W4399803256_8cb5ce93a5_detecting_hallucinations_in_large_language_models_using_sema.pdf",
+      "W3201174429_f46ef423a0_truthfulqa_measuring_how_models_mimic_human_falsehoods.pdf"
+    ],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-012"
+  },
+  {
+    "query": "What are the foundational papers on parameter-efficient fine-tuning?",
+    "expected_route": "paper_level",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "foundational",
+      "read",
+      "start",
+      "recommend"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4322766882",
+      "https://openalex.org/W3176828726",
+      "https://openalex.org/W4389524317",
+      "https://openalex.org/W4361229539"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "reading_path",
+    "rationale": "[reading_path] foundational for parameter-efficient fine-tunin",
+    "chat_history": [],
+    "acceptable_routes": [
+      "paper_level"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "abstract",
+    "source_paper_ids": [
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4322766882",
+      "https://openalex.org/W3176828726",
+      "https://openalex.org/W4389524317",
+      "https://openalex.org/W4361229539"
+    ],
+    "source_pdf_filenames": [
+      "W3168867926_ccad9fd6f7_lora_low-rank_adaptation_of_large_language_models.pdf",
+      "W4322766882_345ae97a44_parameter-efficient_fine-tuning_of_large-scale_pre-trained_l.pdf",
+      "W3176828726_f825a9bc8d_bitfit_simple_parameter-efficient_fine-tuning_for_transforme.pdf",
+      "W4389524317_2bfd2db5c3_llm-adapters_an_adapter_family_for_parameter-efficient_fine-.pdf",
+      "W4361229539_7cefb1d2de_llama-adapter_efficient_fine-tuning_of_language_models_with_.pdf"
+    ],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-013"
+  },
+  {
+    "query": "What are the foundational papers on transformer architectures?",
+    "expected_route": "paper_level",
+    "expected_topics": [
+      "Transformers / Attention Mechanisms"
+    ],
+    "expected_keywords": [
+      "foundational",
+      "read",
+      "start",
+      "recommend"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W2626778328",
+      "https://openalex.org/W3151130473",
+      "https://openalex.org/W3126721948",
+      "https://openalex.org/W4386075524",
+      "https://openalex.org/W3116489684"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "reading_path",
+    "rationale": "[reading_path] foundational for transformer architectures",
+    "chat_history": [],
+    "acceptable_routes": [
+      "paper_level"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "abstract",
+    "source_paper_ids": [
+      "https://openalex.org/W2626778328",
+      "https://openalex.org/W3151130473",
+      "https://openalex.org/W3126721948",
+      "https://openalex.org/W4386075524",
+      "https://openalex.org/W3116489684"
+    ],
+    "source_pdf_filenames": [
+      "W2626778328_7c31777646_attention_is_all_you_need.pdf",
+      "W3151130473_ae20d2d347_crossvit_cross-attention_multi-scale_vision_transformer_for_.pdf",
+      "W3126721948_0c388b7bb8_is_space-time_attention_all_you_need_for_video_understanding.pdf",
+      "W4386075524_bea65eb357_biformer_vision_transformer_with_bi-level_routing_attention.pdf",
+      "W3116489684_94e7c6674a_training_data-efficient_image_transformers_distillation_thro.pdf"
+    ],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-014"
+  },
+  {
+    "query": "What are the must-read papers on attention mechanisms?",
+    "expected_route": "paper_level",
+    "expected_topics": [
+      "Transformers / Attention Mechanisms"
+    ],
+    "expected_keywords": [
+      "attention"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W2626778328",
+      "https://openalex.org/W3151130473",
+      "https://openalex.org/W3126721948",
+      "https://openalex.org/W4386075524",
+      "https://openalex.org/W3116489684"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "reading_path",
+    "rationale": "[reading_path] What are the must-read papers on attenti",
+    "chat_history": [],
+    "acceptable_routes": [
+      "paper_level"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "abstract",
+    "source_paper_ids": [
+      "https://openalex.org/W2626778328",
+      "https://openalex.org/W3151130473",
+      "https://openalex.org/W3126721948",
+      "https://openalex.org/W4386075524",
+      "https://openalex.org/W3116489684"
+    ],
+    "source_pdf_filenames": [
+      "W2626778328_7c31777646_attention_is_all_you_need.pdf",
+      "W3151130473_ae20d2d347_crossvit_cross-attention_multi-scale_vision_transformer_for_.pdf",
+      "W3126721948_0c388b7bb8_is_space-time_attention_all_you_need_for_video_understanding.pdf",
+      "W4386075524_bea65eb357_biformer_vision_transformer_with_bi-level_routing_attention.pdf",
+      "W3116489684_94e7c6674a_training_data-efficient_image_transformers_distillation_thro.pdf"
+    ],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-015"
+  },
+  {
+    "query": "What papers should I read first to understand LLM-based autonomous agents?",
+    "expected_route": "paper_level",
+    "expected_topics": [
+      "AI Agents & Tool Use"
+    ],
+    "expected_keywords": [
+      "foundational",
+      "read",
+      "start",
+      "recommend"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W4363671832",
+      "https://openalex.org/W4393065402",
+      "https://openalex.org/W4304195432",
+      "https://openalex.org/W4390874280",
+      "https://openalex.org/W4363624465"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "reading_path",
+    "rationale": "[reading_path] foundational for LLM-based autonomous agents",
+    "chat_history": [],
+    "acceptable_routes": [
+      "paper_level"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "abstract",
+    "source_paper_ids": [
+      "https://openalex.org/W4363671832",
+      "https://openalex.org/W4393065402",
+      "https://openalex.org/W4304195432",
+      "https://openalex.org/W4390874280",
+      "https://openalex.org/W4363624465"
+    ],
+    "source_pdf_filenames": [
+      "W4363671832_89e5ae844e_generative_agents_interactive_simulacra_of_human_behavior.pdf",
+      "W4393065402_2b91a4e4f3_a_survey_on_large_language_model_based_autonomous_agents.pdf",
+      "W4304195432_9296c79ca7_distributing_accountability_not_capability_phase_separation_.pdf",
+      "W4390874280_675b1b066c_llm-planner_few-shot_grounded_planning_for_embodied_agents_w.pdf",
+      "W4363624465_13596667c4_large_language_models_as_simulated_economic_agents_what_can_.pdf"
+    ],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-016"
+  },
+  {
+    "query": "What papers should I read first to understand retrieval-augmented generation?",
+    "expected_route": "paper_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "foundational",
+      "read",
+      "start",
+      "recommend"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W4389984066",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4411630045"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "reading_path",
+    "rationale": "[reading_path] foundational for retrieval-augmented generation",
+    "chat_history": [],
+    "acceptable_routes": [
+      "paper_level"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "abstract",
+    "source_paper_ids": [
+      "https://openalex.org/W4389984066",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4411630045"
+    ],
+    "source_pdf_filenames": [
+      "W4389984066_5429e4d093_retrieval-augmented_generation_for_large_language_models_a_s.pdf",
+      "W4401857375_5be65761cf_a_survey_on_rag_meeting_llms_towards_retrieval-augmented_lar.pdf",
+      "W4389519118_db4c119f10_active_retrieval_augmented_generation.pdf",
+      "W4393147129_ead46253f5_benchmarking_large_language_models_in_retrieval-augmented_ge.pdf",
+      "W4411630045_1c551d1b5e_ragas_automated_evaluation_of_retrieval_augmented_generation.pdf"
+    ],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-017"
+  },
+  {
+    "query": "What should I read to understand tool-use in LLMs?",
+    "expected_route": "paper_level",
+    "expected_topics": [
+      "AI Agents & Tool Use"
+    ],
+    "expected_keywords": [
+      "tool",
+      "llm"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W4363671832",
+      "https://openalex.org/W4393065402",
+      "https://openalex.org/W4304195432",
+      "https://openalex.org/W4390874280",
+      "https://openalex.org/W4363624465"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "reading_path",
+    "rationale": "[reading_path] What should I read to understand tool-us",
+    "chat_history": [],
+    "acceptable_routes": [
+      "paper_level"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "abstract",
+    "source_paper_ids": [
+      "https://openalex.org/W4363671832",
+      "https://openalex.org/W4393065402",
+      "https://openalex.org/W4304195432",
+      "https://openalex.org/W4390874280",
+      "https://openalex.org/W4363624465"
+    ],
+    "source_pdf_filenames": [
+      "W4363671832_89e5ae844e_generative_agents_interactive_simulacra_of_human_behavior.pdf",
+      "W4393065402_2b91a4e4f3_a_survey_on_large_language_model_based_autonomous_agents.pdf",
+      "W4304195432_9296c79ca7_distributing_accountability_not_capability_phase_separation_.pdf",
+      "W4390874280_675b1b066c_llm-planner_few-shot_grounded_planning_for_embodied_agents_w.pdf",
+      "W4363624465_13596667c4_large_language_models_as_simulated_economic_agents_what_can_.pdf"
+    ],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-018"
+  },
+  {
+    "query": "What surveys cover the RAG landscape?",
+    "expected_route": "paper_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "survey",
+      "rag"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W4389984066",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4411630045"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "reading_path",
+    "rationale": "[reading_path] What surveys cover the RAG landscape?",
+    "chat_history": [],
+    "acceptable_routes": [
+      "paper_level"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "abstract",
+    "source_paper_ids": [
+      "https://openalex.org/W4389984066",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129",
+      "https://openalex.org/W4411630045"
+    ],
+    "source_pdf_filenames": [
+      "W4389984066_5429e4d093_retrieval-augmented_generation_for_large_language_models_a_s.pdf",
+      "W4401857375_5be65761cf_a_survey_on_rag_meeting_llms_towards_retrieval-augmented_lar.pdf",
+      "W4389519118_db4c119f10_active_retrieval_augmented_generation.pdf",
+      "W4393147129_ead46253f5_benchmarking_large_language_models_in_retrieval-augmented_ge.pdf",
+      "W4411630045_1c551d1b5e_ragas_automated_evaluation_of_retrieval_augmented_generation.pdf"
+    ],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-019"
+  },
+  {
+    "query": "Where should I start to understand LoRA and adapter methods?",
+    "expected_route": "paper_level",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "lora",
+      "adapter"
+    ],
+    "expected_relevant_ids": [
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4322766882",
+      "https://openalex.org/W3176828726",
+      "https://openalex.org/W4389524317",
+      "https://openalex.org/W4361229539"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "reading_path",
+    "rationale": "[reading_path] Where should I start to understand LoRA ",
+    "chat_history": [],
+    "acceptable_routes": [
+      "paper_level"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "abstract",
+    "source_paper_ids": [
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4322766882",
+      "https://openalex.org/W3176828726",
+      "https://openalex.org/W4389524317",
+      "https://openalex.org/W4361229539"
+    ],
+    "source_pdf_filenames": [
+      "W3168867926_ccad9fd6f7_lora_low-rank_adaptation_of_large_language_models.pdf",
+      "W4322766882_345ae97a44_parameter-efficient_fine-tuning_of_large-scale_pre-trained_l.pdf",
+      "W3176828726_f825a9bc8d_bitfit_simple_parameter-efficient_fine-tuning_for_transforme.pdf",
+      "W4389524317_2bfd2db5c3_llm-adapters_an_adapter_family_for_parameter-efficient_fine-.pdf",
+      "W4361229539_7cefb1d2de_llama-adapter_efficient_fine-tuning_of_language_models_with_.pdf"
+    ],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-020"
+  },
+  {
+    "query": "Can large language models perform effective information retrieval (according to \"Is ChatGPT Good at Search? Investigating Large Language Models as Re-Ranking Agents\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "AI Agents & Tool Use"
+    ],
+    "expected_keywords": [
+      "search",
+      "retrieval",
+      "llm"
+    ],
+    "expected_relevant_ids": [
+      "chunk-420d833ca13cbf09"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[factual] numeric result from Is ChatGPT Good at Search? Investigating",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "numeric_results",
+    "source_paper_ids": [
+      "https://openalex.org/W4389523765"
+    ],
+    "source_pdf_filenames": [
+      "W4389523765_6d0fb69d18_is_chatgpt_good_at_search_investigating_large_language_model.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-420d833ca13cbf09"
+    ],
+    "benchmark_id": "rse100-021"
+  },
+  {
+    "query": "How are hallucinations detected in large language model outputs (according to \"Detecting and Preventing Hallucinations in Large Vision Language Models\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "hallucination",
+      "detection"
+    ],
+    "expected_relevant_ids": [
+      "chunk-2894ac22bd942235"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[factual] numeric result from Detecting and Preventing Hallucinations ",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "numeric_results",
+    "source_paper_ids": [
+      "https://openalex.org/W4393160204"
+    ],
+    "source_pdf_filenames": [
+      "W4393160204_9dfc809309_detecting_and_preventing_hallucinations_in_large_vision_lang.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-2894ac22bd942235"
+    ],
+    "benchmark_id": "rse100-022"
+  },
+  {
+    "query": "How are large language models evaluated across different tasks and domains (according to \"Evaluation of the Performance of Generative AI Large Language Models ChatGPT, Google Bard, and Microsoft Bing Chat in Supporting Evidence-Based Dentistry: Comparative Mixed Methods Study\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "evaluation",
+      "language",
+      "models"
+    ],
+    "expected_relevant_ids": [
+      "chunk-665f9a991a86410d"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[factual] numeric result from Evaluation of the Performance of Generat",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "numeric_results",
+    "source_paper_ids": [
+      "https://openalex.org/W4388823522"
+    ],
+    "source_pdf_filenames": [
+      "W4388823522_607f515b79_evaluation_of_the_performance_of_generative_ai_large_languag.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-665f9a991a86410d"
+    ],
+    "benchmark_id": "rse100-023"
+  },
+  {
+    "query": "How do large language models perform on theory of mind tasks (according to \"Evaluating Large Language Models in Theory of Mind Tasks\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "large",
+      "language",
+      "models"
+    ],
+    "expected_relevant_ids": [
+      "chunk-2921c789f320f090"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[factual] numeric result from Evaluating Large Language Models in Theo",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "numeric_results",
+    "source_paper_ids": [
+      "https://openalex.org/W4319452268"
+    ],
+    "source_pdf_filenames": [
+      "W4319452268_70c4cc5f88_evaluating_large_language_models_in_theory_of_mind_tasks.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-2921c789f320f090"
+    ],
+    "benchmark_id": "rse100-024"
+  },
+  {
+    "query": "How does providing clinical guidelines as context improve LLM accuracy in hepatology (according to \"Optimization of hepatological clinical guidelines interpretation by large language models: a retrieval augmented generation-based framework\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "hepato",
+      "guidelines",
+      "accuracy"
+    ],
+    "expected_relevant_ids": [
+      "chunk-e1cc186bc4f8005a"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[factual] numeric result from Optimization of hepatological clinical g",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "numeric_results",
+    "source_paper_ids": [
+      "https://openalex.org/W4395050972"
+    ],
+    "source_pdf_filenames": [
+      "W4395050972_9036051dae_optimization_of_hepatological_clinical_guidelines_interpreta.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-e1cc186bc4f8005a"
+    ],
+    "benchmark_id": "rse100-025"
+  },
+  {
+    "query": "How much faster are linear transformers compared to standard autoregressive models (according to \"Transformers are RNNs: Fast Autoregressive Transformers with Linear Attention\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Transformers / Attention Mechanisms"
+    ],
+    "expected_keywords": [
+      "linear",
+      "transformer",
+      "faster"
+    ],
+    "expected_relevant_ids": [
+      "chunk-49f00080d127a0be"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[factual] numeric result from Transformers are RNNs: Fast Autoregressi",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "numeric_results",
+    "source_paper_ids": [
+      "https://openalex.org/W3034573343"
+    ],
+    "source_pdf_filenames": [
+      "W3034573343_76c022759f_transformers_are_rnns_fast_autoregressive_transformers_with_.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-49f00080d127a0be"
+    ],
+    "benchmark_id": "rse100-026"
+  },
+  {
+    "query": "How much faster or more accurate is retrieval-augmented generation compared to baselines (according to \"RAG-based explainable prediction of road users behaviors for automated driving using knowledge graphs and large language models\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "retrieval-augmented",
+      "generation"
+    ],
+    "expected_relevant_ids": [
+      "chunk-527ecccc3ea7bc8c"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[factual] numeric result from RAG-based explainable prediction of road",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "numeric_results",
+    "source_paper_ids": [
+      "https://openalex.org/W4404852772"
+    ],
+    "source_pdf_filenames": [
+      "W4404852772_de1b1fe69b_rag-based_explainable_prediction_of_road_users_behaviors_for.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-527ecccc3ea7bc8c"
+    ],
+    "benchmark_id": "rse100-027"
+  },
+  {
+    "query": "What accuracy does OpenMedLM achieve (according to \"OpenMedLM: prompt engineering can out-perform fine-tuning in medical question-answering with open-source large language models\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "openmedlm"
+    ],
+    "expected_relevant_ids": [
+      "chunk-5bef16af7ccedc77"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[factual] numeric result from OpenMedLM: prompt engineering can out-pe",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "numeric_results",
+    "source_paper_ids": [
+      "https://openalex.org/W4399807068"
+    ],
+    "source_pdf_filenames": [
+      "W4399807068_c9052a59f6_openmedlm_prompt_engineering_can_out-perform_fine-tuning_in_.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-5bef16af7ccedc77"
+    ],
+    "benchmark_id": "rse100-028"
+  },
+  {
+    "query": "What accuracy does PRAG achieve (according to \"PRAG: Paninian Retrieval-Augmented Generation for Safety-Critical Medical Question Answering\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "prag"
+    ],
+    "expected_relevant_ids": [
+      "chunk-e8098b4ddc7b93ee"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[factual] numeric result from PRAG: Paninian Retrieval-Augmented Gener",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "numeric_results",
+    "source_paper_ids": [
+      "https://openalex.org/W3088056511"
+    ],
+    "source_pdf_filenames": [
+      "W3088056511_885bf48d9f_prag_paninian_retrieval-augmented_generation_for_safety-crit.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-e8098b4ddc7b93ee"
+    ],
+    "benchmark_id": "rse100-029"
+  },
+  {
+    "query": "What are the benchmark results for evaluation of gpt-3.5 and gpt-4 models using mcnemar test (according to \"ChatGPT goes to the operating room: evaluating GPT-4 performance and its potential in surgical education and training in the era of large language models\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "evaluation",
+      "gpt-3.5",
+      "gpt-4"
+    ],
+    "expected_relevant_ids": [
+      "chunk-31a40a53a8c38a2b"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[factual] numeric result from ChatGPT goes to the operating room: eval",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "numeric_results",
+    "source_paper_ids": [
+      "https://openalex.org/W4372047097"
+    ],
+    "source_pdf_filenames": [
+      "W4372047097_72ab5214ac_chatgpt_goes_to_the_operating_room_evaluating_gpt-4_performa.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-31a40a53a8c38a2b"
+    ],
+    "benchmark_id": "rse100-030"
+  },
+  {
+    "query": "What are the benchmark results for of Neighborhood Attention (according to \"Neighborhood Attention Transformer\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Transformers / Attention Mechanisms"
+    ],
+    "expected_keywords": [
+      "neighborhood",
+      "attention"
+    ],
+    "expected_relevant_ids": [
+      "chunk-c3a49c8bf7bf2be1"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[factual] numeric result from Neighborhood Attention Transformer",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "numeric_results",
+    "source_paper_ids": [
+      "https://openalex.org/W4386075553"
+    ],
+    "source_pdf_filenames": [
+      "W4386075553_acac1181ba_neighborhood_attention_transformer.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-c3a49c8bf7bf2be1"
+    ],
+    "benchmark_id": "rse100-031"
+  },
+  {
+    "query": "What are the quantitative improvements from Evaluating the use of large (according to \"Evaluating the use of large language model in identifying top research questions in gastroenterology\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "evaluating",
+      "large"
+    ],
+    "expected_relevant_ids": [
+      "chunk-9a1eb05c8334f2c0"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[factual] numeric result from Evaluating the use of large language mod",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "numeric_results",
+    "source_paper_ids": [
+      "https://openalex.org/W4324129637"
+    ],
+    "source_pdf_filenames": [
+      "W4324129637_622faf7e08_evaluating_the_use_of_large_language_model_in_identifying_to.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-9a1eb05c8334f2c0"
+    ],
+    "benchmark_id": "rse100-032"
+  },
+  {
+    "query": "What are the quantitative results reported for LLM-Planner (according to \"LLM-Planner: Few-Shot Grounded Planning for Embodied Agents with Large Language Models\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "AI Agents & Tool Use"
+    ],
+    "expected_keywords": [
+      "llm-planner"
+    ],
+    "expected_relevant_ids": [
+      "chunk-b029a554253d547d"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[factual] numeric result from LLM-Planner: Few-Shot Grounded Planning ",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "numeric_results",
+    "source_paper_ids": [
+      "https://openalex.org/W4390874280"
+    ],
+    "source_pdf_filenames": [
+      "W4390874280_675b1b066c_llm-planner_few-shot_grounded_planning_for_embodied_agents_w.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-b029a554253d547d"
+    ],
+    "benchmark_id": "rse100-033"
+  },
+  {
+    "query": "What are the quantitative results reported for TruthfulQA (according to \"TruthfulQA: Measuring How Models Mimic Human Falsehoods\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "truthfulqa"
+    ],
+    "expected_relevant_ids": [
+      "chunk-9635ce31af5a9aa7"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[factual] numeric result from TruthfulQA: Measuring How Models Mimic H",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "numeric_results",
+    "source_paper_ids": [
+      "https://openalex.org/W3201174429"
+    ],
+    "source_pdf_filenames": [
+      "W3201174429_f46ef423a0_truthfulqa_measuring_how_models_mimic_human_falsehoods.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-9635ce31af5a9aa7"
+    ],
+    "benchmark_id": "rse100-034"
+  },
+  {
+    "query": "What are the quantitative results reported for evalplus (according to \"Is Your Code Generated by ChatGPT Really Correct? Rigorous Evaluation of Large Language Models for Code Generation\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "evalplus"
+    ],
+    "expected_relevant_ids": [
+      "chunk-b008a97ddb09b4cd"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[factual] numeric result from Is Your Code Generated by ChatGPT Really",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "numeric_results",
+    "source_paper_ids": [
+      "https://openalex.org/W4367860052"
+    ],
+    "source_pdf_filenames": [
+      "W4367860052_aab0c04436_is_your_code_generated_by_chatgpt_really_correct_rigorous_ev.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-b008a97ddb09b4cd"
+    ],
+    "benchmark_id": "rse100-035"
+  },
+  {
+    "query": "What evaluation findings exist for llm evaluation & hallucination detection (according to \"A systematic review of large language model (LLM) evaluations in clinical medicine\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "evaluation",
+      "findings",
+      "exist"
+    ],
+    "expected_relevant_ids": [
+      "chunk-c5fc8ba99325d9ed"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[factual] numeric result from A systematic review of large language mo",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "numeric_results",
+    "source_paper_ids": [
+      "https://openalex.org/W4408226143"
+    ],
+    "source_pdf_filenames": [
+      "W4408226143_201a449d43_a_systematic_review_of_large_language_model_llm_evaluations_.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-c5fc8ba99325d9ed"
+    ],
+    "benchmark_id": "rse100-036"
+  },
+  {
+    "query": "What is the measured speedup or accuracy gain from of the RISE framework to enhance LLMs for diabetes education (according to \"Enhancement of the Performance of Large Language Models in Diabetes Education through Retrieval-Augmented Generation: Comparative Study\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "rise",
+      "framework",
+      "enhance"
+    ],
+    "expected_relevant_ids": [
+      "chunk-c69605d01124e5ab"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[factual] numeric result from Enhancement of the Performance of Large ",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "numeric_results",
+    "source_paper_ids": [
+      "https://openalex.org/W4400955423"
+    ],
+    "source_pdf_filenames": [
+      "W4400955423_62bd2d3482_enhancement_of_the_performance_of_large_language_models_in_d.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-c69605d01124e5ab"
+    ],
+    "benchmark_id": "rse100-037"
+  },
+  {
+    "query": "What is the measured speedup or accuracy gain from parameter-efficient prompt tuning with adaptive optimization (according to \"Federated Learning of Large Language Models with Parameter-Efficient Prompt Tuning and Adaptive Optimization\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "parameter-efficient",
+      "prompt",
+      "tuning"
+    ],
+    "expected_relevant_ids": [
+      "chunk-04a8e71bc654317e"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[factual] numeric result from Federated Learning of Large Language Mod",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "numeric_results",
+    "source_paper_ids": [
+      "https://openalex.org/W4389520700"
+    ],
+    "source_pdf_filenames": [
+      "W4389520700_1149c04217_federated_learning_of_large_language_models_with_parameter-e.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-04a8e71bc654317e"
+    ],
+    "benchmark_id": "rse100-038"
+  },
+  {
+    "query": "What quantitative results does the selected LLM evaluation study report (according to \"Evaluating large language models on a highly-specialized topic, radiation oncology physics\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "radiation",
+      "oncology",
+      "evaluation"
+    ],
+    "expected_relevant_ids": [
+      "chunk-7d8a47702bd30b49"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[factual] numeric result from Evaluating large language models on a hi",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "numeric_results",
+    "source_paper_ids": [
+      "https://openalex.org/W4384484700"
+    ],
+    "source_pdf_filenames": [
+      "W4384484700_275296ee35_evaluating_large_language_models_on_a_highly-specialized_top.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-7d8a47702bd30b49"
+    ],
+    "benchmark_id": "rse100-039"
+  },
+  {
+    "query": "What quantitative results does the selected retrieval-augmented language-model study report (according to \"Retrieval-Augmented Generation for Code Summarization via Hybrid GNN\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "code",
+      "summarization",
+      "retrieval"
+    ],
+    "expected_relevant_ids": [
+      "chunk-905e4992fd9bae67"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[factual] numeric result from Retrieval-Augmented Generation for Code ",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "numeric_results",
+    "source_paper_ids": [
+      "https://openalex.org/W3123811550"
+    ],
+    "source_pdf_filenames": [
+      "W3123811550_cebfd0ee8e_retrieval-augmented_generation_for_code_summarization_via_hy.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-905e4992fd9bae67"
+    ],
+    "benchmark_id": "rse100-040"
+  },
+  {
+    "query": "Describe how Benchmarking Large Language Models in is implemented. (according to \"Benchmarking Large Language Models in Retrieval-Augmented Generation\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "benchmarking",
+      "large",
+      "language"
+    ],
+    "expected_relevant_ids": [
+      "chunk-4a5a08b5a9de4abe"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[methodology] deep-dive into Benchmarking Large Language Models in Re",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "methodology",
+    "source_paper_ids": [
+      "https://openalex.org/W4393147129"
+    ],
+    "source_pdf_filenames": [
+      "W4393147129_ead46253f5_benchmarking_large_language_models_in_retrieval-augmented_ge.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-4a5a08b5a9de4abe"
+    ],
+    "benchmark_id": "rse100-041"
+  },
+  {
+    "query": "Describe how BitFit is implemented. (according to \"BitFit: Simple Parameter-efficient Fine-tuning for Transformer-based Masked Language-models\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "bitfit"
+    ],
+    "expected_relevant_ids": [
+      "chunk-942be7ccb51f106e"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[methodology] deep-dive into BitFit: Simple Parameter-efficient Fine-",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "methodology",
+    "source_paper_ids": [
+      "https://openalex.org/W3176828726"
+    ],
+    "source_pdf_filenames": [
+      "W3176828726_f825a9bc8d_bitfit_simple_parameter-efficient_fine-tuning_for_transforme.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-942be7ccb51f106e"
+    ],
+    "benchmark_id": "rse100-042"
+  },
+  {
+    "query": "Describe how Evaluation and mitigation of the is implemented. (according to \"Evaluation and mitigation of the limitations of large language models in clinical decision-making\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "evaluation",
+      "mitigation"
+    ],
+    "expected_relevant_ids": [
+      "chunk-76e5bfac138ead24"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[methodology] deep-dive into Evaluation and mitigation of the limitat",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "methodology",
+    "source_paper_ids": [
+      "https://openalex.org/W4400324908"
+    ],
+    "source_pdf_filenames": [
+      "W4400324908_dabd7b4283_evaluation_and_mitigation_of_the_limitations_of_large_langua.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-76e5bfac138ead24"
+    ],
+    "benchmark_id": "rse100-043"
+  },
+  {
+    "query": "Describe how evalplus is implemented. (according to \"Is Your Code Generated by ChatGPT Really Correct? Rigorous Evaluation of Large Language Models for Code Generation\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "evalplus"
+    ],
+    "expected_relevant_ids": [
+      "chunk-b008a97ddb09b4cd"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[methodology] deep-dive into Is Your Code Generated by ChatGPT Really",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "methodology",
+    "source_paper_ids": [
+      "https://openalex.org/W4367860052"
+    ],
+    "source_pdf_filenames": [
+      "W4367860052_aab0c04436_is_your_code_generated_by_chatgpt_really_correct_rigorous_ev.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-b008a97ddb09b4cd"
+    ],
+    "benchmark_id": "rse100-044"
+  },
+  {
+    "query": "Explain the architecture of test-time prompt tuning. (according to \"Test-Time Prompt Tuning for Zero-Shot Generalization in Vision-Language Models\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "test-time",
+      "prompt",
+      "tuning"
+    ],
+    "expected_relevant_ids": [
+      "chunk-71459e5f2f6edc58"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[methodology] deep-dive into Test-Time Prompt Tuning for Zero-Shot Ge",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "methodology",
+    "source_paper_ids": [
+      "https://openalex.org/W4296151208"
+    ],
+    "source_pdf_filenames": [
+      "W4296151208_0fda4ca55b_test-time_prompt_tuning_for_zero-shot_generalization_in_visi.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-71459e5f2f6edc58"
+    ],
+    "benchmark_id": "rse100-045"
+  },
+  {
+    "query": "How does Axial Attention in Multidimensional Transformers work (according to \"Axial Attention in Multidimensional Transformers\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Transformers / Attention Mechanisms"
+    ],
+    "expected_keywords": [
+      "axial",
+      "attention",
+      "multidimensional"
+    ],
+    "expected_relevant_ids": [
+      "chunk-2688e807f21b4f91"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[methodology] deep-dive into Axial Attention in Multidimensional Tran",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "methodology",
+    "source_paper_ids": [
+      "https://openalex.org/W2998108143"
+    ],
+    "source_pdf_filenames": [
+      "W2998108143_2740ff67d8_axial_attention_in_multidimensional_transformers.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-2688e807f21b4f91"
+    ],
+    "benchmark_id": "rse100-046"
+  },
+  {
+    "query": "How does ProtAgents work (according to \"ProtAgents: protein discovery <i>via</i> large language model multi-agent collaborations combining physics and machine learning\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "AI Agents & Tool Use"
+    ],
+    "expected_keywords": [
+      "protagents"
+    ],
+    "expected_relevant_ids": [
+      "chunk-cd8389c0d59c5b5d"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[methodology] deep-dive into ProtAgents: protein discovery <i>via</i>",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "methodology",
+    "source_paper_ids": [
+      "https://openalex.org/W4397004462"
+    ],
+    "source_pdf_filenames": [
+      "W4397004462_358326815b_protagents_protein_discovery_i_via_i_large_language_model_mu.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-cd8389c0d59c5b5d"
+    ],
+    "benchmark_id": "rse100-047"
+  },
+  {
+    "query": "How does Twins work (according to \"Twins: Revisiting the Design of Spatial Attention in Vision Transformers\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Transformers / Attention Mechanisms"
+    ],
+    "expected_keywords": [
+      "twins"
+    ],
+    "expected_relevant_ids": [
+      "chunk-858a5a2a6d5819aa"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[methodology] deep-dive into Twins: Revisiting the Design of Spatial ",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "methodology",
+    "source_paper_ids": [
+      "https://openalex.org/W3157528469"
+    ],
+    "source_pdf_filenames": [
+      "W3157528469_01e9efa96f_twins_revisiting_the_design_of_spatial_attention_in_vision_t.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-858a5a2a6d5819aa"
+    ],
+    "benchmark_id": "rse100-048"
+  },
+  {
+    "query": "How does an analysis framework linking p work (according to \"Why Do Pretrained Language Models Help in Downstream Tasks? An Analysis of Head and Prompt Tuning\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "analysis",
+      "framework",
+      "linking"
+    ],
+    "expected_relevant_ids": [
+      "chunk-4f44493a7ad7ff13"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[methodology] deep-dive into Why Do Pretrained Language Models Help i",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "methodology",
+    "source_paper_ids": [
+      "https://openalex.org/W3166143997"
+    ],
+    "source_pdf_filenames": [
+      "W3166143997_834f8b3f58_why_do_pretrained_language_models_help_in_downstream_tasks_a.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-4f44493a7ad7ff13"
+    ],
+    "benchmark_id": "rse100-049"
+  },
+  {
+    "query": "How does knowledge distillation work for transformers (considering \"Training data-efficient image transformers & distillation through attention\"; \"MiniLM: Deep Self-Attention Distillation for Task-Agnostic Compression of Pre-Trained Transformers\"; \"MiniLMv2: Multi-Head Self-Attention Relation Distillation for Compressing Pretrained Transformers\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Transformers / Attention Mechanisms"
+    ],
+    "expected_keywords": [
+      "distillation",
+      "knowledge"
+    ],
+    "expected_relevant_ids": [
+      "chunk-7c17022266fdb10d",
+      "chunk-4d3032f2b9e77e6f",
+      "chunk-b513905f3ae01729"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[methodology] knowledge distillation",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "methodology",
+    "source_paper_ids": [
+      "https://openalex.org/W3116489684",
+      "https://openalex.org/W3008374555",
+      "https://openalex.org/W3174544005"
+    ],
+    "source_pdf_filenames": [
+      "W3116489684_94e7c6674a_training_data-efficient_image_transformers_distillation_thro.pdf",
+      "W3008374555_0ea0d516ed_minilm_deep_self-attention_distillation_for_task-agnostic_co.pdf",
+      "W3174544005_0bffa1b538_minilmv2_multi-head_self-attention_relation_distillation_for.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-7c17022266fdb10d",
+      "chunk-4d3032f2b9e77e6f",
+      "chunk-b513905f3ae01729"
+    ],
+    "benchmark_id": "rse100-050"
+  },
+  {
+    "query": "How is the unified categorization criterion implemented (according to \"Parameter-efficient fine-tuning of large-scale pre-trained language models\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "parameter-efficient",
+      "fine-tuning",
+      "categorization"
+    ],
+    "expected_relevant_ids": [
+      "chunk-3eeb4f0244ecb2bc"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[methodology] deep-dive into Parameter-efficient fine-tuning of large",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "methodology",
+    "source_paper_ids": [
+      "https://openalex.org/W4322766882"
+    ],
+    "source_pdf_filenames": [
+      "W4322766882_345ae97a44_parameter-efficient_fine-tuning_of_large-scale_pre-trained_l.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-3eeb4f0244ecb2bc"
+    ],
+    "benchmark_id": "rse100-051"
+  },
+  {
+    "query": "What does the survey on Survey on RAG Meeting LLMs cover (according to \"A Survey on RAG Meeting LLMs: Towards Retrieval-Augmented Large Language Models\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "survey",
+      "meeting",
+      "llms"
+    ],
+    "expected_relevant_ids": [
+      "chunk-cd4b99091aadf28e"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[methodology] deep-dive into A Survey on RAG Meeting LLMs: Towards Re",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "methodology",
+    "source_paper_ids": [
+      "https://openalex.org/W4401857375"
+    ],
+    "source_pdf_filenames": [
+      "W4401857375_5be65761cf_a_survey_on_rag_meeting_llms_towards_retrieval-augmented_lar.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-cd4b99091aadf28e"
+    ],
+    "benchmark_id": "rse100-052"
+  },
+  {
+    "query": "What does the survey on quest cover (according to \"A framework for human evaluation of large language models in healthcare derived from literature review\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "quest"
+    ],
+    "expected_relevant_ids": [
+      "chunk-f8591b0f7947a141"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[methodology] deep-dive into A framework for human evaluation of larg",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "methodology",
+    "source_paper_ids": [
+      "https://openalex.org/W4402909345"
+    ],
+    "source_pdf_filenames": [
+      "W4402909345_c32021c19e_a_framework_for_human_evaluation_of_large_language_models_in.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-f8591b0f7947a141"
+    ],
+    "benchmark_id": "rse100-053"
+  },
+  {
+    "query": "What does the survey on survey on LLM-based multi-agent systems cover (according to \"A survey on LLM-based multi-agent systems: workflow, infrastructure, and challenges\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "AI Agents & Tool Use"
+    ],
+    "expected_keywords": [
+      "survey",
+      "llm-based",
+      "multi-agent"
+    ],
+    "expected_relevant_ids": [
+      "chunk-d51ff629aa0ca132"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[methodology] deep-dive into A survey on LLM-based multi-agent system",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "methodology",
+    "source_paper_ids": [
+      "https://openalex.org/W4403203873"
+    ],
+    "source_pdf_filenames": [
+      "W4403203873_e4e3202d94_a_survey_on_llm-based_multi-agent_systems_workflow_infrastru.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-d51ff629aa0ca132"
+    ],
+    "benchmark_id": "rse100-054"
+  },
+  {
+    "query": "What evaluation results does the selected interactive-LLM study report (according to \"Interactive AI With Retrieval-Augmented Generation for Next Generation Networking\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "interactive",
+      "networking",
+      "retrieval"
+    ],
+    "expected_relevant_ids": [
+      "chunk-f9c5be8025f7fca1"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[methodology] deep-dive into Interactive AI With Retrieval-Augmented ",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "methodology",
+    "source_paper_ids": [
+      "https://openalex.org/W4396941482"
+    ],
+    "source_pdf_filenames": [
+      "W4396941482_3ec4c5f33f_interactive_ai_with_retrieval-augmented_generation_for_next_.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-f9c5be8025f7fca1"
+    ],
+    "benchmark_id": "rse100-055"
+  },
+  {
+    "query": "What is the technical approach behind DA-TransUNet (according to \"DA-TransUNet: integrating spatial and channel dual attention with transformer U-net for medical image segmentation\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Transformers / Attention Mechanisms"
+    ],
+    "expected_keywords": [
+      "da-transunet"
+    ],
+    "expected_relevant_ids": [
+      "chunk-a9b54e9ef4f6af29"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[methodology] deep-dive into DA-TransUNet: integrating spatial and ch",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "methodology",
+    "source_paper_ids": [
+      "https://openalex.org/W4396973073"
+    ],
+    "source_pdf_filenames": [
+      "W4396973073_fa9e7618b7_da-transunet_integrating_spatial_and_channel_dual_attention_.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-a9b54e9ef4f6af29"
+    ],
+    "benchmark_id": "rse100-056"
+  },
+  {
+    "query": "What is the technical approach behind Detecting hallucinations in large language (according to \"Detecting hallucinations in large language models using semantic entropy\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "detecting",
+      "hallucinations",
+      "large"
+    ],
+    "expected_relevant_ids": [
+      "chunk-9ab4b190550fcddb"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[methodology] deep-dive into Detecting hallucinations in large langua",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "methodology",
+    "source_paper_ids": [
+      "https://openalex.org/W4399803256"
+    ],
+    "source_pdf_filenames": [
+      "W4399803256_8cb5ce93a5_detecting_hallucinations_in_large_language_models_using_sema.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-9ab4b190550fcddb"
+    ],
+    "benchmark_id": "rse100-057"
+  },
+  {
+    "query": "What is the technical approach behind RAG-based explainable prediction of road (according to \"RAG-based explainable prediction of road users behaviors for automated driving using knowledge graphs and large language models\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "rag-based",
+      "explainable",
+      "prediction"
+    ],
+    "expected_relevant_ids": [
+      "chunk-527ecccc3ea7bc8c"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[methodology] deep-dive into RAG-based explainable prediction of road",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "methodology",
+    "source_paper_ids": [
+      "https://openalex.org/W4404852772"
+    ],
+    "source_pdf_filenames": [
+      "W4404852772_de1b1fe69b_rag-based_explainable_prediction_of_road_users_behaviors_for.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-527ecccc3ea7bc8c"
+    ],
+    "benchmark_id": "rse100-058"
+  },
+  {
+    "query": "What method does the medical information retriev use (according to \"Benchmarking Retrieval-Augmented Generation for Medicine\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "medical",
+      "information",
+      "retriev"
+    ],
+    "expected_relevant_ids": [
+      "chunk-54160d4bd76ae146"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[methodology] deep-dive into Benchmarking Retrieval-Augmented Generat",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "methodology",
+    "source_paper_ids": [
+      "https://openalex.org/W4402670290"
+    ],
+    "source_pdf_filenames": [
+      "W4402670290_12edb076e1_benchmarking_retrieval-augmented_generation_for_medicine.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-54160d4bd76ae146"
+    ],
+    "benchmark_id": "rse100-059"
+  },
+  {
+    "query": "How well do LLMs generate correct code on programming benchmarks (according to \"Evaluating Large Language Models Trained on Code\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "generate",
+      "correct",
+      "programming"
+    ],
+    "expected_relevant_ids": [
+      "chunk-3e5a32a446bbbe42"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[abstract] main contribution of Evaluating Large Language Models Trained",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "dataset_benchmarks",
+    "source_paper_ids": [
+      "https://openalex.org/W3177813494"
+    ],
+    "source_pdf_filenames": [
+      "W3177813494_b08f9cbbc1_evaluating_large_language_models_trained_on_code.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-3e5a32a446bbbe42"
+    ],
+    "benchmark_id": "rse100-060"
+  },
+  {
+    "query": "What is Benchmarking Large Language Models in and what problem does it solve (according to \"Benchmarking Large Language Models in Retrieval-Augmented Generation\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "benchmarking",
+      "large",
+      "language"
+    ],
+    "expected_relevant_ids": [
+      "chunk-4a5a08b5a9de4abe"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[abstract] main contribution of Benchmarking Large Language Models in Re",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "dataset_benchmarks",
+    "source_paper_ids": [
+      "https://openalex.org/W4393147129"
+    ],
+    "source_pdf_filenames": [
+      "W4393147129_ead46253f5_benchmarking_large_language_models_in_retrieval-augmented_ge.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-4a5a08b5a9de4abe"
+    ],
+    "benchmark_id": "rse100-061"
+  },
+  {
+    "query": "What papers evaluate models on commonsense reasoning datasets (considering \"LLM-Adapters: An Adapter Family for Parameter-Efficient Fine-Tuning of Large Language Models\"; \"MiLoRA: Efficient Mixture of Low-Rank Adaptation for Large Language Models Fine-tuning\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "commonsense",
+      "reasoning"
+    ],
+    "expected_relevant_ids": [
+      "chunk-7316b8d3033fc37f",
+      "chunk-436b7aa8e87fc226"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[dataset] commonsense reasoning",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "dataset_benchmarks",
+    "source_paper_ids": [
+      "https://openalex.org/W4389524317",
+      "https://openalex.org/W4404781224"
+    ],
+    "source_pdf_filenames": [
+      "W4389524317_2bfd2db5c3_llm-adapters_an_adapter_family_for_parameter-efficient_fine-.pdf",
+      "W4404781224_fdd6b55357_milora_efficient_mixture_of_low-rank_adaptation_for_large_la.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-7316b8d3033fc37f",
+      "chunk-436b7aa8e87fc226"
+    ],
+    "benchmark_id": "rse100-062"
+  },
+  {
+    "query": "Which datasets are commonly used in vision transformers research (considering \"Attention Is All You Need\"; \"CrossViT: Cross-Attention Multi-Scale Vision Transformer for Image Classification\"; \"Is Space-Time Attention All You Need for Video Understanding?\"; \"Training data-efficient image transformers & distillation through attention\"; \"MiniLM: Deep Self-Attention Distillation for Task-Agnostic Compression of Pre-Trained Transformers\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Transformers / Attention Mechanisms"
+    ],
+    "expected_keywords": [
+      "dataset",
+      "benchmark",
+      "evaluat"
+    ],
+    "expected_relevant_ids": [
+      "chunk-65de10cfbc7d73a8",
+      "chunk-ae9287add9b5f850",
+      "chunk-7216de6f56b432a3",
+      "chunk-3f10c3ce546c9937",
+      "chunk-21a388ac09c2e91b"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[dataset] benchmarks for vision transformers",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "dataset_benchmarks",
+    "source_paper_ids": [
+      "https://openalex.org/W2626778328",
+      "https://openalex.org/W3151130473",
+      "https://openalex.org/W3126721948",
+      "https://openalex.org/W3116489684",
+      "https://openalex.org/W3008374555"
+    ],
+    "source_pdf_filenames": [
+      "W2626778328_7c31777646_attention_is_all_you_need.pdf",
+      "W3151130473_ae20d2d347_crossvit_cross-attention_multi-scale_vision_transformer_for_.pdf",
+      "W3126721948_0c388b7bb8_is_space-time_attention_all_you_need_for_video_understanding.pdf",
+      "W3116489684_94e7c6674a_training_data-efficient_image_transformers_distillation_thro.pdf",
+      "W3008374555_0ea0d516ed_minilm_deep_self-attention_distillation_for_task-agnostic_co.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-65de10cfbc7d73a8",
+      "chunk-ae9287add9b5f850",
+      "chunk-7216de6f56b432a3",
+      "chunk-3f10c3ce546c9937",
+      "chunk-21a388ac09c2e91b"
+    ],
+    "benchmark_id": "rse100-063"
+  },
+  {
+    "query": "Which papers evaluate on Imagenet (considering \"CrossViT: Cross-Attention Multi-Scale Vision Transformer for Image Classification\"; \"Training data-efficient image transformers & distillation through attention\"; \"Neighborhood Attention Transformer\"; \"Axial Attention in Multidimensional Transformers\"; \"Focal Self-attention for Local-Global Interactions in Vision Transformers\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [],
+    "expected_keywords": [
+      "imagenet"
+    ],
+    "expected_relevant_ids": [
+      "chunk-45869a8dbbe68a3c",
+      "chunk-2f3eedf713d99b00",
+      "chunk-c3a49c8bf7bf2be1",
+      "chunk-e60571584b143613",
+      "chunk-ec0c67194a6ab63b"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[dataset] papers using imagenet",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "dataset_benchmarks",
+    "source_paper_ids": [
+      "https://openalex.org/W3151130473",
+      "https://openalex.org/W3116489684",
+      "https://openalex.org/W4386075553",
+      "https://openalex.org/W2998108143",
+      "https://openalex.org/W3176153963"
+    ],
+    "source_pdf_filenames": [
+      "W3151130473_ae20d2d347_crossvit_cross-attention_multi-scale_vision_transformer_for_.pdf",
+      "W3116489684_94e7c6674a_training_data-efficient_image_transformers_distillation_thro.pdf",
+      "W4386075553_acac1181ba_neighborhood_attention_transformer.pdf",
+      "W2998108143_2740ff67d8_axial_attention_in_multidimensional_transformers.pdf",
+      "W3176153963_8e90142178_focal_self-attention_for_local-global_interactions_in_vision.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-45869a8dbbe68a3c",
+      "chunk-2f3eedf713d99b00",
+      "chunk-c3a49c8bf7bf2be1",
+      "chunk-e60571584b143613",
+      "chunk-ec0c67194a6ab63b"
+    ],
+    "benchmark_id": "rse100-064"
+  },
+  {
+    "query": "Which papers use the ALFRED dataset for agent evaluation (according to \"LLM-Planner: Few-Shot Grounded Planning for Embodied Agents with Large Language Models\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "AI Agents & Tool Use"
+    ],
+    "expected_keywords": [
+      "alfred",
+      "dataset"
+    ],
+    "expected_relevant_ids": [
+      "chunk-4428c05c600177d3"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[dataset] ALFRED benchmark",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "dataset_benchmarks",
+    "source_paper_ids": [
+      "https://openalex.org/W4390874280"
+    ],
+    "source_pdf_filenames": [
+      "W4390874280_675b1b066c_llm-planner_few-shot_grounded_planning_for_embodied_agents_w.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-4428c05c600177d3"
+    ],
+    "benchmark_id": "rse100-065"
+  },
+  {
+    "query": "Does fine-tuning increase or decrease hallucination rates (considering \"LoRA: Low-Rank Adaptation of Large Language Models\"; \"Parameter-efficient fine-tuning of large-scale pre-trained language models\"; \"BitFit: Simple Parameter-efficient Fine-tuning for Transformer-based Masked Language-models\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)",
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "compare",
+      "difference",
+      "trade-off",
+      "versus"
+    ],
+    "expected_relevant_ids": [
+      "chunk-61720fad680fd436",
+      "chunk-3eeb4f0244ecb2bc",
+      "chunk-7cca646ab6e698d2"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[comparison] Fine-tuning (LoRA /  vs LLM Evaluation & Hal",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "comparison",
+    "source_paper_ids": [
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4322766882",
+      "https://openalex.org/W3176828726"
+    ],
+    "source_pdf_filenames": [
+      "W3168867926_ccad9fd6f7_lora_low-rank_adaptation_of_large_language_models.pdf",
+      "W4322766882_345ae97a44_parameter-efficient_fine-tuning_of_large-scale_pre-trained_l.pdf",
+      "W3176828726_f825a9bc8d_bitfit_simple_parameter-efficient_fine-tuning_for_transforme.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-61720fad680fd436",
+      "chunk-3eeb4f0244ecb2bc",
+      "chunk-7cca646ab6e698d2"
+    ],
+    "benchmark_id": "rse100-066"
+  },
+  {
+    "query": "How are transformer-based models evaluated for code generation (considering \"Attention Is All You Need\"; \"CrossViT: Cross-Attention Multi-Scale Vision Transformer for Image Classification\"; \"Is Space-Time Attention All You Need for Video Understanding?\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Transformers / Attention Mechanisms",
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "compare",
+      "difference",
+      "trade-off",
+      "versus"
+    ],
+    "expected_relevant_ids": [
+      "chunk-fa62a60787482724",
+      "chunk-45869a8dbbe68a3c",
+      "chunk-3c0fab5bf57715f7"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[comparison] Transformers / Atten vs LLM Evaluation & Hal",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "comparison",
+    "source_paper_ids": [
+      "https://openalex.org/W2626778328",
+      "https://openalex.org/W3151130473",
+      "https://openalex.org/W3126721948"
+    ],
+    "source_pdf_filenames": [
+      "W2626778328_7c31777646_attention_is_all_you_need.pdf",
+      "W3151130473_ae20d2d347_crossvit_cross-attention_multi-scale_vision_transformer_for_.pdf",
+      "W3126721948_0c388b7bb8_is_space-time_attention_all_you_need_for_video_understanding.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-fa62a60787482724",
+      "chunk-45869a8dbbe68a3c",
+      "chunk-3c0fab5bf57715f7"
+    ],
+    "benchmark_id": "rse100-067"
+  },
+  {
+    "query": "How do agentic RAG systems differ from standard RAG pipelines (considering \"Generative Agents: Interactive Simulacra of Human Behavior\"; \"A survey on large language model based autonomous agents\"; \"Distributing Accountability, Not Capability: Phase Separation and the LLM Workflow Quadrant in Autonomous AI Agent Architectures\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "AI Agents & Tool Use",
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "compare",
+      "difference",
+      "trade-off",
+      "versus"
+    ],
+    "expected_relevant_ids": [
+      "chunk-a9db126b3c771bad",
+      "chunk-0cb8b67280282f24",
+      "chunk-d7465be174f5a3ca"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[comparison] AI Agents & Tool Use vs Retrieval-Augmented ",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "comparison",
+    "source_paper_ids": [
+      "https://openalex.org/W4363671832",
+      "https://openalex.org/W4393065402",
+      "https://openalex.org/W4304195432"
+    ],
+    "source_pdf_filenames": [
+      "W4363671832_89e5ae844e_generative_agents_interactive_simulacra_of_human_behavior.pdf",
+      "W4393065402_2b91a4e4f3_a_survey_on_large_language_model_based_autonomous_agents.pdf",
+      "W4304195432_9296c79ca7_distributing_accountability_not_capability_phase_separation_.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-a9db126b3c771bad",
+      "chunk-0cb8b67280282f24",
+      "chunk-d7465be174f5a3ca"
+    ],
+    "benchmark_id": "rse100-068"
+  },
+  {
+    "query": "How do you evaluate the reliability of LLM-based agents (considering \"A Survey on Evaluation of Large Language Models\"; \"A Survey on Hallucination in Large Language Models: Principles, Taxonomy, Challenges, and Open Questions\"; \"Evaluating Large Language Models Trained on Code\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection",
+      "AI Agents & Tool Use"
+    ],
+    "expected_keywords": [
+      "compare",
+      "difference",
+      "trade-off",
+      "versus"
+    ],
+    "expected_relevant_ids": [
+      "chunk-7847be5447b36ee1",
+      "chunk-222083eb479941ca",
+      "chunk-23c78913c8ff284c"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[comparison] LLM Evaluation & Hal vs AI Agents & Tool Use",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "comparison",
+    "source_paper_ids": [
+      "https://openalex.org/W4383605161",
+      "https://openalex.org/W4388585881",
+      "https://openalex.org/W3177813494"
+    ],
+    "source_pdf_filenames": [
+      "W4383605161_3e133551fb_a_survey_on_evaluation_of_large_language_models.pdf",
+      "W4388585881_cb9f473c38_a_survey_on_hallucination_in_large_language_models_principle.pdf",
+      "W3177813494_b08f9cbbc1_evaluating_large_language_models_trained_on_code.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-7847be5447b36ee1",
+      "chunk-222083eb479941ca",
+      "chunk-23c78913c8ff284c"
+    ],
+    "benchmark_id": "rse100-069"
+  },
+  {
+    "query": "How does LoRA interact with attention mechanisms in transformers (considering \"Attention Is All You Need\"; \"CrossViT: Cross-Attention Multi-Scale Vision Transformer for Image Classification\"; \"Is Space-Time Attention All You Need for Video Understanding?\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Transformers / Attention Mechanisms",
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "compare",
+      "difference",
+      "trade-off",
+      "versus"
+    ],
+    "expected_relevant_ids": [
+      "chunk-42a1b63c007fba6d",
+      "chunk-45869a8dbbe68a3c",
+      "chunk-3c0fab5bf57715f7"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[comparison] Transformers / Atten vs Fine-tuning (LoRA / ",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "comparison",
+    "source_paper_ids": [
+      "https://openalex.org/W2626778328",
+      "https://openalex.org/W3151130473",
+      "https://openalex.org/W3126721948"
+    ],
+    "source_pdf_filenames": [
+      "W2626778328_7c31777646_attention_is_all_you_need.pdf",
+      "W3151130473_ae20d2d347_crossvit_cross-attention_multi-scale_vision_transformer_for_.pdf",
+      "W3126721948_0c388b7bb8_is_space-time_attention_all_you_need_for_video_understanding.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-42a1b63c007fba6d",
+      "chunk-45869a8dbbe68a3c",
+      "chunk-3c0fab5bf57715f7"
+    ],
+    "benchmark_id": "rse100-070"
+  },
+  {
+    "query": "How does RAG compare to fine-tuning for injecting new knowledge into LLMs (considering \"Retrieval-Augmented Generation for Large Language Models: A Survey\"; \"A Survey on RAG Meeting LLMs: Towards Retrieval-Augmented Large Language Models\"; \"Active Retrieval Augmented Generation\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)",
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "compare",
+      "difference",
+      "trade-off",
+      "versus"
+    ],
+    "expected_relevant_ids": [
+      "chunk-10ac4f3f1d523e86",
+      "chunk-0af9c2168f6a073a",
+      "chunk-e9ed522505d37372"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[comparison] Retrieval-Augmented  vs Fine-tuning (LoRA / ",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "comparison",
+    "source_paper_ids": [
+      "https://openalex.org/W4389984066",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389519118"
+    ],
+    "source_pdf_filenames": [
+      "W4389984066_5429e4d093_retrieval-augmented_generation_for_large_language_models_a_s.pdf",
+      "W4401857375_5be65761cf_a_survey_on_rag_meeting_llms_towards_retrieval-augmented_lar.pdf",
+      "W4389519118_db4c119f10_active_retrieval_augmented_generation.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-10ac4f3f1d523e86",
+      "chunk-0af9c2168f6a073a",
+      "chunk-e9ed522505d37372"
+    ],
+    "benchmark_id": "rse100-071"
+  },
+  {
+    "query": "How effective is RAG at reducing hallucinations compared to other methods (considering \"Retrieval-Augmented Generation for Large Language Models: A Survey\"; \"A Survey on RAG Meeting LLMs: Towards Retrieval-Augmented Large Language Models\"; \"Active Retrieval Augmented Generation\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)",
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "compare",
+      "difference",
+      "trade-off",
+      "versus"
+    ],
+    "expected_relevant_ids": [
+      "chunk-10ac4f3f1d523e86",
+      "chunk-0af9c2168f6a073a",
+      "chunk-e9ed522505d37372"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[comparison] Retrieval-Augmented  vs LLM Evaluation & Hal",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "comparison",
+    "source_paper_ids": [
+      "https://openalex.org/W4389984066",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389519118"
+    ],
+    "source_pdf_filenames": [
+      "W4389984066_5429e4d093_retrieval-augmented_generation_for_large_language_models_a_s.pdf",
+      "W4401857375_5be65761cf_a_survey_on_rag_meeting_llms_towards_retrieval-augmented_lar.pdf",
+      "W4389519118_db4c119f10_active_retrieval_augmented_generation.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-10ac4f3f1d523e86",
+      "chunk-0af9c2168f6a073a",
+      "chunk-e9ed522505d37372"
+    ],
+    "benchmark_id": "rse100-072"
+  },
+  {
+    "query": "Is it better to fine-tune an LLM or give it tools for domain-specific tasks (considering \"Generative Agents: Interactive Simulacra of Human Behavior\"; \"A survey on large language model based autonomous agents\"; \"Distributing Accountability, Not Capability: Phase Separation and the LLM Workflow Quadrant in Autonomous AI Agent Architectures\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "AI Agents & Tool Use",
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "compare",
+      "difference",
+      "trade-off",
+      "versus"
+    ],
+    "expected_relevant_ids": [
+      "chunk-6ceddc2af155a8f9",
+      "chunk-0cb8b67280282f24",
+      "chunk-d7465be174f5a3ca"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[comparison] AI Agents & Tool Use vs Fine-tuning (LoRA / ",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "comparison",
+    "source_paper_ids": [
+      "https://openalex.org/W4363671832",
+      "https://openalex.org/W4393065402",
+      "https://openalex.org/W4304195432"
+    ],
+    "source_pdf_filenames": [
+      "W4363671832_89e5ae844e_generative_agents_interactive_simulacra_of_human_behavior.pdf",
+      "W4393065402_2b91a4e4f3_a_survey_on_large_language_model_based_autonomous_agents.pdf",
+      "W4304195432_9296c79ca7_distributing_accountability_not_capability_phase_separation_.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-6ceddc2af155a8f9",
+      "chunk-0cb8b67280282f24",
+      "chunk-d7465be174f5a3ca"
+    ],
+    "benchmark_id": "rse100-073"
+  },
+  {
+    "query": "What are the trade-offs between RAG and parameter-efficient fine-tuning (considering \"Retrieval-Augmented Generation for Large Language Models: A Survey\"; \"A Survey on RAG Meeting LLMs: Towards Retrieval-Augmented Large Language Models\"; \"Active Retrieval Augmented Generation\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)",
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "compare",
+      "difference",
+      "trade-off",
+      "versus"
+    ],
+    "expected_relevant_ids": [
+      "chunk-10ac4f3f1d523e86",
+      "chunk-0af9c2168f6a073a",
+      "chunk-e74b716808cb58eb"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[comparison] Retrieval-Augmented  vs Fine-tuning (LoRA / ",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "comparison",
+    "source_paper_ids": [
+      "https://openalex.org/W4389984066",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389519118"
+    ],
+    "source_pdf_filenames": [
+      "W4389984066_5429e4d093_retrieval-augmented_generation_for_large_language_models_a_s.pdf",
+      "W4401857375_5be65761cf_a_survey_on_rag_meeting_llms_towards_retrieval-augmented_lar.pdf",
+      "W4389519118_db4c119f10_active_retrieval_augmented_generation.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-10ac4f3f1d523e86",
+      "chunk-0af9c2168f6a073a",
+      "chunk-e74b716808cb58eb"
+    ],
+    "benchmark_id": "rse100-074"
+  },
+  {
+    "query": "What's the difference between a RAG system and an AI agent with search tools (considering \"Retrieval-Augmented Generation for Large Language Models: A Survey\"; \"A Survey on RAG Meeting LLMs: Towards Retrieval-Augmented Large Language Models\"; \"Active Retrieval Augmented Generation\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)",
+      "AI Agents & Tool Use"
+    ],
+    "expected_keywords": [
+      "compare",
+      "difference",
+      "trade-off",
+      "versus"
+    ],
+    "expected_relevant_ids": [
+      "chunk-3adf6c50dfb22f81",
+      "chunk-0af9c2168f6a073a",
+      "chunk-e9ed522505d37372"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[comparison] Retrieval-Augmented  vs AI Agents & Tool Use",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "comparison",
+    "source_paper_ids": [
+      "https://openalex.org/W4389984066",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389519118"
+    ],
+    "source_pdf_filenames": [
+      "W4389984066_5429e4d093_retrieval-augmented_generation_for_large_language_models_a_s.pdf",
+      "W4401857375_5be65761cf_a_survey_on_rag_meeting_llms_towards_retrieval-augmented_lar.pdf",
+      "W4389519118_db4c119f10_active_retrieval_augmented_generation.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-3adf6c50dfb22f81",
+      "chunk-0af9c2168f6a073a",
+      "chunk-e9ed522505d37372"
+    ],
+    "benchmark_id": "rse100-075"
+  },
+  {
+    "query": "What are the known failure modes of LLM evaluation methods (considering \"A Survey on Hallucination in Large Language Models: Principles, Taxonomy, Challenges, and Open Questions\"; \"TruthfulQA: Measuring How Models Mimic Human Falsehoods\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "limitation",
+      "challenge",
+      "weakness"
+    ],
+    "expected_relevant_ids": [
+      "chunk-7b3fd3a3a9c67462",
+      "chunk-1df9a1d98bb33eed"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[limitation] topic-level for LLM evaluation methods",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "limitations",
+    "source_paper_ids": [
+      "https://openalex.org/W4388585881",
+      "https://openalex.org/W3201174429"
+    ],
+    "source_pdf_filenames": [
+      "W4388585881_cb9f473c38_a_survey_on_hallucination_in_large_language_models_principle.pdf",
+      "W3201174429_f46ef423a0_truthfulqa_measuring_how_models_mimic_human_falsehoods.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-7b3fd3a3a9c67462",
+      "chunk-1df9a1d98bb33eed"
+    ],
+    "benchmark_id": "rse100-076"
+  },
+  {
+    "query": "What are the main limitations of RAG systems (according to \"A Survey on RAG Meeting LLMs: Towards Retrieval-Augmented Large Language Models\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "limitation",
+      "challenge",
+      "weakness"
+    ],
+    "expected_relevant_ids": [
+      "chunk-87f2ccbc25d47383"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[limitation] topic-level for RAG systems",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "limitations",
+    "source_paper_ids": [
+      "https://openalex.org/W4401857375"
+    ],
+    "source_pdf_filenames": [
+      "W4401857375_5be65761cf_a_survey_on_rag_meeting_llms_towards_retrieval-augmented_lar.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-87f2ccbc25d47383"
+    ],
+    "benchmark_id": "rse100-077"
+  },
+  {
+    "query": "What are the main limitations of parameter-efficient fine-tuning (according to \"Comparison of Prompt Engineering and Fine-Tuning Strategies in Large Language Models in the Classification of Clinical Notes\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "limitation",
+      "challenge",
+      "weakness"
+    ],
+    "expected_relevant_ids": [
+      "chunk-d7cb7ff9baf5a7ed"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[limitation] topic-level for parameter-efficient fine-tuning",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "limitations",
+    "source_paper_ids": [
+      "https://openalex.org/W4391640544"
+    ],
+    "source_pdf_filenames": [
+      "W4391640544_8f275c828f_comparison_of_prompt_engineering_and_fine-tuning_strategies_.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-d7cb7ff9baf5a7ed"
+    ],
+    "benchmark_id": "rse100-078"
+  },
+  {
+    "query": "What are the main paradigms and components of RAG systems (according to \"Retrieval-Augmented Generation for AI-Generated Content: A Survey\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "rag",
+      "paradigm",
+      "retrieval"
+    ],
+    "expected_relevant_ids": [
+      "chunk-8d4179d32aa61b67"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[limitation] from Retrieval-Augmented Generation for AI-Ge",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "limitations",
+    "source_paper_ids": [
+      "https://openalex.org/W4393299232"
+    ],
+    "source_pdf_filenames": [
+      "W4393299232_2dd758ca4d_retrieval-augmented_generation_for_ai-generated_content_a_su.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-8d4179d32aa61b67"
+    ],
+    "benchmark_id": "rse100-079"
+  },
+  {
+    "query": "What are the main problems with large language models (considering \"A Survey on Hallucination in Large Language Models: Principles, Taxonomy, Challenges, and Open Questions\"; \"TruthfulQA: Measuring How Models Mimic Human Falsehoods\"; \"Evaluating large language models on medical evidence summarization\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection",
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "limitation",
+      "challenge",
+      "problem",
+      "failure"
+    ],
+    "expected_relevant_ids": [
+      "chunk-7b3fd3a3a9c67462",
+      "chunk-1df9a1d98bb33eed",
+      "chunk-526124398b7c3568"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[limitation] general: What are the main problems with large la",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "limitations",
+    "source_paper_ids": [
+      "https://openalex.org/W4388585881",
+      "https://openalex.org/W3201174429",
+      "https://openalex.org/W4386120650"
+    ],
+    "source_pdf_filenames": [
+      "W4388585881_cb9f473c38_a_survey_on_hallucination_in_large_language_models_principle.pdf",
+      "W3201174429_f46ef423a0_truthfulqa_measuring_how_models_mimic_human_falsehoods.pdf",
+      "W4386120650_b389ac77ef_evaluating_large_language_models_on_medical_evidence_summari.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-7b3fd3a3a9c67462",
+      "chunk-1df9a1d98bb33eed",
+      "chunk-526124398b7c3568"
+    ],
+    "benchmark_id": "rse100-080"
+  },
+  {
+    "query": "What are the quantitative improvements from Fine Tuning vs. Retrieval Augmented (according to \"Fine Tuning vs. Retrieval Augmented Generation for Less Popular Knowledge\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "fine",
+      "tuning",
+      "retrieval"
+    ],
+    "expected_relevant_ids": [
+      "chunk-55d333f089c5d1d3"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[limitation] from Fine Tuning vs. Retrieval Augmented Gene",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "limitations",
+    "source_paper_ids": [
+      "https://openalex.org/W4392487838"
+    ],
+    "source_pdf_filenames": [
+      "W4392487838_90ca4efa87_fine_tuning_vs._retrieval_augmented_generation_for_less_popu.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-55d333f089c5d1d3"
+    ],
+    "benchmark_id": "rse100-081"
+  },
+  {
+    "query": "What challenges remain unsolved in LLM-based agents (considering \"Distributing Accountability, Not Capability: Phase Separation and the LLM Workflow Quadrant in Autonomous AI Agent Architectures\"; \"Encouraging Divergent Thinking in Large Language Models through Multi-Agent Debate\"; \"CAMEL: Communicative Agents for \"Mind\" Exploration of Large Language Model Society\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "AI Agents & Tool Use"
+    ],
+    "expected_keywords": [
+      "limitation",
+      "challenge",
+      "weakness"
+    ],
+    "expected_relevant_ids": [
+      "chunk-b1d9c9c88decfaf4",
+      "chunk-23484881f8fef437",
+      "chunk-8f165e826878f530"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[limitation] topic-level for LLM-based agents",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "limitations",
+    "source_paper_ids": [
+      "https://openalex.org/W4304195432",
+      "https://openalex.org/W4404782209",
+      "https://openalex.org/W4362508448"
+    ],
+    "source_pdf_filenames": [
+      "W4304195432_9296c79ca7_distributing_accountability_not_capability_phase_separation_.pdf",
+      "W4404782209_f774d98f15_encouraging_divergent_thinking_in_large_language_models_thro.pdf",
+      "W4362508448_33a595040d_camel_communicative_agents_for_mind_exploration_of_large_lan.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-b1d9c9c88decfaf4",
+      "chunk-23484881f8fef437",
+      "chunk-8f165e826878f530"
+    ],
+    "benchmark_id": "rse100-082"
+  },
+  {
+    "query": "What doesn't work well about transformer architectures (considering \"Adaptive Attention Span in Transformers\"; \"Point Transformer V2: Grouped Vector Attention and Partition-based Pooling\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Transformers / Attention Mechanisms"
+    ],
+    "expected_keywords": [
+      "limitation",
+      "challenge",
+      "weakness"
+    ],
+    "expected_relevant_ids": [
+      "chunk-60c56965aa08a735",
+      "chunk-4126239bce2211ff"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[limitation] topic-level for transformer architectures",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "limitations",
+    "source_paper_ids": [
+      "https://openalex.org/W2946567085",
+      "https://openalex.org/W4306175953"
+    ],
+    "source_pdf_filenames": [
+      "W2946567085_169dcbc435_adaptive_attention_span_in_transformers.pdf",
+      "W4306175953_2641dcc4e9_point_transformer_v2_grouped_vector_attention_and_partition-.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-60c56965aa08a735",
+      "chunk-4126239bce2211ff"
+    ],
+    "benchmark_id": "rse100-083"
+  },
+  {
+    "query": "What experiments were run to evaluate Can Large Language Models Be (according to \"Can Large Language Models Be an Alternative to Human Evaluations?\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "LLM Evaluation & Hallucination Detection"
+    ],
+    "expected_keywords": [
+      "large",
+      "language",
+      "models"
+    ],
+    "expected_relevant_ids": [
+      "chunk-a90533d28c9986b2"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[limitation] from Can Large Language Models Be an Alternat",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "limitations",
+    "source_paper_ids": [
+      "https://openalex.org/W4385571232"
+    ],
+    "source_pdf_filenames": [
+      "W4385571232_39d0c4c5be_can_large_language_models_be_an_alternative_to_human_evaluat.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-a90533d28c9986b2"
+    ],
+    "benchmark_id": "rse100-084"
+  },
+  {
+    "query": "What experiments were run to evaluate Survey on RAG Meeting LLMs (according to \"A Survey on RAG Meeting LLMs: Towards Retrieval-Augmented Large Language Models\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "survey",
+      "meeting",
+      "llms"
+    ],
+    "expected_relevant_ids": [
+      "chunk-0af9c2168f6a073a"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[limitation] from A Survey on RAG Meeting LLMs: Towards Re",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "limitations",
+    "source_paper_ids": [
+      "https://openalex.org/W4401857375"
+    ],
+    "source_pdf_filenames": [
+      "W4401857375_5be65761cf_a_survey_on_rag_meeting_llms_towards_retrieval-augmented_lar.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-0af9c2168f6a073a"
+    ],
+    "benchmark_id": "rse100-085"
+  },
+  {
+    "query": "What are the quantitative improvements from an analysis framework linking p (according to \"Why Do Pretrained Language Models Help in Downstream Tasks? An Analysis of Head and Prompt Tuning\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "analysis",
+      "framework",
+      "linking"
+    ],
+    "expected_relevant_ids": [
+      "chunk-4f44493a7ad7ff13"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[section:conclusion] from Why Do Pretrained Language Models Help i",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "section_specific",
+    "source_paper_ids": [
+      "https://openalex.org/W3166143997"
+    ],
+    "source_pdf_filenames": [
+      "W3166143997_834f8b3f58_why_do_pretrained_language_models_help_in_downstream_tasks_a.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-4f44493a7ad7ff13"
+    ],
+    "benchmark_id": "rse100-086"
+  },
+  {
+    "query": "What experiments evaluate evaluation of 6 representative llms on a new corpus for rag evaluation (according to \"Benchmarking Large Language Models in Retrieval-Augmented Generation\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "evaluation",
+      "representative",
+      "llms"
+    ],
+    "expected_relevant_ids": [
+      "chunk-23ce0d9c04475642"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[section:conclusion] from Benchmarking Large Language Models in Re",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "section_specific",
+    "source_paper_ids": [
+      "https://openalex.org/W4393147129"
+    ],
+    "source_pdf_filenames": [
+      "W4393147129_ead46253f5_benchmarking_large_language_models_in_retrieval-augmented_ge.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-23ce0d9c04475642"
+    ],
+    "benchmark_id": "rse100-087"
+  },
+  {
+    "query": "What experiments were run to evaluate a novel evaluation approach (according to \"Evaluating Retrieval Quality in Retrieval-Augmented Generation\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "novel",
+      "evaluation",
+      "approach"
+    ],
+    "expected_relevant_ids": [
+      "chunk-9dcc5d21b617c66a"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[section:conclusion] from Evaluating Retrieval Quality in Retrieva",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "section_specific",
+    "source_paper_ids": [
+      "https://openalex.org/W4400526126"
+    ],
+    "source_pdf_filenames": [
+      "W4400526126_b882574cc4_evaluating_retrieval_quality_in_retrieval-augmented_generati.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-9dcc5d21b617c66a"
+    ],
+    "benchmark_id": "rse100-088"
+  },
+  {
+    "query": "What method does OpenMedLM use (according to \"OpenMedLM: prompt engineering can out-perform fine-tuning in medical question-answering with open-source large language models\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "openmedlm"
+    ],
+    "expected_relevant_ids": [
+      "chunk-5bef16af7ccedc77"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[section:methodology] from OpenMedLM: prompt engineering can out-pe",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "section_specific",
+    "source_paper_ids": [
+      "https://openalex.org/W4399807068"
+    ],
+    "source_pdf_filenames": [
+      "W4399807068_c9052a59f6_openmedlm_prompt_engineering_can_out-perform_fine-tuning_in_.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-5bef16af7ccedc77"
+    ],
+    "benchmark_id": "rse100-089"
+  },
+  {
+    "query": "What related approaches exist to conducted large-scale experiments using the medrag toolkit (according to \"Benchmarking Retrieval-Augmented Generation for Medicine\")?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "conducted",
+      "large-scale",
+      "experiments"
+    ],
+    "expected_relevant_ids": [
+      "chunk-54160d4bd76ae146"
+    ],
+    "category": "single_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[section:conclusion] from Benchmarking Retrieval-Augmented Generat",
+    "chat_history": [],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": null,
+    "benchmark_category": "section_specific",
+    "source_paper_ids": [
+      "https://openalex.org/W4402670290"
+    ],
+    "source_pdf_filenames": [
+      "W4402670290_12edb076e1_benchmarking_retrieval-augmented_generation_for_medicine.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-54160d4bd76ae146"
+    ],
+    "benchmark_id": "rse100-090"
+  },
+  {
+    "query": "How can RAG help reduce them?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "rag",
+      "hallucination",
+      "reduc"
+    ],
+    "expected_relevant_ids": [
+      "chunk-3adf6c50dfb22f81",
+      "chunk-46fdebe24271bfde",
+      "chunk-74b5bca56a14c406",
+      "chunk-55dfba1721c4f9e6"
+    ],
+    "category": "multi_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[multi_turn] follow-up on Retrieval-Augmented Generation",
+    "chat_history": [
+      {
+        "role": "user",
+        "content": "What causes hallucinations in LLMs?"
+      },
+      {
+        "role": "assistant",
+        "content": "Hallucinations arise from training data noise, knowledge gaps, and the generative nature of language models."
+      }
+    ],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [
+      "rag",
+      "hallucination",
+      "reduc"
+    ],
+    "expected_confidence_decision": null,
+    "benchmark_category": "multi_turn",
+    "source_paper_ids": [
+      "https://openalex.org/W4389984066",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129"
+    ],
+    "source_pdf_filenames": [
+      "W4389984066_5429e4d093_retrieval-augmented_generation_for_large_language_models_a_s.pdf",
+      "W4401857375_5be65761cf_a_survey_on_rag_meeting_llms_towards_retrieval-augmented_lar.pdf",
+      "W4389519118_db4c119f10_active_retrieval_augmented_generation.pdf",
+      "W4393147129_ead46253f5_benchmarking_large_language_models_in_retrieval-augmented_ge.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-3adf6c50dfb22f81",
+      "chunk-46fdebe24271bfde",
+      "chunk-74b5bca56a14c406",
+      "chunk-55dfba1721c4f9e6"
+    ],
+    "benchmark_id": "rse100-091"
+  },
+  {
+    "query": "How does it compare to full fine-tuning in terms of memory?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Fine-tuning (LoRA / PEFT)"
+    ],
+    "expected_keywords": [
+      "lora",
+      "memory",
+      "parameter"
+    ],
+    "expected_relevant_ids": [
+      "chunk-817b2321ba2045b8",
+      "chunk-5457299a02911a6a",
+      "chunk-28d824f4f096f434",
+      "chunk-2901154c637fbe37"
+    ],
+    "category": "multi_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[multi_turn] follow-up on Fine-tuning (LoRA / PEFT)",
+    "chat_history": [
+      {
+        "role": "user",
+        "content": "What is LoRA?"
+      },
+      {
+        "role": "assistant",
+        "content": "LoRA (Low-Rank Adaptation) is a parameter-efficient fine-tuning method that injects trainable low-rank matrices into transformer layers."
+      }
+    ],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [
+      "lora",
+      "memory",
+      "parameter"
+    ],
+    "expected_confidence_decision": null,
+    "benchmark_category": "multi_turn",
+    "source_paper_ids": [
+      "https://openalex.org/W3168867926",
+      "https://openalex.org/W4322766882",
+      "https://openalex.org/W3176828726",
+      "https://openalex.org/W4389524317"
+    ],
+    "source_pdf_filenames": [
+      "W3168867926_ccad9fd6f7_lora_low-rank_adaptation_of_large_language_models.pdf",
+      "W4322766882_345ae97a44_parameter-efficient_fine-tuning_of_large-scale_pre-trained_l.pdf",
+      "W3176828726_f825a9bc8d_bitfit_simple_parameter-efficient_fine-tuning_for_transforme.pdf",
+      "W4389524317_2bfd2db5c3_llm-adapters_an_adapter_family_for_parameter-efficient_fine-.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-817b2321ba2045b8",
+      "chunk-5457299a02911a6a",
+      "chunk-28d824f4f096f434",
+      "chunk-2901154c637fbe37"
+    ],
+    "benchmark_id": "rse100-092"
+  },
+  {
+    "query": "What are their main limitations?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Retrieval-Augmented Generation (RAG)"
+    ],
+    "expected_keywords": [
+      "rag",
+      "limitation"
+    ],
+    "expected_relevant_ids": [
+      "chunk-3adf6c50dfb22f81",
+      "chunk-87f2ccbc25d47383",
+      "chunk-8c50e794e9833641",
+      "chunk-2fcc1e6b1d48277e"
+    ],
+    "category": "multi_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[multi_turn] follow-up on Retrieval-Augmented Generation",
+    "chat_history": [
+      {
+        "role": "user",
+        "content": "Tell me about RAG systems."
+      },
+      {
+        "role": "assistant",
+        "content": "RAG systems combine retrieval with generation to ground LLM responses in external knowledge."
+      }
+    ],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [
+      "rag",
+      "limitation"
+    ],
+    "expected_confidence_decision": null,
+    "benchmark_category": "multi_turn",
+    "source_paper_ids": [
+      "https://openalex.org/W4389984066",
+      "https://openalex.org/W4401857375",
+      "https://openalex.org/W4389519118",
+      "https://openalex.org/W4393147129"
+    ],
+    "source_pdf_filenames": [
+      "W4389984066_5429e4d093_retrieval-augmented_generation_for_large_language_models_a_s.pdf",
+      "W4401857375_5be65761cf_a_survey_on_rag_meeting_llms_towards_retrieval-augmented_lar.pdf",
+      "W4389519118_db4c119f10_active_retrieval_augmented_generation.pdf",
+      "W4393147129_ead46253f5_benchmarking_large_language_models_in_retrieval-augmented_ge.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-3adf6c50dfb22f81",
+      "chunk-87f2ccbc25d47383",
+      "chunk-8c50e794e9833641",
+      "chunk-2fcc1e6b1d48277e"
+    ],
+    "benchmark_id": "rse100-093"
+  },
+  {
+    "query": "What benchmarks evaluate them?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "AI Agents & Tool Use"
+    ],
+    "expected_keywords": [
+      "benchmark",
+      "evaluat",
+      "agent"
+    ],
+    "expected_relevant_ids": [
+      "chunk-5e2219b8756a5f19",
+      "chunk-2b618f2d97e93184",
+      "chunk-b1d9c9c88decfaf4",
+      "chunk-55a167e528bbaffd"
+    ],
+    "category": "multi_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[multi_turn] follow-up on AI Agents & Tool Use",
+    "chat_history": [
+      {
+        "role": "user",
+        "content": "How do LLM-based agents work?"
+      },
+      {
+        "role": "assistant",
+        "content": "They use LLMs as reasoning engines that can plan, use tools, and take actions."
+      }
+    ],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [
+      "benchmark",
+      "evaluat",
+      "agent"
+    ],
+    "expected_confidence_decision": null,
+    "benchmark_category": "multi_turn",
+    "source_paper_ids": [
+      "https://openalex.org/W4363671832",
+      "https://openalex.org/W4393065402",
+      "https://openalex.org/W4304195432",
+      "https://openalex.org/W4390874280"
+    ],
+    "source_pdf_filenames": [
+      "W4363671832_89e5ae844e_generative_agents_interactive_simulacra_of_human_behavior.pdf",
+      "W4393065402_2b91a4e4f3_a_survey_on_large_language_model_based_autonomous_agents.pdf",
+      "W4304195432_9296c79ca7_distributing_accountability_not_capability_phase_separation_.pdf",
+      "W4390874280_675b1b066c_llm-planner_few-shot_grounded_planning_for_embodied_agents_w.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-5e2219b8756a5f19",
+      "chunk-2b618f2d97e93184",
+      "chunk-b1d9c9c88decfaf4",
+      "chunk-55a167e528bbaffd"
+    ],
+    "benchmark_id": "rse100-094"
+  },
+  {
+    "query": "What variants have been proposed for computer vision?",
+    "expected_route": "chunk_level",
+    "expected_topics": [
+      "Transformers / Attention Mechanisms"
+    ],
+    "expected_keywords": [
+      "vision",
+      "transformer",
+      "vit"
+    ],
+    "expected_relevant_ids": [
+      "chunk-c00178537711d481",
+      "chunk-45869a8dbbe68a3c",
+      "chunk-b19649f3f2bd9f28",
+      "chunk-e6006016a8cf8936"
+    ],
+    "category": "multi_turn",
+    "evaluation_focus": "full_text_evidence",
+    "rationale": "[multi_turn] follow-up on Transformers / Attention Mecha",
+    "chat_history": [
+      {
+        "role": "user",
+        "content": "What is the Transformer architecture?"
+      },
+      {
+        "role": "assistant",
+        "content": "The Transformer uses self-attention mechanisms instead of recurrence for sequence modeling."
+      }
+    ],
+    "acceptable_routes": [
+      "chunk_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [
+      "vision",
+      "transformer",
+      "vit"
+    ],
+    "expected_confidence_decision": null,
+    "benchmark_category": "multi_turn",
+    "source_paper_ids": [
+      "https://openalex.org/W2626778328",
+      "https://openalex.org/W3151130473",
+      "https://openalex.org/W3126721948",
+      "https://openalex.org/W4386075524"
+    ],
+    "source_pdf_filenames": [
+      "W2626778328_7c31777646_attention_is_all_you_need.pdf",
+      "W3151130473_ae20d2d347_crossvit_cross-attention_multi-scale_vision_transformer_for_.pdf",
+      "W3126721948_0c388b7bb8_is_space-time_attention_all_you_need_for_video_understanding.pdf",
+      "W4386075524_bea65eb357_biformer_vision_transformer_with_bi-level_routing_attention.pdf"
+    ],
+    "gold_chunk_ids": [
+      "chunk-c00178537711d481",
+      "chunk-45869a8dbbe68a3c",
+      "chunk-b19649f3f2bd9f28",
+      "chunk-e6006016a8cf8936"
+    ],
+    "benchmark_id": "rse100-095"
+  },
+  {
+    "query": "Explain how DALL-E generates images from text.",
+    "expected_route": "paper_level",
+    "expected_topics": [],
+    "expected_keywords": [],
+    "expected_relevant_ids": [],
+    "category": "out_of_corpus",
+    "evaluation_focus": "confidence_gate",
+    "rationale": "[confidence] out-of-corpus: Explain how DALL-E generates images from",
+    "chat_history": [],
+    "acceptable_routes": [
+      "paper_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": "insufficient_evidence",
+    "benchmark_category": "out_of_corpus",
+    "source_paper_ids": [],
+    "source_pdf_filenames": [],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-096"
+  },
+  {
+    "query": "How does AlphaFold predict protein structure?",
+    "expected_route": "paper_level",
+    "expected_topics": [],
+    "expected_keywords": [],
+    "expected_relevant_ids": [],
+    "category": "out_of_corpus",
+    "evaluation_focus": "confidence_gate",
+    "rationale": "[confidence] out-of-corpus: How does AlphaFold predict protein struc",
+    "chat_history": [],
+    "acceptable_routes": [
+      "paper_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": "insufficient_evidence",
+    "benchmark_category": "out_of_corpus",
+    "source_paper_ids": [],
+    "source_pdf_filenames": [],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-097"
+  },
+  {
+    "query": "What are the latest developments in autonomous driving?",
+    "expected_route": "paper_level",
+    "expected_topics": [],
+    "expected_keywords": [],
+    "expected_relevant_ids": [],
+    "category": "out_of_corpus",
+    "evaluation_focus": "confidence_gate",
+    "rationale": "[confidence] out-of-corpus: What are the latest developments in auto",
+    "chat_history": [],
+    "acceptable_routes": [
+      "paper_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": "insufficient_evidence",
+    "benchmark_category": "out_of_corpus",
+    "source_paper_ids": [],
+    "source_pdf_filenames": [],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-098"
+  },
+  {
+    "query": "What does this system know about quantum computing?",
+    "expected_route": "paper_level",
+    "expected_topics": [],
+    "expected_keywords": [],
+    "expected_relevant_ids": [],
+    "category": "out_of_corpus",
+    "evaluation_focus": "confidence_gate",
+    "rationale": "[confidence] out-of-corpus: What does this system know about quantum",
+    "chat_history": [],
+    "acceptable_routes": [
+      "paper_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": "insufficient_evidence",
+    "benchmark_category": "out_of_corpus",
+    "source_paper_ids": [],
+    "source_pdf_filenames": [],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-099"
+  },
+  {
+    "query": "What is the current state of nuclear fusion research?",
+    "expected_route": "paper_level",
+    "expected_topics": [],
+    "expected_keywords": [],
+    "expected_relevant_ids": [],
+    "category": "out_of_corpus",
+    "evaluation_focus": "confidence_gate",
+    "rationale": "[confidence] out-of-corpus: What is the current state of nuclear fus",
+    "chat_history": [],
+    "acceptable_routes": [
+      "paper_level",
+      "hybrid_both"
+    ],
+    "expected_standalone_keywords": [],
+    "expected_confidence_decision": "insufficient_evidence",
+    "benchmark_category": "out_of_corpus",
+    "source_paper_ids": [],
+    "source_pdf_filenames": [],
+    "gold_chunk_ids": [],
+    "benchmark_id": "rse100-100"
+  }
+]

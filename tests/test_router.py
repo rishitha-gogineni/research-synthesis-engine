@@ -25,6 +25,15 @@ def test_query_route_schema_rejects_blank_query():
         QueryRoute(query="   ", route="paper_level", reason="bad", confidence=0.5)
 
 
+def test_router_selects_paper_level_for_reading_recommendations():
+    for query in (
+        "Recommend key papers for someone new to LLM evaluation.",
+        "What are the latest developments in autonomous driving?",
+        "What surveys cover the RAG landscape?",
+    ):
+        assert route_query(query).route == "paper_level"
+
+
 def test_router_selects_paper_level_for_broad_questions():
     decision = route_query("What are the main approaches for reducing hallucinations in LLMs?")
 

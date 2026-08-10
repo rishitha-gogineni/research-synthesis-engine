@@ -32,6 +32,7 @@ PAPER_LEVEL_SIGNALS = {
     "summary": "summary question",
     "taxonomy": "taxonomy question",
     "main": "main ideas question",
+    "surveys": "survey question",
 }
 
 CHUNK_LEVEL_SIGNALS = {
@@ -96,6 +97,15 @@ PHRASE_SIGNALS: list[tuple[QueryRouteName, str, str, int]] = [
     ("hybrid_both", "versus", "comparison needs broad papers and detailed evidence", 3),
     ("hybrid_both", "how does .* differ", "difference query needs synthesis", 3),
     ("paper_level", "main approaches", "broad approach question", 2),
+    ("paper_level", "recommend", "reading recommendation question", 3),
+    ("paper_level", "foundational papers", "foundational reading question", 3),
+    ("paper_level", "must-read papers", "essential reading question", 3),
+    ("paper_level", "papers should i read", "reading path question", 3),
+    ("paper_level", "what should i read", "reading path question", 3),
+    ("paper_level", "where should i start", "reading path question", 3),
+    ("paper_level", "what surveys cover", "survey landscape question", 3),
+    ("paper_level", "latest developments", "current research overview question", 3),
+    ("paper_level", "current state of", "current research overview question", 3),
     ("paper_level", "research themes", "theme question", 2),
     ("paper_level", "state of the art", "overview question", 2),
     ("chunk_level", "key result", "result detail requested", 2),

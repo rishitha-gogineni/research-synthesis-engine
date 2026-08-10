@@ -29,6 +29,12 @@ from retrieval.index_qdrant import DEFAULT_COLLECTION as DEFAULT_PAPER_COLLECTIO
 from retrieval.index_qdrant import DEFAULT_QDRANT_URL, get_qdrant_client, load_env_file
 from retrieval.filters import RetrievalFilters
 from retrieval.promotion import promote_candidates
+from retrieval.context_expansion import (
+    DEFAULT_PARENT_CONTEXT_MAX_WORDS,
+    DEFAULT_PARENT_CONTEXT_TOP_N,
+    aggregate_paper_evidence as aggregate_paper_evidence_candidates,
+    expand_chunk_context,
+)
 from retrieval.rerank import rerank_and_blend
 from retrieval.router import route_query
 from shared.schemas import (
@@ -461,6 +467,9 @@ def run_unified_search(
     conditional_merge: bool = False,
     reading_path_boost: bool = False,
     affinity_boost: bool = False,
+    expand_parent_context: bool = False,
+    parent_context_top_n: int = DEFAULT_PARENT_CONTEXT_TOP_N,
+    parent_context_max_words: int = DEFAULT_PARENT_CONTEXT_MAX_WORDS,
 ) -> UnifiedSearchResponse:
     try:
         request = UnifiedSearchRequest(
@@ -657,6 +666,25 @@ def run_unified_search(
     except Exception as exc:  # noqa: BLE001 - normalize provider/retriever errors for callers.
         raise UnifiedSearchError(f"unified retrieval failed: {exc}") from exc
 
+    if expand_parent_context and chunk_candidates:
+        try:
+            context_index = corpus_index or load_corpus_index()
+            chunk_candidates = expand_chunk_context(
+                chunk_candidates,
+                context_index,
+                top_n=parent_context_top_n,
+                max_words=parent_context_max_words,
+            )
+            if needs_papers:
+                paper_candidates = aggregate_paper_evidence_candidates(
+                    paper_candidates,
+                    chunk_candidates,
+                    context_index,
+                    top_k=request.paper_top_k,
+                )
+        except Exception as exc:  # noqa: BLE001 - context expansion is an optional path.
+            raise UnifiedSearchError(f"parent-context retrieval failed: {exc}") from exc
+
     return build_unified_response(request, route, paper_candidates, chunk_candidates)
 
 
@@ -706,6 +734,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Boost chunks whose parent paper was also retrieved (hybrid_both only).",
     )
+    parser.add_argument(
+        "--parent-context",
+        action="store_true",
+        help="Expand the strongest chunks with neighboring context and aggregate paper evidence.",
+    )
     return parser.parse_args()
 
 
@@ -734,6 +767,7 @@ def main() -> None:
         extended_expansions=args.extended_expansions,
         reading_path_boost=args.reading_path_boost,
         affinity_boost=args.affinity,
+        expand_parent_context=args.parent_context,
     )
     print(response.model_dump_json(indent=2))
 

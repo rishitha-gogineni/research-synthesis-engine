@@ -1,8 +1,12 @@
 # Research Synthesis Engine
 
-A retrieval-augmented research assistant that answers questions over a curated corpus of 250 AI research papers. It combines hybrid search (dense vectors + BM25), intent-aware query routing, and a confidence gate that refuses to answer when evidence is insufficient — preventing the hallucinated citations that general-purpose LLMs produce.
+**Tech:** Python | FastAPI | Streamlit | Qdrant | OpenAI embeddings | BM25
 
-The current benchmark is an audited 250-query fixture with 233 exact-ID labeled queries. On the same fixture, the best tested chunking strategy (v2) reaches hit@10 0.738, Recall@10 0.577, and MRR 0.550. Deployed end-to-end on free-tier infrastructure (Render, Streamlit Cloud, Qdrant Cloud).
+A retrieval-augmented research assistant for a curated corpus of 250 AI research papers. It combines dense-vector search, BM25, intent-aware routing, section-aware full-text chunks, and a confidence gate that declines unsupported questions instead of inventing evidence.
+
+The canonical benchmark contains 100 corpus-grounded queries: 95 with labeled relevant paper/chunk IDs and 5 out-of-corpus confidence checks. The current system reaches route accuracy 1.00, hit@10 0.705, Recall@10 0.573, and MRR 0.459. A live answer-quality smoke test scored faithfulness/relevancy at 1.0/1.0 for a factual query and 0.8/1.0 for a comparison query.
+
+The original 250-query audited fixture remains available as the source/provenance set. The application is deployed end-to-end on free-tier infrastructure (Render, Streamlit Cloud, and Qdrant Cloud).
 
 **Try it:** [streamlit app](https://research-synthesis-engine-auf9fawskhzarpqdv3sn2q.streamlit.app/) · [API](https://research-synthesis-engine-api.onrender.com)
 
@@ -44,21 +48,20 @@ Decision: insufficient_evidence — no answer generated
 
 ## Results
 
-The current comparison uses 250 queries: 233 have exact expected IDs (specific chunks/papers that should appear), and 17 are topic/keyword-only behavior checks. The three chunking versions were evaluated against the same audited fixture.
+The canonical 100-query benchmark evaluates routing, paper/chunk retrieval, confidence behavior, and evidence coverage. It keeps retrieval, reranking, prompts, and top-k settings fixed.
 
-| Metric | v1 | v2 (best) | v3 |
-| --- | ---: | ---: | ---: |
-| Route accuracy | 0.196 | 0.196 | 0.196 |
-| Relevant-ID hit@10 | 0.742 | 0.738 | 0.730 |
-| Recall@10 | 0.577 | 0.577 | 0.567 |
-| MRR | 0.526 | **0.550** | 0.536 |
-| Confidence accuracy | 0.647 | 0.647 | 0.647 |
+| Metric | Result |
+| --- | ---: |
+| Route accuracy | **1.00** |
+| Relevant-ID hit@10 | **0.705** |
+| Recall@10 | **0.573** |
+| MRR | **0.459** |
+| Keyword hit@10 | **0.967** |
+| Confidence accuracy | **1.00** |
 
-The v2 result is the current selection because it has the best MRR and Recall@5. v3 performed worse than v1 on the audited fixture, so semantic chunking is not treated as an improvement by default.
+The 250-query audited fixture remains available for provenance and deeper analysis. The current benchmark is intentionally smaller and chunk-grounded so retrieval failures can be traced to exact evidence records. Comparison answers remain the main quality opportunity because they require evidence from multiple papers.
 
-Recall is strict: each query expects 3–4 specific IDs. Retrieving 2 of 3 is recall = 0.67, not 1.0.
-
-Cross-encoder reranking is available locally but disabled in production — Render free tier doesn't have the memory for the model.
+Cross-encoder reranking is available locally but disabled in production because the Render free tier does not have enough memory for the model.
 
 ---
 
@@ -139,9 +142,9 @@ flowchart TD
 | Papers indexed | 250 |
 | Papers with full text | 152 |
 | Full-text chunks | 4,909 |
-| Evaluation queries | 250 audited |
-| Exact-ID labeled | 233 |
-| Core tests | 362 test functions (Python >=3.11) |
+| Evaluation queries | 100 chunk-grounded (from 250 audited source queries) |
+| Exact-ID labeled | 95 (5 out-of-corpus confidence checks) |
+| Core tests | 378 passing tests (Python >=3.11) |
 
 Research areas: Retrieval-Augmented Generation, Transformers & Attention, LLM Evaluation & Hallucination Detection, AI Agents & Tool Use, Fine-tuning (LoRA / PEFT)
 
@@ -157,7 +160,7 @@ Research areas: Retrieval-Augmented Generation, Transformers & Attention, LLM Ev
 | Data pipeline | OpenAlex API, `pypdf`, Pydantic, section-aware chunking |
 | Backend | FastAPI, structured errors, request-ID tracing, TTL cache |
 | Frontend | Streamlit (streaming, evidence matrix, reading path) |
-| Evaluation | Audited 250-query fixture, hit@k, recall@k, MRR, confidence accuracy, faithfulness judge |
+| Evaluation | 100-query chunk-grounded fixture, hit@k, recall@k, MRR, route accuracy, confidence and faithfulness checks |
 | Deployment | Render (Docker), Streamlit Community Cloud, Qdrant Cloud — all free tier |
 
 ---
@@ -195,12 +198,20 @@ uvicorn api.main:app --reload
 streamlit run ui/streamlit_app.py
 ```
 
-Evaluate:
+Evaluate the canonical benchmark:
 ```bash
-python -m retrieval.evaluate --queries tests/fixtures/eval_queries_250_audited.json --qdrant-url http://localhost:6333
-python -m pytest tests/ -q
+python -m retrieval.evaluate \
+  --queries tests/fixtures/eval_queries_100_chunk_grounded.json \
+  --qdrant-url http://localhost:6333
+python -m pytest -q
 ```
 
+The 250-query audited fixture remains available as the source/provenance set:
+```bash
+python -m retrieval.evaluate \
+  --queries tests/fixtures/eval_queries_250_audited.json \
+  --qdrant-url http://localhost:6333
+```
 When indexing locally, pass the same endpoint explicitly so a Cloud URL in a
 different `.env` cannot silently receive the new vectors:
 
@@ -248,14 +259,28 @@ Env vars for Render: `OPENAI_API_KEY`, `QDRANT_URL`, `QDRANT_API_KEY`, `RSE_APPL
 
 ---
 
+## Current Evaluation Snapshot
+
+On the canonical 100-query benchmark (95 queries with labeled relevant IDs):
+
+| Metric | Result |
+| --- | ---: |
+| Route accuracy | 1.00 |
+| Hit@10 | 0.705 |
+| Recall@10 | 0.573 |
+| MRR | 0.459 |
+| Keyword hit@10 | 0.967 |
+| Confidence accuracy | 1.00 |
+
+A small live answer-quality smoke test scored faithfulness/relevancy at 1.0/1.0 for a factual query and 0.8/1.0 for a comparison query. This is a smoke sample, not a substitute for a larger human-labeled generation benchmark.
+
 ## Limitations
 
-- Recall@10 is 0.39 — most missing evidence is below the top-10 cutoff (ranking problem, not retrieval problem).
+- Some relevant evidence still falls below the top-10 cutoff.
+- Comparison answers need broader multi-paper evidence coverage.
 - Static corpus, no incremental updates.
 - Synthesis depends on GPT-4o-mini.
-- Free-tier cold starts: 30–60s.
-
----
+- Free-tier cold starts: 3060s.
 
 ## Repository Layout
 
@@ -267,6 +292,6 @@ agent/         Query rewriting, confidence gate, synthesis, evidence outputs
 api/           FastAPI service
 ui/            Streamlit app
 shared/        Pydantic schemas
-tests/         351 tests (mocked external dependencies)
+tests/         378 tests (mocked external dependencies)
 docs/          Decision log, evaluation methodology, failure analysis
 ```
