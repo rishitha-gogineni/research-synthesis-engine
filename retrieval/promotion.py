@@ -50,6 +50,7 @@ PAPER_FIELD_BONUS = 0.04
 READING_PATH_CITATION_BONUS = 0.04
 READING_PATH_SURVEY_BONUS = 0.05
 AFFINITY_BONUS = 0.03
+ENTITY_BONUS = 0.10
 MAX_PROMOTION_BONUS = 0.12
 
 # Parent-paper caps, applied by demotion rather than removal.
@@ -201,6 +202,34 @@ def section_bonus(candidate: dict[str, Any], intents: tuple[str, ...]) -> float:
     return 0.0
 
 
+QUERY_ENTITY_STOPWORDS = frozenset({
+    "about", "accuracy", "achieve", "does", "how", "much", "reported", "result",
+    "results", "what", "which", "the", "this", "paper", "study", "selected",
+})
+
+
+def entity_match_bonus(candidate: dict[str, Any], query: str) -> float:
+    """Reward a named entity that appears in the candidate title.
+
+    Exact title anchors are particularly valuable for factual questions such as
+    "What accuracy does PRAG achieve?" Dense similarity often retrieves related
+    RAG papers while BM25 finds the named paper; this small bounded bonus lets
+    that exact entity survive the visible top-k cut.
+    """
+
+    title = str(candidate.get("title") or "").lower()
+    if not title:
+        return 0.0
+    tokens = re.findall(r"[a-z0-9]+", query.lower())
+    entity_tokens = [
+        token for token in tokens
+        if len(token) >= 3 and token not in QUERY_ENTITY_STOPWORDS
+    ]
+    if any(re.search(rf"\b{re.escape(token)}\b", title) for token in entity_tokens):
+        return ENTITY_BONUS
+    return 0.0
+
+
 def vocab_bonus(candidate: dict[str, Any], intents: tuple[str, ...]) -> float:
     """Reward candidates whose own text carries the vocabulary of the intent."""
 
@@ -273,6 +302,10 @@ def promotion_bonus(
         if earned:
             total += earned
             signals.append(f"section_hint:{candidate.get('section_hint')}")
+        earned = entity_match_bonus(candidate, query)
+        if earned:
+            total += earned
+            signals.append("title_entity_match")
     else:
         earned = paper_field_bonus(candidate, intents)
         if earned:

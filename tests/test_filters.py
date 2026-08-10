@@ -44,3 +44,20 @@ def test_chunk_search_forwards_query_filter():
     search_chunks(client, "research_paper_chunks", [0.1], top_k=2, retrieval_filters=filters)
 
     assert "query_filter" in client.kwargs
+
+
+def test_factual_chunk_queries_use_rank_fusion_to_keep_sparse_exact_matches():
+    from retrieval.chunk_bm25 import chunk_query_prefers_sparse, merge_chunk_candidates
+
+    dense = [
+        {"chunk_id": "dense-1", "paper_id": "p1", "dense_score": 0.9, "matched_by": ["chunk_dense"]},
+        {"chunk_id": "dense-2", "paper_id": "p2", "dense_score": 0.8, "matched_by": ["chunk_dense"]},
+    ]
+    sparse = [
+        {"chunk_id": "exact", "paper_id": "p3", "sparse_score": 12.0, "matched_by": ["chunk_sparse"]},
+    ]
+
+    assert chunk_query_prefers_sparse("What accuracy does PRAG achieve?")
+    results = merge_chunk_candidates(dense, sparse, top_k=2, fusion_method="rrf")
+
+    assert "exact" in [item["chunk_id"] for item in results]

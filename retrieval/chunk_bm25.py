@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import pickle
+import re
 from pathlib import Path
 from typing import Any
 
@@ -93,13 +94,37 @@ def search_chunk_bm25(
 
 
 
+def chunk_query_prefers_sparse(query: str) -> bool:
+    """Use rank fusion when exact factual or named-entity matching matters."""
+
+    if re.search(
+        r"\b(?:accuracy|precision|recall|f1|bleu|rouge|"
+        r"percentage)\b|\bhow much\b|\bhow fast\b",
+        query,
+        re.IGNORECASE,
+    ):
+        return True
+    generic_acronyms = {"AI", "LLM", "RAG", "QA"}
+    named_tokens = re.findall(r"\b(?:[A-Z]{2,}|[A-Z][a-z]+[A-Z][A-Za-z0-9]*)\b", query)
+    return any(token not in generic_acronyms for token in named_tokens)
+
+
 def merge_chunk_candidates(
     dense_candidates: list[dict[str, Any]],
     sparse_candidates: list[dict[str, Any]],
     top_k: int,
     dense_weight: float = 0.65,
     sparse_weight: float = 0.35,
+    fusion_method: str = "weighted",
+    rrf_k: int = 60,
 ) -> list[dict[str, Any]]:
+    if top_k <= 0:
+        raise ValueError("top_k must be greater than 0")
+    if fusion_method not in {"weighted", "rrf"}:
+        raise ValueError(f"unknown fusion_method: {fusion_method!r}")
+    if rrf_k <= 0:
+        raise ValueError("rrf_k must be greater than 0")
+
     merged: dict[str, dict[str, Any]] = {}
     for candidate in dense_candidates + sparse_candidates:
         key = str(candidate.get("chunk_id") or candidate.get("paper_id") or candidate.get("title"))
@@ -108,14 +133,32 @@ def merge_chunk_candidates(
             if current.get(field) is None and value is not None:
                 current[field] = value
         current["matched_by"] = sorted(set(current.get("matched_by", []) + candidate.get("matched_by", [])))
-    max_dense = max((float(item.get("dense_score") or 0.0) for item in merged.values()), default=0.0)
-    max_sparse = max((float(item.get("sparse_score") or 0.0) for item in merged.values()), default=0.0)
-    for candidate in merged.values():
-        dense = float(candidate.get("dense_score") or 0.0) / max_dense if max_dense else 0.0
-        sparse = float(candidate.get("sparse_score") or 0.0) / max_sparse if max_sparse else 0.0
-        candidate["hybrid_score"] = round(dense_weight * dense + sparse_weight * sparse, 6)
-        candidate["fusion_method"] = "weighted"
-    return sorted(merged.values(), key=lambda item: item["hybrid_score"], reverse=True)[:top_k]
+
+    if fusion_method == "rrf":
+        scores: dict[str, float] = {key: 0.0 for key in merged}
+        for rank, candidate in enumerate(dense_candidates, start=1):
+            key = str(candidate.get("chunk_id") or candidate.get("paper_id") or candidate.get("title"))
+            scores[key] += 1.0 / (rrf_k + rank)
+        for rank, candidate in enumerate(sparse_candidates, start=1):
+            key = str(candidate.get("chunk_id") or candidate.get("paper_id") or candidate.get("title"))
+            scores[key] += 1.0 / (rrf_k + rank)
+        for key, candidate in merged.items():
+            candidate["hybrid_score"] = round(scores[key], 6)
+            candidate["fusion_method"] = "rrf"
+    else:
+        max_dense = max((float(item.get("dense_score") or 0.0) for item in merged.values()), default=0.0)
+        max_sparse = max((float(item.get("sparse_score") or 0.0) for item in merged.values()), default=0.0)
+        for candidate in merged.values():
+            dense = float(candidate.get("dense_score") or 0.0) / max_dense if max_dense else 0.0
+            sparse = float(candidate.get("sparse_score") or 0.0) / max_sparse if max_sparse else 0.0
+            candidate["hybrid_score"] = round(dense_weight * dense + sparse_weight * sparse, 6)
+            candidate["fusion_method"] = "weighted"
+
+    return sorted(
+        merged.values(),
+        key=lambda item: (item["hybrid_score"], item.get("dense_score") or 0.0, item.get("sparse_score") or 0.0),
+        reverse=True,
+    )[:top_k]
 
 
 def parse_args() -> argparse.Namespace:

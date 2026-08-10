@@ -248,3 +248,27 @@ def test_promote_candidates_with_affinity_lifts_affiliated_chunk():
     )
 
     assert "c11" in [c["chunk_id"] for c in promoted]
+
+
+def test_named_entity_chunk_is_promoted_into_visible_window():
+    candidates = [
+        make_chunk(f"c{index}", f"p{index}", section_hint="introduction")
+        for index in range(1, 15)
+    ]
+    candidates.append(
+        {
+            **make_chunk("prag", "prag-paper", section_hint="results"),
+            "title": "PRAG: Paninian Retrieval-Augmented Generation",
+        }
+    )
+
+    promoted = promote_candidates(
+        "What accuracy does PRAG achieve?",
+        candidates,
+        top_k=10,
+        level="chunk",
+    )
+
+    assert "prag" in [candidate["chunk_id"] for candidate in promoted]
+    prag = next(candidate for candidate in promoted if candidate["chunk_id"] == "prag")
+    assert "title_entity_match" in prag["promotion_signals"]

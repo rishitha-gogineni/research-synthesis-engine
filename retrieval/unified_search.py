@@ -16,7 +16,7 @@ from full_text.index_chunks_qdrant import DEFAULT_COLLECTION as DEFAULT_CHUNK_CO
 from ingestion.embed import DEFAULT_EMBEDDING_MODEL
 from retrieval.build_bm25 import load_bm25_artifact
 from retrieval.corpus_index import CorpusIndex, classify_question_pattern, load_corpus_index
-from retrieval.chunk_bm25 import DEFAULT_CHUNK_BM25_PATH, load_chunk_bm25_artifact, merge_chunk_candidates, search_chunk_bm25
+from retrieval.chunk_bm25 import DEFAULT_CHUNK_BM25_PATH, chunk_query_prefers_sparse, load_chunk_bm25_artifact, merge_chunk_candidates, search_chunk_bm25
 from retrieval.hybrid_search import (
     DEFAULT_BM25_PATH,
     DEFAULT_DENSE_TOP_K,
@@ -212,7 +212,13 @@ def retrieve_chunks(
     if bm25_artifact is None:
         return dense_candidates
     sparse_candidates = search_chunk_bm25(bm25_artifact, query, top_k, retrieval_filters=retrieval_filters)
-    return merge_chunk_candidates(dense_candidates, sparse_candidates, top_k=top_k)
+    fusion_method = "rrf" if chunk_query_prefers_sparse(query) else "weighted"
+    return merge_chunk_candidates(
+        dense_candidates,
+        sparse_candidates,
+        top_k=top_k,
+        fusion_method=fusion_method,
+    )
 
 
 def paper_to_schema(candidate: dict[str, Any]) -> RetrievedPaper:
