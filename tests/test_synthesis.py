@@ -12,6 +12,7 @@ from agent.synthesis import (
     collect_evidence_sources,
     ensure_direct_answer_citations,
     parse_brief_payload,
+    sanitize_source_references,
     select_mmr_sources,
 )
 from shared.schemas import ConfidenceAssessment, EvidenceSource, QueryRoute, RetrievedChunk, RetrievedPaper, UnifiedSearchResponse
@@ -270,6 +271,37 @@ def test_direct_answer_citation_guard_preserves_existing_citations():
     answer = ensure_direct_answer_citations("RAG grounds answers using retrieved evidence (SOURCE_ID: chunk:c1).", sources)
 
     assert answer == "RAG grounds answers using retrieved evidence (SOURCE_ID: chunk:c1)."
+
+
+def test_sanitize_source_references_removes_unknown_ids_and_drops_unsupported_themes():
+    sources = collect_evidence_sources(make_response(papers=[make_paper()], chunks=[make_chunk()]))
+    payload, warnings = sanitize_source_references(
+        {
+            "direct_answer": "Supported [chunk:c1] and invented [paper:not-retrieved].",
+            "themes": [
+                {
+                    "theme": "Grounding",
+                    "summary": "Supported by [chunk:c1].",
+                    "supporting_source_ids": ["chunk:c1", "paper:not-retrieved"],
+                },
+                {
+                    "theme": "Unsupported",
+                    "summary": "No retrieved support.",
+                    "supporting_source_ids": ["paper:not-retrieved"],
+                },
+            ],
+            "evidence_bullets": ["Evidence [paper:not-retrieved]."],
+            "limitations": [],
+            "open_problems": [],
+        },
+        sources,
+    )
+
+    assert "paper:not-retrieved" not in payload["direct_answer"]
+    assert payload["themes"][0]["supporting_source_ids"] == ["chunk:c1"]
+    assert len(payload["themes"]) == 1
+    assert payload["evidence_bullets"] == []
+    assert warnings
 
 
 def test_metadata_filter_returns_ranked_listing_brief_without_generation():

@@ -53,6 +53,10 @@ changed query, its before/after route and labels, and the repair reasons.
 Run every strategy against the same audited fixture and keep the output files
 separate from the legacy results:
 
+For local Docker, pass `--qdrant-url http://localhost:6333` to each indexing
+and evaluation command. For Qdrant Cloud, use the same Cloud URL and API key
+for all three collections.
+
 ```bash
 python -m retrieval.evaluate \
   --queries tests/fixtures/eval_queries_250_audited.json \

@@ -2,7 +2,7 @@
 
 A retrieval-augmented research assistant that answers questions over a curated corpus of 250 AI research papers. It combines hybrid search (dense vectors + BM25), intent-aware query routing, and a confidence gate that refuses to answer when evidence is insufficient — preventing the hallucinated citations that general-purpose LLMs produce.
 
-The system is evaluated on an 82-query benchmark with 68 exact-ID ground-truth labels, achieving route accuracy of 1.00, hit@10 of 0.72, and MRR of 0.41. Deployed end-to-end on free-tier infrastructure (Render, Streamlit Cloud, Qdrant Cloud).
+The current benchmark is an audited 250-query fixture with 233 exact-ID labeled queries. On the same fixture, the best tested chunking strategy (v2) reaches hit@10 0.738, Recall@10 0.577, and MRR 0.550. Deployed end-to-end on free-tier infrastructure (Render, Streamlit Cloud, Qdrant Cloud).
 
 **Try it:** [streamlit app](https://research-synthesis-engine-auf9fawskhzarpqdv3sn2q.streamlit.app/) · [API](https://research-synthesis-engine-api.onrender.com)
 
@@ -44,18 +44,17 @@ Decision: insufficient_evidence — no answer generated
 
 ## Results
 
-Measured on 82 queries. 68 have exact expected IDs (specific chunks/papers that should appear). 12 are out-of-corpus questions that should be rejected.
+The current comparison uses 250 queries: 233 have exact expected IDs (specific chunks/papers that should appear), and 17 are topic/keyword-only behavior checks. The three chunking versions were evaluated against the same audited fixture.
 
-| Metric | Value | Scope |
-| --- | ---: | --- |
-| Route accuracy | 1.00 | 82 queries |
-| Confidence-gate accuracy | 1.00 | 12 out-of-corpus queries |
-| Relevant-ID hit@10 | 0.72 | 68 labeled queries |
-| Recall@10 | 0.39 | 68 labeled queries |
-| MRR | 0.41 | 68 labeled queries |
-| Tests passing | 351 | full suite |
+| Metric | v1 | v2 (best) | v3 |
+| --- | ---: | ---: | ---: |
+| Route accuracy | 0.196 | 0.196 | 0.196 |
+| Relevant-ID hit@10 | 0.742 | 0.738 | 0.730 |
+| Recall@10 | 0.577 | 0.577 | 0.567 |
+| MRR | 0.526 | **0.550** | 0.536 |
+| Confidence accuracy | 0.647 | 0.647 | 0.647 |
 
-Hit@20 is 0.87 — most failures are ranking problems (right evidence retrieved but below the visible cutoff), not retrieval failures.
+The v2 result is the current selection because it has the best MRR and Recall@5. v3 performed worse than v1 on the audited fixture, so semantic chunking is not treated as an improvement by default.
 
 Recall is strict: each query expects 3–4 specific IDs. Retrieving 2 of 3 is recall = 0.67, not 1.0.
 
@@ -114,6 +113,11 @@ flowchart TD
 
 ### Retrieval Detail
 
+Paper-level retrieval fuses dense Qdrant search with BM25. Full-text chunk
+retrieval currently uses dense Qdrant search; the system is hybrid across its
+paper and chunk paths, but it does not yet maintain a separate sparse chunk
+index.
+
 ```mermaid
 flowchart TD
     Query --> Dense[Dense search: top-20]
@@ -135,9 +139,9 @@ flowchart TD
 | Papers indexed | 250 |
 | Papers with full text | 152 |
 | Full-text chunks | 4,909 |
-| Evaluation queries | 82 |
-| Exact-ID labeled | 68 |
-| Tests | 351 |
+| Evaluation queries | 250 audited |
+| Exact-ID labeled | 233 |
+| Core tests | 362 test functions (Python >=3.11) |
 
 Research areas: Retrieval-Augmented Generation, Transformers & Attention, LLM Evaluation & Hallucination Detection, AI Agents & Tool Use, Fine-tuning (LoRA / PEFT)
 
@@ -153,7 +157,7 @@ Research areas: Retrieval-Augmented Generation, Transformers & Attention, LLM Ev
 | Data pipeline | OpenAlex API, `pypdf`, Pydantic, section-aware chunking |
 | Backend | FastAPI, structured errors, request-ID tracing, TTL cache |
 | Frontend | Streamlit (streaming, evidence matrix, reading path) |
-| Evaluation | 82-query fixture, hit@k, recall@k, MRR, confidence accuracy, faithfulness judge |
+| Evaluation | Audited 250-query fixture, hit@k, recall@k, MRR, confidence accuracy, faithfulness judge |
 | Deployment | Render (Docker), Streamlit Community Cloud, Qdrant Cloud — all free tier |
 
 ---
@@ -171,7 +175,7 @@ Research areas: Retrieval-Augmented Generation, Transformers & Attention, LLM Ev
 ## Local Setup
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
+python3.11 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 cp .env.example .env
 ```
@@ -193,8 +197,16 @@ streamlit run ui/streamlit_app.py
 
 Evaluate:
 ```bash
-python -m retrieval.evaluate --queries tests/fixtures/eval_queries_v2.json
+python -m retrieval.evaluate --queries tests/fixtures/eval_queries_250_audited.json --qdrant-url http://localhost:6333
 python -m pytest tests/ -q
+```
+
+When indexing locally, pass the same endpoint explicitly so a Cloud URL in a
+different `.env` cannot silently receive the new vectors:
+
+```bash
+python retrieval/index_qdrant.py --qdrant-url http://localhost:6333
+python full_text/index_chunks_qdrant.py --qdrant-url http://localhost:6333
 ```
 
 Optional — local cross-encoder:

@@ -2,7 +2,35 @@
 
 The evaluation suite is designed to check whether the system retrieves the right evidence, routes questions to the right retrieval layer, rewrites contextual follow-ups, and refuses weak or out-of-corpus questions when evidence is insufficient.
 
-## Fixture Summary
+## Current audited 250-query benchmark
+
+The primary benchmark is `tests/fixtures/eval_queries_250_audited.json`.
+
+```text
+queries: 250
+queries_with_relevant_ids: 233
+queries_topic_keyword_only: 17
+out_of_corpus_queries: 15
+```
+
+The three chunking strategies were evaluated on this same fixture:
+
+| Metric | v1 | v2 | v3 |
+| --- | ---: | ---: | ---: |
+| Route accuracy | 0.196 | 0.196 | 0.196 |
+| Relevant-ID hit@5 | 0.665 | **0.670** | 0.652 |
+| Relevant-ID hit@10 | **0.742** | 0.738 | 0.730 |
+| Recall@5 | 0.497 | **0.503** | 0.486 |
+| Recall@10 | **0.577** | **0.577** | 0.567 |
+| MRR | 0.526 | **0.550** | 0.536 |
+
+Use v2 as the current chunking default because it has the best MRR and
+Recall@5 on this fixture. These numbers are comparable to each other because
+the query file, labels, collection naming, and evaluator revision were held
+constant. They must not be compared directly with the historical 82-query
+results below.
+
+## Historical 82-query fixture
 
 The main fixture is `tests/fixtures/eval_queries_v2.json`.
 
@@ -58,13 +86,13 @@ docker compose up -d qdrant
 Then run:
 
 ```bash
-python -m retrieval.evaluate --queries tests/fixtures/eval_queries_v2.json
+python -m retrieval.evaluate --queries tests/fixtures/eval_queries_250_audited.json --qdrant-url http://localhost:6333
 ```
 
 Machine-readable output:
 
 ```bash
-python -m retrieval.evaluate --queries tests/fixtures/eval_queries_v2.json --json
+python -m retrieval.evaluate --queries tests/fixtures/eval_queries_250_audited.json --qdrant-url http://localhost:6333 --json
 ```
 
 ## Latest Local Run
