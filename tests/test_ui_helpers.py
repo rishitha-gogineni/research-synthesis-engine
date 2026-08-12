@@ -79,6 +79,12 @@ def sample_guidance_payload():
     }
 
 
+def test_selected_year_filter_omits_default_range():
+    assert streamlit_app.selected_year_filter((2017, 2026)) == (None, None)
+    assert streamlit_app.selected_year_filter(None) == (None, None)
+    assert streamlit_app.selected_year_filter((2020, 2026)) == (2020, 2026)
+
+
 def test_build_guidance_payload_uses_question_and_optional_filters():
     payload = api_client.build_guidance_payload(
         question="  Compare RAG and verification.  ",
