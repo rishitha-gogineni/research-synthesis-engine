@@ -157,7 +157,7 @@ Research areas: Retrieval-Augmented Generation, Transformers & Attention, LLM Ev
 | Retrieval | Qdrant, OpenAI `text-embedding-3-large` (1024d), BM25, weighted/RRF fusion |
 | Ranking | Citation-aware scoring, route-aware promotion, optional cross-encoder (`ms-marco-MiniLM-L-6-v2`) |
 | Synthesis | GPT-4o-mini, query router, query rewriter, CRAG-style confidence gate |
-| Data pipeline | OpenAlex API, `pypdf`, Pydantic, section-aware chunking |
+| Data pipeline | OpenAlex API, PyMuPDF, Pydantic, section-aware chunking |
 | Backend | FastAPI, structured errors, request-ID tracing, TTL cache |
 | Frontend | Streamlit (streaming, evidence matrix, reading path) |
 | Evaluation | 100-query chunk-grounded fixture, hit@k, recall@k, MRR, route accuracy, confidence and faithfulness checks |
@@ -280,7 +280,7 @@ A small live answer-quality smoke test scored faithfulness/relevancy at 1.0/1.0 
 - Comparison answers need broader multi-paper evidence coverage.
 - Static corpus, no incremental updates.
 - Synthesis depends on GPT-4o-mini.
-- Free-tier cold starts: 3060s.
+- Free-tier cold starts: 30-60s.
 
 ## Repository Layout
 
