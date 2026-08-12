@@ -253,6 +253,40 @@ def test_post_api_retries_once_for_transient_html_502(monkeypatch):
     assert responses == []
 
 
+def test_post_api_retries_once_for_transient_retrieval_failure(monkeypatch):
+    class RetrievalFailureResponse:
+        status_code = 503
+        headers = {"X-Request-ID": "request-1"}
+        text = ""
+
+        def json(self):
+            return {
+                "error": {
+                    "code": "RETRIEVAL_FAILED",
+                    "message": "Unable to retrieve research evidence.",
+                    "request_id": "request-1",
+                }
+            }
+
+    class JsonResponse:
+        status_code = 200
+        headers = {"X-Request-ID": "request-2"}
+        text = "{}"
+
+        def json(self):
+            return {"ok": True}
+
+    responses = [RetrievalFailureResponse(), JsonResponse()]
+    monkeypatch.setattr(api_client.requests, "post", lambda *args, **kwargs: responses.pop(0))
+    monkeypatch.setattr(api_client.time, "sleep", lambda _: None)
+
+    body, request_id = api_client.post_api("/guidance", {"question": "test"}, request_id="request-1")
+
+    assert body == {"ok": True}
+    assert request_id == "request-2"
+    assert responses == []
+
+
 def test_get_api_collapses_html_error_pages(monkeypatch):
     class FakeResponse:
         status_code = 502
