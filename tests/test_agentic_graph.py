@@ -20,3 +20,44 @@ def test_oversized_query_is_blocked():
     state = run_agentic_research("x" * 2001)
     assert state["status"] == "blocked"
     assert "2000" in state["error"]
+
+
+def test_hybrid_path_combines_local_and_external_evidence():
+    from agentic.planner import RoutePlan
+
+    def planner(query):
+        return RoutePlan(
+            "hybrid",
+            ("search_local_corpus", "search_arxiv"),
+            "test hybrid",
+            0.9,
+        )
+
+    fake_external = lambda query, sources, max_results: {
+        "results": [{"source": "arxiv", "title": "External paper"}],
+        "sources": list(sources),
+        "warnings": [],
+    }
+    state = run_agentic_research(
+        "Compare the indexed and latest papers.",
+        planner=planner,
+        searcher=lambda query, top_k: fake_response(),
+        external_searcher=fake_external,
+    )
+
+    assert state["status"] == "completed"
+    assert [item["kind"] for item in state["evidence"]] == ["paper", "chunk", "external"]
+    assert {item["tool"] for item in state["tool_calls"]} == {"search_local_corpus", "search_arxiv"}
+
+
+def test_external_failure_is_reported_without_raising():
+    def failing_external(query, sources, max_results):
+        raise RuntimeError("provider timeout")
+
+    state = run_agentic_research(
+        "What are the latest papers?",
+        external_searcher=failing_external,
+    )
+
+    assert state["status"] == "pending_external_tools"
+    assert any("provider timeout" in warning for warning in state["warnings"])

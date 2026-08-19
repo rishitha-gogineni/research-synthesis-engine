@@ -144,7 +144,7 @@ flowchart TD
 | Full-text chunks | 4,909 |
 | Evaluation queries | 100 chunk-grounded (from 250 audited source queries) |
 | Exact-ID labeled | 95 (5 out-of-corpus confidence checks) |
-| Core tests | 408 passing tests (Python >=3.11) |
+| Core tests | 413 passing tests (Python >=3.11) |
 
 Research areas: Retrieval-Augmented Generation, Transformers & Attention, LLM Evaluation & Hallucination Detection, AI Agents & Tool Use, Fine-tuning (LoRA / PEFT)
 
@@ -208,6 +208,20 @@ python -m retrieval.evaluate \
   --queries tests/fixtures/eval_queries_100_chunk_grounded.json \
   --qdrant-url http://localhost:6333
 python -m pytest -q
+```
+
+
+Validate the deterministic agentic planner and citation contract:
+```bash
+python scripts/evaluate_agentic.py
+```
+
+Run a live agentic smoke test only when the API, Qdrant, and provider keys are available:
+```bash
+curl -X POST http://localhost:8000/agentic/research \
+  -H 'Content-Type: application/json' \
+  -H 'X-Request-ID: manual-agentic-smoke-1' \
+  -d '{"question":"What are the latest papers on hallucination detection?","top_k":3,"max_tool_calls":2}'
 ```
 
 The 250-query audited fixture remains available as the source/provenance set:
