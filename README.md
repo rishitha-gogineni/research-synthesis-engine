@@ -8,7 +8,7 @@ The canonical benchmark contains 100 corpus-grounded queries: 95 with labeled re
 
 The original 250-query audited fixture remains available as the source/provenance set. The application is deployed end-to-end on free-tier infrastructure (Render, Streamlit Cloud, and Qdrant Cloud).
 
-**Try it:** [streamlit app](https://research-synthesis-engine-auf9fawskhzarpqdv3sn2q.streamlit.app/) · [API](https://research-synthesis-engine-api.onrender.com)
+**Try it:** [streamlit app](https://research-synthesis-engine-mhupghrfkhudtzy4uvqzq6.streamlit.app/) · [API](https://research-synthesis-engine-api.onrender.com)
 
 Free-tier hosting — first request after inactivity takes 30–60s to cold-start.
 
