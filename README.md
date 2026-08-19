@@ -189,7 +189,11 @@ OPENAI_API_KEY=
 QDRANT_URL=http://localhost:6333
 QDRANT_API_KEY=
 RSE_APPLY_RERANKING=false
+TAVILY_API_KEY=
+SEMANTIC_SCHOLAR_API_KEY=
 ```
+
+The optional agentic route sends current or external questions to Arxiv, Semantic Scholar, and Tavily. Corpus questions continue to use the canonical Qdrant and BM25 indexes. If a provider is unavailable, the route returns a warning and preserves the available evidence.
 
 Run:
 ```bash
@@ -255,7 +259,9 @@ POST /agent/research      Multi-step research agent
 | Render | FastAPI backend (Docker, health check at `/health`) |
 | Streamlit Cloud | UI (`RSE_API_URL` → Render) |
 
-Env vars for Render: `OPENAI_API_KEY`, `QDRANT_URL`, `QDRANT_API_KEY`, `RSE_APPLY_RERANKING=false`, `RSE_CORS_ORIGINS`.
+Env vars for Render: `OPENAI_API_KEY`, `QDRANT_URL`, `QDRANT_API_KEY`, `RSE_APPLY_RERANKING=false
+TAVILY_API_KEY=
+SEMANTIC_SCHOLAR_API_KEY=`, `RSE_CORS_ORIGINS`.
 
 ---
 
