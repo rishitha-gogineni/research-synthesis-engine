@@ -1,210 +1,297 @@
 # Research Synthesis Engine
 
-Research Synthesis Engine is a retrieval-augmented research assistant for working with AI literature. Instead of returning a generic summary, it searches a curated corpus of papers, selects the right retrieval path for the question, checks whether the evidence is strong enough, and produces a grounded research brief with sources.
+**Tech:** Python | FastAPI | Streamlit | Qdrant | OpenAI embeddings | BM25
 
-The project combines an offline data pipeline with a live question-answering workflow. The offline side collects papers from OpenAlex, extracts structured metadata, discovers legal full-text PDFs, chunks and embeds the text, and indexes everything in Qdrant. The live side routes each user query to paper-level retrieval, full-text chunk retrieval, metadata filtering, or a hybrid path, then applies a confidence gate before showing an answer. If the corpus does not support the question, the system declines to answer and shows the closest retrieved sources for inspection.
+A retrieval-augmented research assistant for a curated corpus of 250 AI research papers. It combines dense-vector search, BM25, intent-aware routing, section-aware full-text chunks, and a confidence gate that declines unsupported questions instead of inventing evidence.
 
-**Live app:** [research-synthesis-engine.streamlit.app](https://research-synthesis-engine-auf9fawskhzarpqdv3sn2q.streamlit.app/)  
-**API:** [research-synthesis-engine-api.onrender.com](https://research-synthesis-engine-api.onrender.com)
+The canonical benchmark contains 100 corpus-grounded queries: 95 with labeled relevant paper/chunk IDs and 5 out-of-corpus confidence checks. The current system reaches route accuracy 1.00, hit@10 0.705, Recall@10 0.573, and MRR 0.459. A live answer-quality smoke test scored faithfulness/relevancy at 1.0/1.0 for a factual query and 0.8/1.0 for a comparison query.
 
-*(Free-tier hosting: the API spins down after ~15 minutes of inactivity, so the first request after a while may take 30-60s.)*
+The original 250-query audited fixture remains available as the source/provenance set. The application is deployed end-to-end on free-tier infrastructure (Render, Streamlit Cloud, and Qdrant Cloud).
 
-## Results
+**Try it:** [streamlit app](https://research-synthesis-engine-mhupghrfkhudtzy4uvqzq6.streamlit.app/) · [API](https://research-synthesis-engine-api.onrender.com)
 
-| Metric | Value | Scope |
-| --- | ---: | --- |
-| Route accuracy | 1.00 | 82-query v2 fixture |
-| Confidence decision accuracy | 1.00 | 12 confidence-labeled queries |
-| Relevant-ID hit rate@10 | 0.72 | 68 exact-ID labeled queries |
-| Recall@10 | 0.39 | 68 exact-ID labeled queries |
-| MRR | 0.41 | 68 exact-ID labeled queries |
-| Initial response latency | 21.3s to 8.8s | fast-first response redesign |
+Free-tier hosting — first request after inactivity takes 30–60s to cold-start.
 
-Full methodology in [`docs/EVALUATION.md`](docs/EVALUATION.md).
+---
 
-## Demo Preview
+## Screenshots
 
-**Live query workspace**
+<img src="docs/images/query-workspace-live.png" alt="Query workspace" width="900">
 
-<img src="docs/images/query-workspace-live.png" alt="Live query workspace" width="900">
-
-**Evidence-gated research brief**
-
-<img src="docs/images/research-brief-live.png" alt="Evidence-gated research brief" width="900">
-
-**Claim-level evidence matrix**
+<img src="docs/images/research-brief-live.png" alt="Research brief" width="900">
 
 <img src="docs/images/evidence-matrix-live.png" alt="Evidence matrix" width="900">
 
+---
+
 ## What It Does
 
-Example questions the system supports:
+1. **Routes** the query to one of four retrieval paths based on what the question needs.
+2. **Retrieves** candidates using hybrid search — dense embeddings + BM25.
+3. **Promotes** intent-matched candidates using route-aware signals (section hints, vocabulary match, citation weight).
+4. **Gates** the answer — if evidence is weak or off-topic, declines to answer.
+5. **Synthesizes** a grounded brief with per-claim source attribution.
 
-- `What are the main approaches for reducing hallucinations in LLMs?`
-- `Compare LoRA and BitFit for parameter-efficient fine-tuning.`
+Example questions:
+- `What datasets are used to evaluate hallucination detection methods?`
+- `Compare RAG and fine-tuning as ways to inject domain knowledge.`
 - `Show me highly cited AI agent survey papers published after 2023.`
-- `Explain the BitFit paper.`
-- `What datasets are used to evaluate LoRA fine-tuning?`
+- `How much does LoRA reduce GPU memory during fine-tuning?`
 
-If retrieved evidence is weak or outside the corpus, it shows the closest sources and doesn't generate an answer:
-
-```text
+If the corpus can't support an answer:
+```
 Question: What does this system know about marine biology and coral bleaching?
-Decision: insufficient_evidence
-Result: no grounded answer shown
+Decision: insufficient_evidence — no answer generated
 ```
 
-## Current Corpus
+---
+
+## Results
+
+The canonical 100-query benchmark evaluates routing, paper/chunk retrieval, confidence behavior, and evidence coverage. It keeps retrieval, reranking, prompts, and top-k settings fixed.
+
+| Metric | Result |
+| --- | ---: |
+| Route accuracy | **1.00** |
+| Relevant-ID hit@10 | **0.705** |
+| Recall@10 | **0.573** |
+| MRR | **0.459** |
+| Keyword hit@10 | **0.967** |
+| Confidence accuracy | **1.00** |
+
+The 250-query audited fixture remains available for provenance and deeper analysis. The current benchmark is intentionally smaller and chunk-grounded so retrieval failures can be traced to exact evidence records. Comparison answers remain the main quality opportunity because they require evidence from multiple papers.
+
+Cross-encoder reranking is available locally but disabled in production because the Render free tier does not have enough memory for the model.
+
+---
+
+## Architecture
+
+### System Overview
+
+```mermaid
+flowchart LR
+    User --> Streamlit
+    Streamlit --> FastAPI
+    FastAPI --> Qdrant
+    FastAPI --> OpenAI
+```
+
+### Query Pipeline
+
+```mermaid
+flowchart TD
+    Question --> Router
+    Router --> Paper[Paper search]
+    Router --> Chunk[Chunk search]
+    Router --> Hybrid[Paper + Chunk]
+    Router --> Metadata[Metadata filter]
+
+    Paper --> Promotion[Route-aware promotion]
+    Chunk --> Promotion
+    Hybrid --> Promotion
+    Metadata --> Gate
+
+    Promotion --> Gate[Confidence gate]
+    Gate -->|pass| Synthesis[GPT-4o-mini]
+    Gate -->|fail| Decline[Show sources only]
+    Synthesis --> Brief[Research brief]
+```
+
+### Ingestion Pipeline
+
+```mermaid
+flowchart TD
+    OpenAlex -->|250 papers| Extraction[Metadata extraction]
+    Extraction --> Embedding[Embed papers]
+    Embedding --> QdrantPapers[Qdrant: papers]
+
+    Extraction --> PDFs[PDF full-text extraction]
+    PDFs -->|152 papers| Chunking[Section-aware chunking]
+    Chunking -->|4,909 chunks| EmbedChunks[Embed chunks]
+    EmbedChunks --> QdrantChunks[Qdrant: chunks]
+
+    Extraction --> BM25[BM25 keyword index]
+```
+
+### Retrieval Detail
+
+Paper-level retrieval fuses dense Qdrant search with BM25. Full-text chunk
+retrieval fuses dense Qdrant search with an optional local chunk BM25 index
+(data/chunk_bm25_index.pkl); if that artifact is absent, it safely falls back
+to dense-only chunk retrieval.
+
+```mermaid
+flowchart TD
+    Query --> Dense[Dense search: top-20]
+    Query --> Sparse[BM25: top-20]
+    Dense --> Fusion[Score fusion]
+    Sparse --> Fusion
+    Fusion --> Rerank[Cross-encoder rerank — optional]
+    Rerank --> Promote[Promotion: rank prior + intent signals]
+    Promote --> TopK[Top-k output]
+```
+
+---
+
+## Corpus
 
 | Item | Count |
 | --- | ---: |
 | Research areas | 5 |
-| Papers | 250 |
-| Papers with extracted full text | 152 |
+| Papers indexed | 250 |
+| Papers with full text | 152 |
 | Full-text chunks | 4,909 |
-| Evaluation queries | 82 |
-| Test suite | 344 passing tests |
+| Evaluation queries | 100 chunk-grounded (from 250 audited source queries) |
+| Exact-ID labeled | 95 (5 out-of-corpus confidence checks) |
+| Core tests | 378 passing tests (Python >=3.11) |
 
-Research areas: Retrieval-Augmented Generation (RAG), Transformers / Attention Mechanisms, LLM Evaluation & Hallucination Detection, AI Agents & Tool Use, Fine-tuning (LoRA / PEFT)
+Research areas: Retrieval-Augmented Generation, Transformers & Attention, LLM Evaluation & Hallucination Detection, AI Agents & Tool Use, Fine-tuning (LoRA / PEFT)
 
-## Architecture
-
-Two parts: an offline pipeline that builds the corpus, extracts metadata, embeds, and indexes into Qdrant; and a live pipeline that routes questions, retrieves evidence, checks confidence, and generates the answer.
-
-```mermaid
-flowchart TD
-    A["User question"] --> B["Query router"]
-    B -->|"overview / broad theme"| C["Paper-level hybrid search"]
-    B -->|"dataset / method / metric / limitation"| D["Chunk-level search"]
-    B -->|"comparison / ambiguous"| E["Paper + chunk search"]
-    B -->|"top-cited / year / listing"| F["Metadata filter"]
-    C --> G["Score blending"]
-    D --> G
-    E --> G
-    F --> G
-    G --> H["Confidence check"]
-    H -->|"enough evidence"| I["Grounded answer"]
-    H -->|"weak or off-topic"| J["No answer shown"]
-```
-
-## Design Notes
-
-- Hybrid BM25 + dense retrieval, not dense-only: keyword-heavy queries (paper titles, method names) retrieve more reliably with BM25 in the mix.
-- The confidence gate is conservative: declining to answer is preferred over a fluent but ungrounded answer.
-- Cross-encoder reranking is disabled in the deployed version (`RSE_APPLY_RERANKING=false`) to stay inside Render's free-tier memory limit; it's available locally.
-- The UI returns the direct answer and evidence matrix before heavier sections (reading path, open problems), which cut initial latency from ~21.3s to ~8.8s.
-- Route-aware candidate promotion is enabled by default for paper and chunk retrieval. It widens the internal pool, promotes stable evidence signals, and leaves metadata-list queries unchanged.
+---
 
 ## Tech Stack
 
-| Layer | Tools | Purpose |
-| --- | --- | --- |
-| Data ingestion | OpenAlex API, `requests`, Pydantic | Collect paper metadata, normalize records, and validate schemas |
-| Full-text processing | `pypdf`, custom chunking, exact chunk deduplication | Extract legal PDF text and create retrieval-ready chunks |
-| Retrieval | Qdrant, OpenAI `text-embedding-3-large`, `rank-bm25` | Combine dense vector search with keyword retrieval across papers and chunks |
-| Ranking | Citation-aware scoring, RRF/weighted fusion, optional cross-encoder reranking | Balance semantic relevance, keyword match, and paper influence |
-| Agent workflow | Query router, context rewriter, CRAG-style confidence gate, `gpt-4o-mini` | Route questions, rewrite follow-ups, and generate only when evidence is sufficient |
-| Backend | FastAPI, Uvicorn, structured API errors, request IDs | Serve retrieval, route preview, guidance, and health-check endpoints |
-| Frontend | Streamlit | Provide the research workspace, filters, evidence view, and follow-up flow |
-| Evaluation | Pytest, golden query fixture, retrieval metrics, faithfulness judge | Test routing, retrieval quality, confidence decisions, and generated-answer grounding |
-| Deployment | Docker, Render, Streamlit Community Cloud, Qdrant Cloud | Run the backend, UI, and vector database on free-tier hosting |
+| Layer | Tools |
+| --- | --- |
+| Retrieval | Qdrant, OpenAI `text-embedding-3-large` (1024d), BM25, weighted/RRF fusion |
+| Ranking | Citation-aware scoring, route-aware promotion, optional cross-encoder (`ms-marco-MiniLM-L-6-v2`) |
+| Synthesis | GPT-4o-mini, query router, query rewriter, CRAG-style confidence gate |
+| Data pipeline | OpenAlex API, PyMuPDF, Pydantic, section-aware chunking |
+| Backend | FastAPI, structured errors, request-ID tracing, TTL cache |
+| Frontend | Streamlit (streaming, evidence matrix, reading path) |
+| Evaluation | 100-query chunk-grounded fixture, hit@k, recall@k, MRR, route accuracy, confidence and faithfulness checks |
+| Deployment | Render (Docker), Streamlit Community Cloud, Qdrant Cloud — all free tier |
+
+---
+
+## Design Decisions
+
+- **Hybrid search over dense-only:** keyword-heavy queries (paper titles, method names) need BM25.
+- **Confidence gate is conservative:** declining to answer is preferred over hallucinating.
+- **Cross-encoder disabled in production:** Render free tier = 512MB. The model alone needs ~512MB. Fallback preserves retrieval order.
+- **MMR disabled by default:** measured it, hurt recall (0.65 → 0.62 at k=5). Most queries want depth in one paper, not diversity.
+- **Pool-invariant promotion:** bonuses depend only on a candidate's own rank and payload. Widening the pool can't rescale existing candidates.
+
+---
 
 ## Local Setup
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
+python3.11 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 cp .env.example .env
 ```
 
-Required `.env` values:
-
-```bash
+Required `.env`:
+```
 OPENAI_API_KEY=
 QDRANT_URL=http://localhost:6333
 QDRANT_API_KEY=
-OPENALEX_API_KEY=
-OPENALEX_EMAIL=
-RSE_API_URL=http://localhost:8000
-RSE_CORS_ORIGINS=http://localhost:8501,http://127.0.0.1:8501
 RSE_APPLY_RERANKING=false
 ```
 
+Run:
 ```bash
 docker compose up -d qdrant
 uvicorn api.main:app --reload
-RSE_API_URL=http://localhost:8000 streamlit run ui/streamlit_app.py
+streamlit run ui/streamlit_app.py
 ```
 
-## Main Commands
+Evaluate the canonical benchmark:
+```bash
+python -m retrieval.evaluate \
+  --queries tests/fixtures/eval_queries_100_chunk_grounded.json \
+  --qdrant-url http://localhost:6333
+python -m pytest -q
+```
+
+The 250-query audited fixture remains available as the source/provenance set:
+```bash
+python -m retrieval.evaluate \
+  --queries tests/fixtures/eval_queries_250_audited.json \
+  --qdrant-url http://localhost:6333
+```
+When indexing locally, pass the same endpoint explicitly so a Cloud URL in a
+different `.env` cannot silently receive the new vectors:
 
 ```bash
-# Ingestion
-python -m ingestion.fetch_papers --per-topic 50 --output data/raw_papers.json
-python -m ingestion.extract --model gpt-4o-mini
-python -m ingestion.embed --model text-embedding-3-large --batch-size 32
-python -m retrieval.index_qdrant
-python -m retrieval.build_bm25
-
-# Full text
-python -m full_text.discover_sources --input data/enriched_papers_final.json --output data/full_text_sources.json
-python -m full_text.download_extract --input data/full_text_selected_all.json --output data/full_text_papers.json --pdf-dir data/pdfs --append-existing
-python -m full_text.chunk_papers --input data/full_text_papers.json --output data/full_text_chunks.json --max-words 450 --overlap-words 75
-python -m full_text.embed_chunks --input data/full_text_chunks.json --output data/embedded_full_text_chunks.json --batch-size 64 --dimensions 1024
-python -m full_text.index_chunks_qdrant --input data/embedded_full_text_chunks.json --collection research_paper_chunks
-
-# Evaluation and tests
-python -m retrieval.evaluate --queries tests/fixtures/eval_queries_v2.json
-python -m pytest tests/ -q
+python retrieval/index_qdrant.py --qdrant-url http://localhost:6333
+python full_text/index_chunks_qdrant.py --qdrant-url http://localhost:6333
+python -m retrieval.chunk_bm25
 ```
+
+Optional — local cross-encoder:
+```bash
+pip install -r requirements-rerank.txt
+# omit --no-rerank to enable (on by default when torch is installed)
+```
+
+---
 
 ## API
 
-```text
-GET  /health
-GET  /corpus/stats
-POST /route
-POST /retrieve
-POST /confidence
-POST /brief
-POST /evidence-matrix
-POST /reading-path
-POST /open-problems
-POST /guidance
-POST /agent/research
+```
+GET  /health              Health check
+GET  /corpus/stats        Corpus statistics
+POST /route               Route preview
+POST /retrieve            Retrieval results
+POST /confidence          Confidence check
+POST /brief               Research brief
+POST /evidence-matrix     Claim-level attribution
+POST /reading-path        Paper recommendations
+POST /open-problems       Research gaps
+POST /guidance            Guided session
+POST /agent/research      Multi-step research agent
 ```
 
-```bash
-curl -X POST http://localhost:8000/guidance \
-  -H "Content-Type: application/json" \
-  -d '{"question":"Compare LoRA and BitFit for parameter-efficient fine-tuning.","top_k":8}'
-```
-
-`question` accepts `query` as a backward-compatible alias. Optional fields: `research_areas`, `publication_year_min`/`max`, `full_text_only`, `include_debug`, `chat_history`.
+---
 
 ## Deployment
 
-```text
-Qdrant Cloud       vector database
-Render             FastAPI backend (Docker runtime, health check at /health)
-Streamlit Cloud    UI
-```
+| Service | Role |
+| --- | --- |
+| Qdrant Cloud | Vector database (free 1GB) |
+| Render | FastAPI backend (Docker, health check at `/health`) |
+| Streamlit Cloud | UI (`RSE_API_URL` → Render) |
 
-Render env vars: `OPENAI_API_KEY`, `QDRANT_URL`, `QDRANT_API_KEY`, `RSE_APPLY_RERANKING=false`, `RSE_CORS_ORIGINS`.
-Streamlit Cloud env var: `RSE_API_URL` pointing at the Render URL.
+Env vars for Render: `OPENAI_API_KEY`, `QDRANT_URL`, `QDRANT_API_KEY`, `RSE_APPLY_RERANKING=false`, `RSE_CORS_ORIGINS`.
+
+---
+
+## Current Evaluation Snapshot
+
+On the canonical 100-query benchmark (95 queries with labeled relevant IDs):
+
+| Metric | Result |
+| --- | ---: |
+| Route accuracy | 1.00 |
+| Hit@10 | 0.705 |
+| Recall@10 | 0.573 |
+| MRR | 0.459 |
+| Keyword hit@10 | 0.967 |
+| Confidence accuracy | 1.00 |
+
+A small live answer-quality smoke test scored faithfulness/relevancy at 1.0/1.0 for a factual query and 0.8/1.0 for a comparison query. This is a smoke sample, not a substitute for a larger human-labeled generation benchmark.
+
+## Limitations
+
+- Some relevant evidence still falls below the top-10 cutoff.
+- Comparison answers need broader multi-paper evidence coverage.
+- Static corpus, no incremental updates.
+- Synthesis depends on GPT-4o-mini.
+- Free-tier cold starts: 30-60s.
 
 ## Repository Layout
 
-```text
-ingestion/     OpenAlex ingestion, extraction, paper embeddings
-full_text/     PDF discovery, extraction, chunking, chunk embeddings
-retrieval/     Qdrant indexing, BM25, routing, unified search, evaluation
-agent/         query rewriting, confidence-gated synthesis, evidence outputs
+```
+ingestion/     Paper collection, metadata extraction, embeddings
+full_text/     PDF discovery, text extraction, chunking, chunk embeddings
+retrieval/     Indexing, BM25, routing, hybrid search, promotion, evaluation
+agent/         Query rewriting, confidence gate, synthesis, evidence outputs
 api/           FastAPI service
-ui/            Streamlit app and UI API client
+ui/            Streamlit app
 shared/        Pydantic schemas
-tools/         command-line helpers and benchmarks
-tests/         unit and integration tests with mocked external calls
-docs/          decisions log, evaluation notes, demo script
+tests/         378 tests (mocked external dependencies)
+docs/          Decision log, evaluation methodology, failure analysis
 ```

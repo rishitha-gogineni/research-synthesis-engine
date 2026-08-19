@@ -12,6 +12,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from retrieval.unified_search import run_unified_search
+from retrieval.promotion import is_diversity_query
 from shared.schemas import ConfidenceAssessment, UnifiedSearchResponse
 
 
@@ -51,6 +52,35 @@ AI_DOMAIN_PATTERNS = (
     re.compile(r"\bembeddings?\b", re.IGNORECASE),
     re.compile(r"\bvector\s+search\b", re.IGNORECASE),
 )
+CORPUS_TOPIC_ALIASES = {
+    "rag": "Retrieval-Augmented Generation (RAG)",
+    "retrieval augmented generation": "Retrieval-Augmented Generation (RAG)",
+    "hallucination": "LLM Evaluation & Hallucination Detection",
+    "hallucinations": "LLM Evaluation & Hallucination Detection",
+    "lora": "Fine-tuning (LoRA / PEFT)",
+    "peft": "Fine-tuning (LoRA / PEFT)",
+    "fine-tuning": "Fine-tuning (LoRA / PEFT)",
+    "finetuning": "Fine-tuning (LoRA / PEFT)",
+    "transformer": "Transformers / Attention Mechanisms",
+    "transformers": "Transformers / Attention Mechanisms",
+    "attention": "Transformers / Attention Mechanisms",
+    "agent": "AI Agents & Tool Use",
+    "agents": "AI Agents & Tool Use",
+    "tool use": "AI Agents & Tool Use",
+}
+SCOPE_GENERIC_TERMS = {
+    "about", "achieve", "current", "does", "evidence", "explain", "how", "main",
+    "methods", "method", "modeling", "paper", "papers", "role", "say", "state",
+    "system", "used", "what", "which", "work",
+}
+BROAD_SCOPE_PATTERNS = (
+    re.compile(r"\brole of\b", re.IGNORECASE),
+    re.compile(r"\bcurrent state\b", re.IGNORECASE),
+    re.compile(r"\bmethods? (?:are )?used in\b", re.IGNORECASE),
+    re.compile(r"\bhow does .+\bwork\b", re.IGNORECASE),
+)
+
+
 QUERY_STOPWORDS = {
     "about", "after", "against", "answer", "answers", "are", "can", "compare", "corpus",
     "does", "explain", "from", "give", "hardware", "highly", "implementation", "implementations",
@@ -125,6 +155,74 @@ def candidate_text(candidate: Any) -> str:
         getattr(candidate, "limitations", None),
     ]
     return " ".join(str(field).lower() for field in fields if field)
+
+
+def query_topic_aliases(query: str) -> set[str]:
+    lowered = query.lower()
+    aliases: set[str] = set()
+    for alias, topic in CORPUS_TOPIC_ALIASES.items():
+        pattern = rf"(?<![a-z0-9]){re.escape(alias)}(?![a-z0-9])"
+        if re.search(pattern, lowered):
+            aliases.add(topic)
+    return aliases
+
+
+def candidate_topic_aliases(candidate: Any) -> set[str]:
+    topic = str(getattr(candidate, "topic", "") or "").strip().lower()
+    return {
+        canonical
+        for canonical in set(CORPUS_TOPIC_ALIASES.values())
+        if canonical.lower() == topic
+    }
+
+
+def score_scope_alignment(response: UnifiedSearchResponse) -> tuple[float, list[str]]:
+    """Check whether retrieved evidence covers the query's joint scope.
+
+    Dense retrieval can return individually plausible papers for two unrelated
+    concepts. For ambiguous hybrid questions, confidence should require either
+    one source covering all explicit corpus topics or a direct named-paper
+    resolution. Comparison queries are intentionally exempt because separate
+    evidence sets are the point of that route.
+    """
+
+    if response.route.route != "hybrid_both" or is_diversity_query(response.query):
+        return 1.0, ["scope_alignment=1.00: route permits separate evidence sets"]
+    if response.route.confidence >= 0.8:
+        return 1.0, ["scope_alignment=1.00: high-confidence route already disambiguated the query"]
+    results = all_results(response)[:10]
+    if not results:
+        return 0.0, ["scope_alignment=0.00: no evidence candidates"]
+    if any(str(signal).lower().startswith("paper_lookup") for signal in response.route.matched_signals):
+        return 1.0, ["scope_alignment=1.00: specific paper lookup resolved"]
+    topic_aliases = query_topic_aliases(response.query)
+    if topic_aliases:
+        for result in results:
+            if topic_aliases.issubset(candidate_topic_aliases(result)):
+                return 1.0, [
+                    "scope_alignment=1.00: one source covers all explicit corpus topics",
+                ]
+        requested = ", ".join(sorted(topic_aliases))
+        return 0.0, [
+            f"scope_alignment=0.00: no single source covers requested topics: {requested}",
+        ]
+    terms = [
+        term for term in query_terms(response.query)
+        if term not in SCOPE_GENERIC_TERMS
+    ]
+    if any(pattern.search(response.query) for pattern in BROAD_SCOPE_PATTERNS):
+        return 0.0, [
+            "scope_alignment=0.00: broad question has no recognized corpus topic anchor",
+        ]
+    if len(terms) < 2:
+        return 1.0, ["scope_alignment=1.00: no joint scope check required"]
+    for result in results:
+        haystack = candidate_text(result)
+        if all(term in haystack for term in terms):
+            return 1.0, ["scope_alignment=1.00: one source contains the query's specific terms"]
+    return 0.0, [
+        "scope_alignment=0.00: specific query terms do not co-occur in one source",
+    ]
 
 
 def score_query_support(response: UnifiedSearchResponse, terms: list[str]) -> tuple[float, list[str]]:
@@ -213,6 +311,7 @@ def confidence_components(response: UnifiedSearchResponse) -> dict[str, Any]:
     lookup_resolved, lookup_signals = is_resolved_paper_lookup(response)
     terms = query_terms(response.query)
     query_support_score, query_support_signals = score_query_support(response, terms)
+    scope_alignment_score, scope_alignment_signals = score_scope_alignment(response)
     domain_anchors = query_domain_anchors(response.query)
     return {
         "result_count": len(results),
@@ -224,6 +323,8 @@ def confidence_components(response: UnifiedSearchResponse) -> dict[str, Any]:
         "query_terms": terms,
         "query_specificity": len(terms),
         "query_support_score": query_support_score,
+        "scope_alignment_score": scope_alignment_score,
+        "scope_alignment_signals": scope_alignment_signals,
         "query_domain_anchors": domain_anchors,
         "paper_lookup_resolved": lookup_resolved,
         "paper_lookup_signals": lookup_signals,
@@ -250,6 +351,7 @@ def decide(response: UnifiedSearchResponse, components: dict[str, Any], confiden
     route_confidence = components["route_confidence"]
     query_specificity = components["query_specificity"]
     query_support_score = components["query_support_score"]
+    scope_alignment_score = components["scope_alignment_score"]
     query_domain_anchors = components["query_domain_anchors"]
 
     if result_count == 0:
@@ -280,6 +382,12 @@ def decide(response: UnifiedSearchResponse, components: dict[str, Any], confiden
         return (
             "insufficient_evidence",
             "Retrieved results do not contain the specific terms needed to support the user question.",
+            "Do not generate an answer; tell the user the indexed corpus does not provide enough evidence for this question.",
+        )
+    if scope_alignment_score < 0.5:
+        return (
+            "insufficient_evidence",
+            "Retrieved evidence does not cover the query's concepts jointly enough to support synthesis.",
             "Do not generate an answer; tell the user the indexed corpus does not provide enough evidence for this question.",
         )
     if components.get("paper_lookup_resolved"):
@@ -320,11 +428,13 @@ def assess_confidence(response: UnifiedSearchResponse) -> ConfidenceAssessment:
         f"consistency_score={components['consistency_score']:.2f}",
         f"agreement_score={components['agreement_score']:.2f}",
         f"query_support_score={components['query_support_score']:.2f}",
+        f"scope_alignment_score={components['scope_alignment_score']:.2f}",
         f"query_specificity={components['query_specificity']}",
         "query_domain_anchors=" + (", ".join(components["query_domain_anchors"]) if components["query_domain_anchors"] else "none"),
         *components["paper_lookup_signals"],
         *components["agreement_signals"],
         *components["query_support_signals"],
+        *components["scope_alignment_signals"],
     ]
 
     return ConfidenceAssessment(

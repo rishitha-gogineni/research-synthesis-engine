@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 from collections import Counter
+from functools import lru_cache
 from pathlib import Path
 from typing import Callable
 
@@ -13,6 +14,8 @@ from pydantic import ValidationError
 from agent.query_rewriter import ChatTurn, QueryRewriteResult, rewrite_query
 from retrieval.confidence import assess_confidence
 from retrieval.promotion import is_diversity_query
+from full_text.index_chunks_qdrant import DEFAULT_COLLECTION as DEFAULT_CHUNK_COLLECTION
+from retrieval.index_qdrant import DEFAULT_COLLECTION as DEFAULT_PAPER_COLLECTION
 from retrieval.unified_search import (
     DEFAULT_APPLY_PROMOTION,
     DEFAULT_PROMOTION_POOL_MULTIPLIER,
@@ -22,6 +25,7 @@ from shared.schemas import ConfidenceAssessment, EvaluationQuery, UnifiedSearchR
 
 
 DEFAULT_EVAL_QUERIES = Path("tests/fixtures/eval_queries.json")
+DEFAULT_PAPER_ID_ALIASES = Path("data/paper_id_aliases.json")
 DEFAULT_TOP_KS = (5, 10)
 DEFAULT_MERGE_RRF_K = 60
 
@@ -32,6 +36,27 @@ ConfidenceRunner = Callable[[UnifiedSearchResponse], ConfidenceAssessment]
 
 class EvaluationError(RuntimeError):
     """Raised when the retrieval evaluation cannot run cleanly."""
+
+
+@lru_cache(maxsize=1)
+def load_paper_id_aliases(path: Path = DEFAULT_PAPER_ID_ALIASES) -> dict[str, str]:
+    """Load duplicate-record aliases used to compare stable paper identities."""
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise EvaluationError(f"failed to load paper ID aliases from {path}: {exc}") from exc
+    aliases = payload.get("aliases", payload)
+    if not isinstance(aliases, dict):
+        raise EvaluationError(f"paper ID aliases at {path} must be a JSON object")
+    return {str(alias): str(canonical) for alias, canonical in aliases.items()}
+
+
+def canonical_identifier(value: str, aliases: dict[str, str] | None = None) -> str:
+    """Resolve a paper ID alias while leaving chunk IDs and unknown IDs intact."""
+    mapping = load_paper_id_aliases() if aliases is None else aliases
+    return mapping.get(value, value)
 
 
 def load_eval_queries(path: Path) -> list[EvaluationQuery]:
@@ -57,6 +82,10 @@ paper ID, so evaluation should consider both identifiers.
         value = getattr(result, attr, None)
         if value and str(value) not in identifiers:
             identifiers.append(str(value))
+        if attr == "paper_id" and value:
+            canonical = canonical_identifier(str(value))
+            if canonical not in identifiers:
+                identifiers.append(canonical)
     return identifiers
 
 
@@ -181,15 +210,20 @@ def maybe_rewrite_query(
 
 
 def id_hits(results: list[object], expected_relevant_ids: list[str], top_k: int) -> set[str]:
-    expected = set(expected_relevant_ids)
-    retrieved = {identifier for result in results[:top_k] for identifier in result_identifiers(result)}
+    expected = {canonical_identifier(identifier) for identifier in expected_relevant_ids}
+    retrieved = {
+        canonical_identifier(identifier)
+        for result in results[:top_k]
+        for identifier in result_identifiers(result)
+    }
     return expected & retrieved
 
 
 def reciprocal_rank(results: list[object], expected_relevant_ids: list[str]) -> float:
-    expected = set(expected_relevant_ids)
+    expected = {canonical_identifier(identifier) for identifier in expected_relevant_ids}
     for index, result in enumerate(results, start=1):
-        if expected & set(result_identifiers(result)):
+        result_ids = {canonical_identifier(identifier) for identifier in result_identifiers(result)}
+        if expected & result_ids:
             return 1.0 / index
     return 0.0
 
@@ -237,8 +271,17 @@ def evaluate_response(
 
     topic_hits = {k: topic_hit(combined_results, query.expected_topics, k) for k in top_ks}
     keyword_hits = {k: keyword_hit(combined_results, query.expected_keywords, k) for k in top_ks}
-    id_hit_sets = {k: id_hits(route_results, query.expected_relevant_ids, k) for k in top_ks}
-    expected_id_count = len(set(query.expected_relevant_ids))
+    # Keep evaluation records JSON-native.  The previous set values were
+    # stringified by ``json.dumps(default=str)``; notably, an empty set became
+    # the non-empty string ``"set()"``.  Downstream reports then counted every
+    # miss as a hit because that string is truthy.
+    id_hit_sets = {
+        k: sorted(id_hits(route_results, query.expected_relevant_ids, k))
+        for k in top_ks
+    }
+    expected_id_count = len(
+        {canonical_identifier(identifier) for identifier in query.expected_relevant_ids}
+    )
     id_hit_fractions = {
         k: (len(id_hit_sets[k]) / expected_id_count if expected_id_count else None) for k in top_ks
     }
@@ -253,13 +296,17 @@ def evaluate_response(
         "query": query.query,
         "category": query.category,
         "evaluation_focus": query.evaluation_focus,
+        "rationale": query.rationale,
         "standalone_query": rewrite_result.standalone_query,
         "rewrite_used": rewrite_result.rewrite_used,
         "rewrite_keyword_hit": rewrite_keyword_hit,
         "expected_route": query.expected_route,
         "acceptable_routes": accepted_routes,
         "actual_route": response.route.route,
+        "route_confidence": response.route.confidence,
+        "route_matched_signals": list(response.route.matched_signals),
         "route_correct": route_correct,
+        "expected_relevant_ids": list(query.expected_relevant_ids),
         "expected_confidence_decision": query.expected_confidence_decision,
         "actual_confidence_decision": confidence_decision,
         "confidence_correct": confidence_correct,
@@ -287,6 +334,14 @@ def summarize_evaluations(evaluations: list[dict[str, object]], top_ks: tuple[in
         if evaluation.get("expected_confidence_decision") != "sufficient_evidence"
     ]
     focus_counts = dict(sorted(Counter(str(evaluation.get("evaluation_focus") or "unspecified") for evaluation in evaluations).items()))
+    route_confusion = dict(sorted(Counter(
+        f"{evaluation.get('expected_route')}->{evaluation.get('actual_route')}"
+        for evaluation in evaluations
+    ).items()))
+    fallback_routes = sum(
+        1 for evaluation in evaluations
+        if any("fallback:" in str(signal) for signal in evaluation.get("route_matched_signals", []))
+    )
 
     route_accuracy = safe_rate(sum(1 for evaluation in evaluations if evaluation["route_correct"]), total)
     rewrite_keyword_hit_rate = safe_rate(sum(1 for evaluation in rewrite_labeled if evaluation["rewrite_keyword_hit"]), len(rewrite_labeled))
@@ -332,6 +387,8 @@ def summarize_evaluations(evaluations: list[dict[str, object]], top_ks: tuple[in
         "multi_turn_queries": len(multi_turn),
         "out_of_corpus_queries": len(out_of_corpus),
         "evaluation_focus_counts": focus_counts,
+        "route_confusion": route_confusion,
+        "fallback_route_count": fallback_routes,
         "route_accuracy": route_accuracy,
         "rewrite_keyword_hit_rate": {"value": rewrite_keyword_hit_rate, "n": len(rewrite_labeled)},
         "confidence_decision_accuracy": {"value": confidence_decision_accuracy, "n": len(confidence_labeled)},
@@ -363,6 +420,9 @@ def run_evaluation(
     conditional_merge: bool = False,
     reading_path_boost: bool = False,
     affinity_boost: bool = False,
+    parent_context: bool = False,
+    paper_collection: str = DEFAULT_PAPER_COLLECTION,
+    chunk_collection: str = DEFAULT_CHUNK_COLLECTION,
 ) -> tuple[dict[str, object], list[dict[str, object]]]:
     evaluations = []
     max_top_k = max(top_ks)
@@ -380,6 +440,9 @@ def run_evaluation(
             extended_expansions=extended_expansions,
             reading_path_boost=reading_path_boost,
             affinity_boost=affinity_boost,
+            expand_parent_context=parent_context,
+            paper_collection=paper_collection,
+            chunk_collection=chunk_collection,
         )
         confidence = confidence_checker(response) if query.expected_confidence_decision is not None else None
         evaluations.append(
@@ -479,6 +542,21 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Boost chunks whose parent paper was also retrieved (requires --promotion).",
     )
+    parser.add_argument(
+        "--parent-context",
+        action="store_true",
+        help="Expand top retrieved chunks with neighboring context and aggregate paper evidence.",
+    )
+    parser.add_argument(
+        "--paper-collection",
+        default=DEFAULT_PAPER_COLLECTION,
+        help="Qdrant collection for paper-level vectors.",
+    )
+    parser.add_argument(
+        "--chunk-collection",
+        default=DEFAULT_CHUNK_COLLECTION,
+        help="Qdrant collection for chunk-level vectors (use e.g. research_paper_chunks_v2).",
+    )
     return parser.parse_args()
 
 
@@ -499,6 +577,9 @@ def main() -> None:
         conditional_merge=args.conditional_merge,
         reading_path_boost=args.reading_path_boost,
         affinity_boost=args.affinity,
+        parent_context=args.parent_context,
+        paper_collection=args.paper_collection,
+        chunk_collection=args.chunk_collection,
     )
     if args.json:
         print(json.dumps({"summary": summary, "evaluations": evaluations}, indent=2, default=str))

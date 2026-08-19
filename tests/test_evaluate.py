@@ -7,6 +7,7 @@ import pytest
 from agent.query_rewriter import QueryRewriteResult
 from retrieval.evaluate import (
     EvaluationError,
+    canonical_identifier,
     effective_routes,
     evaluate_response,
     format_rate,
@@ -119,6 +120,51 @@ def test_reciprocal_rank_finds_first_relevant_id():
     assert reciprocal_rank(results, ["missing"]) == 0.0
 
 
+def test_duplicate_paper_aliases_resolve_to_one_stable_identifier():
+    aliases = {"paper-alias": "paper-canonical"}
+
+    assert canonical_identifier("paper-alias", aliases) == "paper-canonical"
+    assert canonical_identifier("paper-canonical", aliases) == "paper-canonical"
+
+
+def test_evaluate_response_matches_duplicate_paper_alias_to_canonical_id():
+    query = EvaluationQuery(
+        query="What does the duplicate paper report?",
+        expected_route="paper_level",
+        expected_relevant_ids=["https://openalex.org/W4391136507"],
+    )
+    response = make_response(
+        "q",
+        "paper_level",
+        paper_ids=["https://openalex.org/W4383605161"],
+    )
+
+    evaluation = evaluate_response(query, response, (1,))
+
+    assert evaluation["id_hit_sets"][1] == ["https://openalex.org/W4383605161"]
+    assert evaluation["reciprocal_rank"] == 1.0
+
+
+def test_duplicate_aliases_count_as_one_relevance_judgment():
+    query = EvaluationQuery(
+        query="What does the duplicated record report?",
+        expected_route="paper_level",
+        expected_relevant_ids=[
+            "https://openalex.org/W4391136507",
+            "https://openalex.org/W4383605161",
+        ],
+    )
+    response = make_response(
+        "q",
+        "paper_level",
+        paper_ids=["https://openalex.org/W4391136507"],
+    )
+
+    evaluation = evaluate_response(query, response, (1,))
+
+    assert evaluation["id_hit_fractions"][1] == 1.0
+
+
 def test_evaluate_response_accepts_valid_route_alternative():
     query = EvaluationQuery(
         query="Which benchmarks are used for tool-use agents?",
@@ -134,7 +180,7 @@ def test_evaluate_response_accepts_valid_route_alternative():
 
     assert evaluation["route_correct"] is True
     assert evaluation["acceptable_routes"] == ["chunk_level", "hybrid_both"]
-    assert evaluation["id_hit_sets"][1] == {"c1"}
+    assert evaluation["id_hit_sets"][1] == ["c1"]
 
 
 def test_evaluate_response_true_recall_differs_from_any_hit():
@@ -152,8 +198,25 @@ def test_evaluate_response_true_recall_differs_from_any_hit():
 
     evaluation = evaluate_response(query, response, (5,))
 
-    assert evaluation["id_hit_sets"][5] == {"c1"}
+    assert evaluation["id_hit_sets"][5] == ["c1"]
     assert evaluation["id_hit_fractions"][5] == pytest.approx(0.5)
+
+
+def test_evaluate_response_is_json_native_and_preserves_rationale():
+    query = EvaluationQuery(
+        query="What accuracy does the paper report?",
+        expected_route="chunk_level",
+        expected_relevant_ids=["c1"],
+        rationale="[factual] regression fixture",
+    )
+    response = make_response("q", "chunk_level", chunk_ids=["c1"])
+
+    evaluation = evaluate_response(query, response, (5,))
+
+    assert evaluation["rationale"] == "[factual] regression fixture"
+    assert json.loads(json.dumps(evaluation))["id_hit_sets"]["5"] == ["c1"]
+    assert evaluation["expected_relevant_ids"] == ["c1"]
+    assert evaluation["route_matched_signals"] == []
 
 
 def test_summarize_evaluations_reports_hit_rate_and_recall_as_distinct_numbers():
@@ -187,8 +250,8 @@ def test_evaluate_response_uses_expected_route_result_set_for_ids():
     evaluation = evaluate_response(query, response, (1, 2))
 
     assert evaluation["route_correct"] is True
-    assert evaluation["id_hit_sets"][1] == set()
-    assert evaluation["id_hit_sets"][2] == {"c2"}
+    assert evaluation["id_hit_sets"][1] == []
+    assert evaluation["id_hit_sets"][2] == ["c2"]
     assert evaluation["reciprocal_rank"] == pytest.approx(0.5)
 
 

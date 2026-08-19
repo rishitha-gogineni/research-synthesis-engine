@@ -459,6 +459,10 @@ def retrieval_cache_key(request: ApiQueryRequest, *, query_override: str | None 
         "dense_top_k": request.dense_top_k,
         "sparse_top_k": request.sparse_top_k,
         "apply_reranking": request.apply_reranking,
+        "research_areas": request.research_areas,
+        "publication_year_min": request.publication_year_min,
+        "publication_year_max": request.publication_year_max,
+        "full_text_only": request.full_text_only,
         # Test suites monkeypatch run_unified_search; including the callable identity avoids stale cross-test hits.
         "retriever_identity": id(run_unified_search),
     }
@@ -479,6 +483,10 @@ def retrieve_for_request(request: ApiQueryRequest, *, query_override: str | None
         dense_top_k=request.dense_top_k,
         sparse_top_k=request.sparse_top_k,
         apply_reranking=request.apply_reranking,
+        research_areas=request.research_areas,
+        publication_year_min=request.publication_year_min,
+        publication_year_max=request.publication_year_max,
+        full_text_only=request.full_text_only,
         fusion_method=DEFAULT_FUSION_METHOD,
         apply_promotion=DEFAULT_APPLY_PROMOTION,
         pool_multiplier=DEFAULT_POOL_MULTIPLIER,
@@ -524,7 +532,7 @@ def apply_request_filters(response: UnifiedSearchResponse, request: ApiQueryRequ
     if request.full_text_only:
         paper_results = []
         warnings.append("full_text_only keeps chunk-level results and omits abstract-only paper results.")
-    warnings.append("Filters are applied after retrieval in this API version; upstream retrieval is not yet constrained by these filters.")
+    warnings.append("Filters were enforced during retrieval and rechecked on the response before returning it.")
     filtered = response.model_copy(
         update={
             "paper_results": paper_results,

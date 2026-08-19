@@ -68,6 +68,8 @@ def test_normalize_text_supports_title_keys():
 def test_question_pattern_classifier_matches_common_human_questions():
     assert classify_question_pattern("Show me highly cited AI agent survey papers published after 2023.") == "ranked_list"
     assert classify_question_pattern("List papers between 2021 and 2024 about RAG.") == "ranked_list"
+    assert classify_question_pattern("What quantitative results does a study report on a highly-specialized topic?") == "dataset_method"
+    assert classify_question_pattern("What are the latest developments in autonomous driving?") != "ranked_list"
     assert classify_question_pattern('Explain the paper "BitFit: Simple Parameter-efficient Fine-tuning"') == "paper_lookup"
     assert classify_question_pattern("Compare LoRA and BitFit.") == "comparison"
     assert classify_question_pattern("What is the difference between AI agents and RAG?") == "comparison"

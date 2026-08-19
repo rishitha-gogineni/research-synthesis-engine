@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import statistics
 from pathlib import Path
 from typing import Callable
@@ -43,8 +44,14 @@ def build_faithfulness_prompt(brief: ResearchBrief) -> str:
     if not brief.direct_answer.strip():
         raise FaithfulnessEvalError("cannot judge a brief with an empty direct_answer")
 
+    source_pattern = re.compile(r"(?<![A-Za-z0-9_-])(?:paper|chunk|result):[A-Za-z0-9_:/-]+(?:\.[A-Za-z0-9_:/-]+)*")
+    cited_ids = {match.group(0) for match in source_pattern.finditer(brief.direct_answer)}
+    if not cited_ids:
+        raise FaithfulnessEvalError("cannot judge a brief with no source citations")
     evidence_blocks = "\n".join(
-        f"[{source.source_id}] {source.evidence_text}" for source in brief.sources if source.evidence_text.strip()
+        f"[{source.source_id}] {source.evidence_text}"
+        for source in brief.sources
+        if source.source_id in cited_ids and source.evidence_text.strip()
     )
     if not evidence_blocks:
         raise FaithfulnessEvalError("cannot judge a brief with no cited evidence text")
@@ -111,6 +118,8 @@ def assess_faithfulness(
     """Score a generated brief's faithfulness and answer relevancy via an LLM judge."""
 
     prompt = build_faithfulness_prompt(brief)
+    source_pattern = re.compile(r"(?<![A-Za-z0-9_-])(?:paper|chunk|result):[A-Za-z0-9_:/-]+(?:\.[A-Za-z0-9_:/-]+)*")
+    cited_ids = {match.group(0) for match in source_pattern.finditer(brief.direct_answer)}
     raw_text = generator(prompt) if generator else call_openai_judge(prompt, model=model)
     payload = parse_faithfulness_payload(raw_text)
 
@@ -121,7 +130,7 @@ def assess_faithfulness(
             answer_relevancy_score=float(payload["answer_relevancy_score"]),
             unsupported_claims=list(payload.get("unsupported_claims", [])),
             judge_notes=str(payload.get("judge_notes", "")),
-            source_ids_checked=[source.source_id for source in brief.sources],
+            source_ids_checked=[source.source_id for source in brief.sources if source.source_id in cited_ids],
         )
     except (KeyError, TypeError, ValueError) as exc:
         raise FaithfulnessEvalError(f"judge response missing required fields: {exc}") from exc

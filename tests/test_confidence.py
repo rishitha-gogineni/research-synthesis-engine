@@ -263,3 +263,43 @@ def test_confidence_cli_accepts_input_file(tmp_path):
     payload = json.loads(completed.stdout)
     assert payload["decision"] in {"sufficient_evidence", "broaden_search"}
     assert payload["result_count"] == 2
+
+
+def test_hybrid_scope_requires_joint_topic_evidence_for_adversarial_question():
+    response = make_response(
+        query="What does Attention Is All You Need say about LoRA?",
+        route="hybrid_both",
+        route_confidence=0.55,
+        papers=[
+            make_paper("attention", topic="Transformers / Attention Mechanisms", score=0.95),
+            make_paper("lora", topic="Fine-tuning (LoRA / PEFT)", score=0.92),
+        ],
+        chunks=[
+            make_chunk("attention-chunk", paper_id="attention", topic="Transformers / Attention Mechanisms", score=0.9),
+            make_chunk("lora-chunk", paper_id="lora", topic="Fine-tuning (LoRA / PEFT)", score=0.88),
+        ],
+    )
+
+    assessment = assess_confidence(response)
+
+    assert assessment.decision == "insufficient_evidence"
+    assert any("scope_alignment_score=0.00" in signal for signal in assessment.signals)
+
+
+def test_broad_unanchored_question_is_insufficient_even_with_related_results():
+    paper = make_paper("p1", topic="Transformers / Attention Mechanisms", score=0.95)
+    paper.abstract = "AI drug discovery evidence"
+    chunk = make_chunk("c1", paper_id="p1", topic="Transformers / Attention Mechanisms", score=0.9)
+    chunk.text = "AI drug discovery evidence"
+    response = make_response(
+        query="What is the role of AI in drug discovery?",
+        route="hybrid_both",
+        route_confidence=0.55,
+        papers=[paper],
+        chunks=[chunk],
+    )
+
+    assessment = assess_confidence(response)
+
+    assert assessment.decision == "insufficient_evidence"
+    assert any("broad question has no recognized corpus topic anchor" in signal for signal in assessment.signals)

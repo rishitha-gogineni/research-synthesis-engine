@@ -42,7 +42,7 @@ def fake_paper_retriever(query, **kwargs):
     assert kwargs["collection_name"] == "research_papers"
     assert kwargs["dense_top_k"] == 4
     assert kwargs["sparse_top_k"] == 5
-    assert kwargs["final_top_k"] == 4
+    assert kwargs["final_top_k"] == (6 if query.startswith("Compare") else 4)
     return [
         {
             "paper_id": "paper-1",
@@ -68,7 +68,7 @@ def fake_paper_retriever(query, **kwargs):
 def fake_chunk_retriever(query, **kwargs):
     assert query
     assert kwargs["collection_name"] == "research_paper_chunks"
-    assert kwargs["top_k"] == 4
+    assert kwargs["top_k"] == (6 if query.startswith("Compare") else 4)
     return [
         {
             "chunk_id": "chunk-1",
@@ -375,6 +375,33 @@ def test_run_unified_search_uses_expanded_query_for_retrievers_but_keeps_visible
     assert all("hallucination detection mitigation" in query for query in seen)
 
 
+def test_dataset_queries_auto_expand_structured_vocabulary():
+    seen = []
+
+    def paper_retriever(query, **kwargs):
+        seen.append(query)
+        return []
+
+    def chunk_retriever(query, **kwargs):
+        seen.append(query)
+        return []
+
+    run_unified_search(
+        "Which datasets are used to evaluate hallucination detection methods?",
+        top_k=2,
+        paper_retriever=paper_retriever,
+        chunk_retriever=chunk_retriever,
+        router=fake_router("hybrid_both"),
+        openai_client=object(),
+        qdrant_client=object(),
+        bm25_artifact=make_bm25_artifact(),
+        apply_reranking=False,
+    )
+
+    assert seen
+    assert all("dataset benchmark corpus" in query for query in seen)
+
+
 def test_extended_expansions_are_opt_in():
     query = "Which datasets are used to evaluate hallucination detection methods?"
 
@@ -442,6 +469,29 @@ def test_run_unified_search_promotion_is_on_by_default():
     assert requested["top_k"] == 6
     assert len(response.chunk_results) == 3
     assert [chunk.chunk_id for chunk in response.chunk_results] == ["c1", "c2", "c3"]
+
+
+def test_comparison_queries_use_a_wider_candidate_pool():
+    requested = []
+
+    def retriever(query, **kwargs):
+        requested.append(kwargs.get("top_k", kwargs.get("final_top_k")))
+        return []
+
+    run_unified_search(
+        "Compare RAG and fine-tuning for factuality.",
+        top_k=4,
+        paper_retriever=retriever,
+        chunk_retriever=retriever,
+        router=fake_router("hybrid_both"),
+        openai_client=object(),
+        qdrant_client=object(),
+        bm25_artifact=make_bm25_artifact(),
+        apply_reranking=False,
+        pool_multiplier=2,
+    )
+
+    assert requested == [12, 12]
 
 
 def test_run_unified_search_pool_multiplier_widens_the_internal_request():

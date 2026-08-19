@@ -79,6 +79,12 @@ def sample_guidance_payload():
     }
 
 
+def test_selected_year_filter_omits_default_range():
+    assert streamlit_app.selected_year_filter((2017, 2026)) == (None, None)
+    assert streamlit_app.selected_year_filter(None) == (None, None)
+    assert streamlit_app.selected_year_filter((2020, 2026)) == (2020, 2026)
+
+
 def test_build_guidance_payload_uses_question_and_optional_filters():
     payload = api_client.build_guidance_payload(
         question="  Compare RAG and verification.  ",
@@ -243,6 +249,40 @@ def test_post_api_retries_once_for_transient_html_502(monkeypatch):
             return {"ok": True}
 
     responses = [HtmlResponse(), JsonResponse()]
+    monkeypatch.setattr(api_client.requests, "post", lambda *args, **kwargs: responses.pop(0))
+    monkeypatch.setattr(api_client.time, "sleep", lambda _: None)
+
+    body, request_id = api_client.post_api("/guidance", {"question": "test"}, request_id="request-1")
+
+    assert body == {"ok": True}
+    assert request_id == "request-2"
+    assert responses == []
+
+
+def test_post_api_retries_once_for_transient_retrieval_failure(monkeypatch):
+    class RetrievalFailureResponse:
+        status_code = 503
+        headers = {"X-Request-ID": "request-1"}
+        text = ""
+
+        def json(self):
+            return {
+                "error": {
+                    "code": "RETRIEVAL_FAILED",
+                    "message": "Unable to retrieve research evidence.",
+                    "request_id": "request-1",
+                }
+            }
+
+    class JsonResponse:
+        status_code = 200
+        headers = {"X-Request-ID": "request-2"}
+        text = "{}"
+
+        def json(self):
+            return {"ok": True}
+
+    responses = [RetrievalFailureResponse(), JsonResponse()]
     monkeypatch.setattr(api_client.requests, "post", lambda *args, **kwargs: responses.pop(0))
     monkeypatch.setattr(api_client.time, "sleep", lambda _: None)
 

@@ -12,9 +12,9 @@ data/*
 !data/full_text_sources.json
 !data/full_text_papers.json
 !data/full_text_chunks.json
+!data/paper_id_aliases.json
 
 # Debug/ad-hoc outputs
 live_test_*.json
 response.json
 *.egg-info/
-

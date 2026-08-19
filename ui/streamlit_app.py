@@ -51,6 +51,9 @@ from ui.api_client import (
 )
 
 
+DEFAULT_YEAR_RANGE = (2017, 2026)
+
+
 st.set_page_config(page_title="Research Synthesis Engine", page_icon=None, layout="wide", initial_sidebar_state="expanded")
 
 st.markdown(
@@ -238,7 +241,13 @@ def render_filter_sidebar(health: dict, stats: dict):
         render_status(health, stats)
         st.markdown("### Filters")
         st.multiselect("Research area", SUPPORTED_RESEARCH_TOPICS, key="research_areas")
-        st.slider("Publication years", min_value=2017, max_value=2026, key="year_range", step=1)
+        st.slider(
+            "Publication years",
+            min_value=DEFAULT_YEAR_RANGE[0],
+            max_value=DEFAULT_YEAR_RANGE[1],
+            key="year_range",
+            step=1,
+        )
         st.slider("Evidence depth", min_value=3, max_value=20, key="top_k", step=1)
         st.checkbox("Full-text evidence only", key="full_text_only")
         st.checkbox("Diagnostics", key="include_debug")
@@ -572,7 +581,7 @@ def initialize_state():
     st.session_state.setdefault("question", SUGGESTED_QUESTIONS[0])
     st.session_state.setdefault("suggested_question", SUGGESTED_QUESTIONS[0])
     st.session_state.setdefault("research_areas", [])
-    st.session_state.setdefault("year_range", (2017, 2026))
+    st.session_state.setdefault("year_range", DEFAULT_YEAR_RANGE)
     st.session_state.setdefault("top_k", 8)
     st.session_state.setdefault("full_text_only", False)
     st.session_state.setdefault("include_debug", False)
@@ -581,8 +590,14 @@ def initialize_state():
     st.session_state.setdefault("followup_question", "")
 
 
+def selected_year_filter(year_range: tuple[int, int] | None) -> tuple[int | None, int | None]:
+    if not year_range or tuple(year_range) == DEFAULT_YEAR_RANGE:
+        return None, None
+    return year_range
+
+
 def build_payload_from_state(question: str | None = None) -> dict:
-    year_min, year_max = st.session_state.get("year_range", (2017, 2026))
+    year_min, year_max = selected_year_filter(st.session_state.get("year_range", DEFAULT_YEAR_RANGE))
     return build_guidance_payload(
         question=question if question is not None else st.session_state.get("question", ""),
         top_k=st.session_state.get("top_k", 8),

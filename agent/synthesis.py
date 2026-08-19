@@ -29,6 +29,7 @@ MAX_SOURCE_TEXT_CHARS = 900
 MAX_SOURCES = 12
 MMR_LAMBDA = 0.72
 MMR_CANDIDATE_POOL_MULTIPLIER = 3
+SOURCE_REFERENCE_PATTERN = re.compile(r"(?<![A-Za-z0-9_-])(?:paper|chunk|result):[A-Za-z0-9_:/-]+(?:\.[A-Za-z0-9_:/-]+)*")
 BriefGenerator = Callable[[str], str]
 
 
@@ -296,6 +297,9 @@ Direct-answer requirements:
 - First paragraph: give the plain-language conceptual answer before naming papers or methods.
 - Second paragraph: connect that concept to the strongest retrieved evidence using source IDs.
 - Every direct-answer paragraph should include at least one exact SOURCE_ID when evidence supports the claim.
+- Cite every factual sentence immediately with one or more exact SOURCE_IDs; a paragraph-level citation is not enough.
+- If a sentence combines claims from multiple sources, include every supporting SOURCE_ID after that sentence.
+- Omit any metric, dataset, method name, or result not explicitly supported by its cited evidence; state that the evidence does not specify it instead.
 - Optional third paragraph: add nuance, boundary conditions, or what the evidence does not establish.
 - For comparison or contrast questions, define both sides, state the key difference, and give one concrete example.
 - For agent/task questions, explicitly address planning, tool/API use, action execution, observation/feedback, and workflow completion when supported by evidence.
@@ -348,6 +352,71 @@ def parse_brief_payload(raw_text: str) -> dict[str, Any]:
             return json.loads(cleaned[start : end + 1])
         except json.JSONDecodeError as exc:
             raise SynthesisError(f"brief generator returned malformed JSON: {exc}") from exc
+
+
+def sanitize_source_references(
+    payload: dict[str, Any],
+    sources: list[EvidenceSource],
+) -> tuple[dict[str, Any], list[str]]:
+    """Constrain generated source references to the retrieved evidence set."""
+
+    known_ids = {source.source_id for source in sources}
+    warnings: list[str] = []
+
+    def clean_text_references(value: Any, field_name: str) -> str:
+        text = clean_text(value if isinstance(value, str) else "")
+        unknown: set[str] = set()
+        known = False
+
+        def replace(match: re.Match[str]) -> str:
+            nonlocal known
+            reference = match.group(0)
+            if reference in known_ids:
+                known = True
+                return reference
+            unknown.add(reference)
+            return ""
+
+        cleaned = SOURCE_REFERENCE_PATTERN.sub(replace, text)
+        if unknown:
+            warnings.append(f"Removed unknown source references from {field_name}: {', '.join(sorted(unknown))}.")
+        if field_name.startswith("evidence_bullets") and unknown and not known:
+            return ""
+        return clean_text(cleaned)
+
+    sanitized = dict(payload)
+    sanitized["direct_answer"] = clean_text_references(payload.get("direct_answer"), "direct_answer")
+
+    for field_name in ("evidence_bullets", "limitations", "open_problems"):
+        values = payload.get(field_name) or []
+        cleaned_values = []
+        for index, value in enumerate(values):
+            cleaned = clean_text_references(value, f"{field_name}[{index}]")
+            if cleaned:
+                cleaned_values.append(cleaned)
+        sanitized[field_name] = cleaned_values
+
+    clean_themes = []
+    for index, raw_theme in enumerate(payload.get("themes") or []):
+        if not isinstance(raw_theme, dict):
+            warnings.append(f"Dropped malformed theme at index {index}.")
+            continue
+        theme = dict(raw_theme)
+        theme["summary"] = clean_text_references(theme.get("summary"), f"themes[{index}].summary")
+        source_ids = [str(source_id) for source_id in (theme.get("supporting_source_ids") or [])]
+        valid_ids = [source_id for source_id in source_ids if source_id in known_ids]
+        unknown_ids = sorted(set(source_ids) - known_ids)
+        if unknown_ids:
+            warnings.append(
+                f"Removed unknown source references from themes[{index}].supporting_source_ids: {', '.join(unknown_ids)}."
+            )
+        if valid_ids:
+            theme["supporting_source_ids"] = valid_ids
+            clean_themes.append(theme)
+        else:
+            warnings.append(f"Dropped theme at index {index} because it had no retrieved supporting source.")
+    sanitized["themes"] = clean_themes
+    return sanitized, warnings
 
 
 def ensure_direct_answer_citations(answer: str, sources: list[EvidenceSource]) -> str:
@@ -440,10 +509,11 @@ def build_research_brief(
 
     prompt = build_synthesis_prompt(response.query, sources)
     raw_text = generator(prompt) if generator else call_openai_generator(prompt, model=model)
-    payload = parse_brief_payload(raw_text)
+    payload, reference_warnings = sanitize_source_references(parse_brief_payload(raw_text), sources)
 
     try:
         themes = [BriefTheme(**item) for item in payload.get("themes", [])]
+        warning = "; ".join(reference_warnings) if reference_warnings else None
         return ResearchBrief(
             query=response.query,
             status="generated",
@@ -454,6 +524,7 @@ def build_research_brief(
             limitations=list(payload.get("limitations", [])),
             open_problems=list(payload.get("open_problems", [])),
             sources=sources,
+            warning=warning,
         )
     except (TypeError, ValidationError) as exc:
         raise SynthesisError(f"brief payload failed schema validation: {exc}") from exc
