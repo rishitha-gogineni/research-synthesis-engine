@@ -11,6 +11,7 @@ class AgenticState(TypedDict):
     route: NotRequired[AgentRoute]
     route_reason: NotRequired[str]
     route_confidence: NotRequired[float]
+    confidence_decision: NotRequired[str]
     planned_tools: NotRequired[list[str]]
     retrieval_response: NotRequired[dict[str, Any]]
     external_response: NotRequired[dict[str, Any]]

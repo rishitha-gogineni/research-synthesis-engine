@@ -4,6 +4,7 @@ from agentic.planner import RoutePlan, plan_query
 from agentic.state import AgenticState, initial_state
 from agentic.tools import run_local_corpus_search
 from agentic.dispatch import run_external_search
+from retrieval.confidence import assess_confidence
 try:
     from langgraph.graph import END, START, StateGraph
 except ImportError:
@@ -26,6 +27,11 @@ def local_corpus_node(state: AgenticState, searcher: Callable[..., Any] = run_lo
         elif hasattr(response, "dict"): payload = response.dict()
         else: payload = response
         state["retrieval_response"] = payload
+        if hasattr(response, "route"):
+            try:
+                state["confidence_decision"] = assess_confidence(response).decision
+            except Exception:
+                pass
         evidence = []
         papers = list(getattr(response, "paper_results", None) or getattr(response, "papers", []) or [])
         chunks = list(getattr(response, "chunk_results", None) or [])
