@@ -19,6 +19,9 @@ from ui.api_client import (
     SUPPORTED_RESEARCH_TOPICS,
     SUGGESTED_QUESTIONS,
     agent_trace_rows,
+    agentic_evidence_rows,
+    agentic_metric_rows,
+    agentic_tool_rows,
     build_guidance_payload,
     confidence_style,
     error_message,
@@ -35,6 +38,7 @@ from ui.api_client import (
     post_api,
     reading_path_rows,
     run_agent_research,
+    run_agentic_research,
     route_label,
     rewrite_summary,
     section_counts,
@@ -556,6 +560,71 @@ def render_diagnostics(payload: dict):
         st.json(debug, expanded=False)
 
 
+def render_agentic_results(payload: dict, request_id: str | None):
+    """Render the bounded multi-tool research response without hiding its provenance."""
+    question = html.escape(str(payload.get("query") or st.session_state.get("question", "")))
+    st.markdown(
+        f"<div class='rse-question-card'><span>Agentic research question</span><br/><strong>{question}</strong></div>",
+        unsafe_allow_html=True,
+    )
+
+    route = payload.get("route") or "unknown"
+    decision = payload.get("confidence_decision") or "unknown"
+    status = payload.get("status") or "unknown"
+    cols = st.columns(4)
+    cols[0].metric("Route", str(route).replace("_", " "))
+    cols[1].metric("Status", status)
+    cols[2].metric("Confidence", str(decision).replace("_", " "))
+    cols[3].metric("Request ID", request_id or payload.get("request_id") or "-")
+
+    if payload.get("route_reason"):
+        st.caption(f"Planner: {payload['route_reason']}")
+    planned = payload.get("planned_tools") or []
+    if planned:
+        st.write("Planned tools: " + ", ".join(planned))
+
+    answer = str(payload.get("answer") or "").strip()
+    if answer:
+        paragraphs = [part.strip() for part in answer.split("\n") if part.strip()]
+        body = "".join(f"<p>{html.escape(paragraph)}</p>" for paragraph in paragraphs)
+        st.markdown(
+            f"<div class='rse-answer-card'><div class='rse-kicker'>Grounded agent answer</div>{body}</div>",
+            unsafe_allow_html=True,
+        )
+    else:
+        st.info("No grounded answer was returned. Review the confidence decision and evidence below.")
+
+    citations = payload.get("citations") or []
+    if citations:
+        st.subheader("Citations")
+        st.write(", ".join(f"[{citation}]" for citation in citations))
+
+    evidence = agentic_evidence_rows(payload)
+    if evidence:
+        st.subheader(f"Evidence ({len(evidence)} items)")
+        dataframe(evidence)
+    else:
+        st.info("No evidence items were returned by the selected tools.")
+
+    tools = agentic_tool_rows(payload)
+    if tools:
+        with st.expander("Tool calls", expanded=False):
+            dataframe(tools)
+
+    metrics = agentic_metric_rows(payload)
+    if metrics:
+        with st.expander("Latency and token usage", expanded=False):
+            dataframe(metrics)
+
+    warnings = payload.get("warnings") or []
+    if warnings:
+        st.subheader("Warnings")
+        for warning in warnings:
+            st.warning(warning)
+    if payload.get("error"):
+        st.error(str(payload["error"]))
+
+
 def run_guidance(payload: dict, request_id: str) -> tuple[dict, str | None]:
     return post_api("/guidance", payload, request_id=request_id, timeout=180)
 
@@ -586,6 +655,8 @@ def initialize_state():
     st.session_state.setdefault("full_text_only", False)
     st.session_state.setdefault("include_debug", False)
     st.session_state.setdefault("show_agent_trace", False)
+    st.session_state.setdefault("research_mode", "Guided corpus")
+    st.session_state.setdefault("agentic_result", None)
     st.session_state.setdefault("chat_history", [])
     st.session_state.setdefault("followup_question", "")
 
@@ -690,6 +761,35 @@ def submit_question(question: str) -> bool:
         st.error("VALIDATION_ERROR: question is required.")
         return False
     request_id = new_request_id()
+    if st.session_state.get("research_mode") == "Agentic research":
+        started_at = time.perf_counter()
+        with st.status("Running agentic research", expanded=True) as status:
+            status.write("Planning a corpus, live, or hybrid research route.")
+            status.write("Calling only the tools selected by the bounded planner.")
+            try:
+                result, response_id = run_agentic_research(
+                    question=cleaned,
+                    top_k=st.session_state.get("top_k", 8),
+                    max_tool_calls=3,
+                    request_id=request_id,
+                )
+            except requests.RequestException as exc:
+                status.update(label="Agentic research failed", state="error", expanded=True)
+                st.error(f"CONNECTION_ERROR: {exc}")
+                return False
+            elapsed = time.perf_counter() - started_at
+            status.update(label=f"Agentic research complete in {elapsed:.1f}s", state="complete", expanded=False)
+        msg = error_message(result)
+        if msg:
+            st.error(msg)
+            return False
+        st.session_state["agentic_result"] = result
+        st.session_state["guidance_result"] = None
+        st.session_state["request_id"] = response_id or result.get("request_id") or request_id
+        st.session_state["show_diagnostics"] = True
+        st.session_state["view"] = "results"
+        return True
+
     payload = build_payload_from_state(cleaned)
     started_at = time.perf_counter()
     with st.status("Running research analysis", expanded=True) as status:
@@ -737,6 +837,12 @@ def submit_question(question: str) -> bool:
 def render_query_page(health: dict, stats: dict):
     render_title()
 
+    st.selectbox(
+        "Research mode",
+        ["Guided corpus", "Agentic research"],
+        key="research_mode",
+        help="Guided corpus uses the existing synthesis workflow. Agentic research adds bounded tool selection and grounded OpenAI synthesis.",
+    )
     st.selectbox("Suggested question", SUGGESTED_QUESTIONS, key="suggested_question", on_change=sync_question_from_suggestion)
     st.markdown("<div class='rse-symbol-label'>⌕ Question</div>", unsafe_allow_html=True)
     st.text_area(
@@ -765,6 +871,21 @@ def render_query_page(health: dict, stats: dict):
 
 
 def render_results_page(health: dict, stats: dict):
+    if st.session_state.get("research_mode") == "Agentic research":
+        result = st.session_state.get("agentic_result")
+        if not result:
+            st.session_state["view"] = "query"
+            st.rerun()
+        top_left, top_right = st.columns([4, 1])
+        with top_left:
+            render_title()
+        with top_right:
+            if st.button("Back to query", use_container_width=True):
+                st.session_state["view"] = "query"
+                st.rerun()
+        render_agentic_results(result, st.session_state.get("request_id"))
+        return
+
     result = st.session_state.get("guidance_result")
     if not result:
         st.session_state["view"] = "query"

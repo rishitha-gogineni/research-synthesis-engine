@@ -99,6 +99,86 @@ def run_agent_research(payload: dict[str, Any], *, request_id: str | None = None
     return post_api("/agent/research", payload, request_id=request_id, timeout=180)
 
 
+def run_agentic_research(
+    *,
+    question: str,
+    top_k: int = 8,
+    max_tool_calls: int = 3,
+    request_id: str | None = None,
+) -> tuple[dict[str, Any], str | None]:
+    """Call the bounded agentic endpoint with the same request-ID contract as guidance."""
+    payload = {
+        "question": " ".join(question.split()),
+        "top_k": top_k,
+        "max_tool_calls": max_tool_calls,
+    }
+    return post_api("/agentic/research", payload, request_id=request_id, timeout=240)
+
+
+def agentic_tool_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    rows = []
+    for item in payload.get("tool_calls", []) or []:
+        rows.append(
+            {
+                "Tool": item.get("tool") or "unknown",
+                "Status": item.get("status") or "completed",
+                "Query": item.get("query") or "-",
+                "Results": item.get("result_count") or item.get("results") or "-",
+            }
+        )
+    for item in payload.get("llm_tool_calls", []) or []:
+        function = item.get("function") or {}
+        rows.append(
+            {
+                "Tool": item.get("tool") or function.get("name") or "unknown",
+                "Status": item.get("status") or "completed",
+                "Query": item.get("query") or function.get("arguments") or "-",
+                "Results": item.get("result_count") or "-",
+            }
+        )
+    return rows
+
+
+def agentic_evidence_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    rows = []
+    for index, item in enumerate(payload.get("evidence", []) or [], start=1):
+        source = item.get("source_id") or item.get("chunk_id") or item.get("paper_id") or f"source_{index}"
+        text = item.get("text") or item.get("abstract") or item.get("title") or "No evidence text returned."
+        rows.append(
+            {
+                "Source": f"source_{index}",
+                "Kind": item.get("kind") or "evidence",
+                "Title": item.get("title") or "-",
+                "Paper ID": item.get("paper_id") or "-",
+                "Pages": _page_label(item.get("page_start"), item.get("page_end")),
+                "Evidence": str(text),
+                "Source ID": source,
+            }
+        )
+    return rows
+
+
+def _page_label(page_start: Any, page_end: Any) -> str:
+    if page_start is None and page_end is None:
+        return "-"
+    if page_start == page_end or page_end is None:
+        return str(page_start)
+    return f"{page_start}-{page_end}"
+
+
+def agentic_metric_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    usage = payload.get("llm_usage") or {}
+    latency = payload.get("latency_ms")
+    latency_value = f"{float(latency):.1f} ms" if latency is not None else "-"
+    rows = [{"Metric": "Workflow latency", "Value": latency_value}]
+    if payload.get("llm_latency_ms") is not None:
+        rows.append({"Metric": "LLM latency", "Value": f"{float(payload['llm_latency_ms']):.1f} ms"})
+    for key in ("prompt_tokens", "completion_tokens", "total_tokens"):
+        if usage.get(key) is not None:
+            rows.append({"Metric": key.replace("_", " ").title(), "Value": usage[key]})
+    return rows
+
+
 def agent_trace_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
     trace = payload.get("trace") or payload.get("agent_trace") or []
     return [
@@ -177,6 +257,8 @@ def error_message(payload: dict[str, Any]) -> str | None:
     error = payload.get("error") if isinstance(payload, dict) else None
     if not error:
         return None
+    if isinstance(error, str):
+        return f"ERROR: {error}"
     code = error.get("code", "ERROR")
     message = error.get("message") or payload.get("detail") or "Request failed."
     request_id = error.get("request_id")

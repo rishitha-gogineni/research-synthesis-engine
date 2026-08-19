@@ -582,3 +582,71 @@ def test_chunk_display_label_uses_title_section_and_score():
     assert "results" in label
     assert "score 0.88" in label
     assert label != "results"
+
+
+def test_run_agentic_research_uses_bounded_endpoint_and_request_id(monkeypatch):
+    class FakeResponse:
+        status_code = 200
+        headers = {"X-Request-ID": "agent-request-1"}
+        text = ""
+
+        def json(self):
+            return {"status": "completed", "route": "corpus", "answer": "grounded"}
+
+    seen = {}
+
+    def fake_post(url, **kwargs):
+        seen["url"] = url
+        seen.update(kwargs)
+        return FakeResponse()
+
+    monkeypatch.setattr(api_client.requests, "post", fake_post)
+    body, response_id = api_client.run_agentic_research(
+        question="  What is retrieval? ",
+        top_k=5,
+        max_tool_calls=2,
+        request_id="ui-request-1",
+    )
+
+    assert seen["url"].endswith("/agentic/research")
+    assert seen["json"] == {"question": "What is retrieval?", "top_k": 5, "max_tool_calls": 2}
+    assert seen["headers"]["X-Request-ID"] == "ui-request-1"
+    assert body["route"] == "corpus"
+    assert response_id == "agent-request-1"
+
+
+def test_agentic_display_helpers_preserve_provenance_and_usage():
+    payload = {
+        "evidence": [
+            {
+                "kind": "chunk",
+                "paper_id": "p1",
+                "chunk_id": "c1",
+                "title": "Paper One",
+                "page_start": 3,
+                "page_end": 4,
+                "text": "Evidence text.",
+            }
+        ],
+        "tool_calls": [{"tool": "search_local_corpus", "query": "retrieval", "status": "completed"}],
+        "llm_tool_calls": [{"function": {"name": "search_arxiv", "arguments": "{}"}}],
+        "latency_ms": 123.4,
+        "llm_latency_ms": 98.7,
+        "llm_usage": {"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15},
+    }
+
+    evidence = api_client.agentic_evidence_rows(payload)
+    assert evidence[0]["Source"] == "source_1"
+    assert evidence[0]["Pages"] == "3-4"
+    assert evidence[0]["Source ID"] == "c1"
+
+    tools = api_client.agentic_tool_rows(payload)
+    assert [row["Tool"] for row in tools] == ["search_local_corpus", "search_arxiv"]
+
+    metrics = api_client.agentic_metric_rows(payload)
+    assert {"Metric": "Total Tokens", "Value": 15} in metrics
+    assert {"Metric": "Workflow latency", "Value": "123.4 ms"} in metrics
+
+
+def test_error_message_handles_agentic_string_error():
+    assert api_client.error_message({"error": "query exceeds the safety limit"}) == "ERROR: query exceeds the safety limit"

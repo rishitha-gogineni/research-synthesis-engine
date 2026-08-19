@@ -144,7 +144,7 @@ flowchart TD
 | Full-text chunks | 4,909 |
 | Evaluation queries | 100 chunk-grounded (from 250 audited source queries) |
 | Exact-ID labeled | 95 (5 out-of-corpus confidence checks) |
-| Core tests | 378 passing tests (Python >=3.11) |
+| Core tests | 408 passing tests (Python >=3.11) |
 
 Research areas: Retrieval-Augmented Generation, Transformers & Attention, LLM Evaluation & Hallucination Detection, AI Agents & Tool Use, Fine-tuning (LoRA / PEFT)
 
@@ -193,7 +193,7 @@ TAVILY_API_KEY=
 SEMANTIC_SCHOLAR_API_KEY=
 ```
 
-The optional agentic route sends current or external questions to Arxiv, Semantic Scholar, and Tavily. Corpus questions continue to use the canonical Qdrant and BM25 indexes. If a provider is unavailable, the route returns a warning and preserves the available evidence. The API endpoint is `POST /agentic/research`. The MCP server can be started with `python -m mcp_servers.research_tools`.
+The optional agentic route sends current or external questions to Arxiv, Semantic Scholar, and Tavily. Corpus questions continue to use the canonical Qdrant and BM25 indexes. If a provider is unavailable, the route returns a warning and preserves the available evidence. The Streamlit Research mode selector exposes this route and shows the planner decision, tool calls, evidence, citations, confidence, latency, and token usage. The API endpoint is `POST /agentic/research`. The MCP server can be started with `python -m mcp_servers.research_tools`.
 
 Run:
 ```bash
