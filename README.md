@@ -193,7 +193,7 @@ TAVILY_API_KEY=
 SEMANTIC_SCHOLAR_API_KEY=
 ```
 
-The optional agentic route sends current or external questions to Arxiv, Semantic Scholar, and Tavily. Corpus questions continue to use the canonical Qdrant and BM25 indexes. If a provider is unavailable, the route returns a warning and preserves the available evidence.
+The optional agentic route sends current or external questions to Arxiv, Semantic Scholar, and Tavily. Corpus questions continue to use the canonical Qdrant and BM25 indexes. If a provider is unavailable, the route returns a warning and preserves the available evidence. The API endpoint is `POST /agentic/research`. The MCP server can be started with `python -m mcp_servers.research_tools`.
 
 Run:
 ```bash

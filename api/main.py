@@ -21,6 +21,7 @@ from fastapi.responses import JSONResponse
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from agent.evidence_matrix import EvidenceMatrixError, build_evidence_matrix
+from agentic.api import router as agentic_router
 from agent.open_problems import OpenProblemsError, build_open_problems_report
 from agent.query_rewriter import ChatTurn, QueryRewriteResult, rewrite_query
 from agent.reading_path import ReadingPathError, build_reading_path
@@ -314,6 +315,8 @@ app.add_middleware(
     allow_headers=["Content-Type", "X-Request-ID"],
     expose_headers=["X-Request-ID"],
 )
+
+app.include_router(agentic_router)
 
 
 SERVICE_ERRORS = (
