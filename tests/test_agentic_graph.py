@@ -61,3 +61,99 @@ def test_external_failure_is_reported_without_raising():
 
     assert state["status"] == "pending_external_tools"
     assert any("provider timeout" in warning for warning in state["warnings"])
+
+
+def weak_response():
+    response = fake_response()
+    response.route = "chunk_level"
+    return response
+
+
+def test_generic_weak_local_evidence_falls_back_to_external(monkeypatch):
+    monkeypatch.setattr(
+        "agentic.graph.assess_confidence",
+        lambda response: SimpleNamespace(decision="insufficient_evidence"),
+    )
+    fake_external = lambda query, sources, max_results: {
+        "results": [{"source": "arxiv", "title": "AlphaFold paper"}],
+        "sources": list(sources),
+        "warnings": [],
+    }
+
+    state = run_agentic_research(
+        "Explain AlphaFold.",
+        searcher=lambda query, top_k: weak_response(),
+        external_searcher=fake_external,
+    )
+
+    assert state["route"] == "hybrid"
+    assert state["confidence_decision"] == "sufficient_evidence"
+    assert state["external_response"]["results"]
+    assert [item["kind"] for item in state["evidence"]] == ["paper", "chunk", "external"]
+    assert state["planned_tools"] == [
+        "search_local_corpus",
+        "search_arxiv",
+        "search_semantic_scholar",
+        "search_tavily",
+    ]
+
+
+def test_explicit_corpus_question_does_not_fallback(monkeypatch):
+    monkeypatch.setattr(
+        "agentic.graph.assess_confidence",
+        lambda response: SimpleNamespace(decision="insufficient_evidence"),
+    )
+    called = []
+
+    def unexpected_external(*args, **kwargs):
+        called.append(True)
+        raise AssertionError("explicit corpus request should not call external tools")
+
+    state = run_agentic_research(
+        "What does the indexed corpus say about AlphaFold?",
+        searcher=lambda query, top_k: weak_response(),
+        external_searcher=unexpected_external,
+    )
+
+    assert state["route"] == "corpus"
+    assert state["confidence_decision"] == "insufficient_evidence"
+    assert called == []
+
+
+def test_non_research_question_does_not_fallback(monkeypatch):
+    monkeypatch.setattr(
+        "agentic.graph.assess_confidence",
+        lambda response: SimpleNamespace(decision="insufficient_evidence"),
+    )
+    called = []
+
+    state = run_agentic_research(
+        "How do I repair my car engine?",
+        searcher=lambda query, top_k: weak_response(),
+        external_searcher=lambda *args, **kwargs: called.append(True),
+    )
+
+    assert state["route"] == "corpus"
+    assert called == []
+
+
+def test_generic_empty_local_evidence_falls_back_to_external():
+    empty_response = SimpleNamespace(
+        papers=[],
+        model_dump=lambda mode="json": {"papers": []},
+        route="chunk_level",
+    )
+    fake_external = lambda query, sources, max_results: {
+        "results": [{"source": "tavily", "title": "External result"}],
+        "sources": list(sources),
+        "warnings": [],
+    }
+    state = run_agentic_research(
+        "Explain a research method absent from the corpus.",
+        searcher=lambda query, top_k: empty_response,
+        external_searcher=fake_external,
+    )
+
+    assert state["route"] == "hybrid"
+    assert state["confidence_decision"] == "sufficient_evidence"
+    assert any(item["kind"] == "external" for item in state["evidence"])

@@ -193,7 +193,7 @@ TAVILY_API_KEY=
 SEMANTIC_SCHOLAR_API_KEY=
 ```
 
-The optional agentic route sends current or external questions to Arxiv, Semantic Scholar, and Tavily. Corpus questions continue to use the canonical Qdrant and BM25 indexes. If a provider is unavailable, the route returns a warning and preserves the available evidence. The Streamlit Research mode selector exposes this route and shows the planner decision, tool calls, evidence, citations, confidence, latency, and token usage. The API endpoint is `POST /agentic/research`. The MCP server can be started with `python -m mcp_servers.research_tools`.
+The optional agentic route sends current or external questions to Arxiv, Semantic Scholar, and Tavily. Generic research questions probe the canonical Qdrant and BM25 corpus first; if local evidence is below the confidence threshold, the planner falls back to external coverage. Explicit corpus requests remain local, and obvious non-research questions never trigger external calls. If a provider is unavailable, the route returns a warning and preserves the available evidence. The Streamlit Research mode selector exposes this route and shows the planner decision, tool calls, evidence, citations, confidence, latency, and token usage. The API endpoint is `POST /agentic/research`. The MCP server can be started with `python -m mcp_servers.research_tools`.
 
 Run:
 ```bash
@@ -312,6 +312,6 @@ agent/         Query rewriting, confidence gate, synthesis, evidence outputs
 api/           FastAPI service
 ui/            Streamlit app
 shared/        Pydantic schemas
-tests/         378 tests (mocked external dependencies)
+tests/         419 tests (mocked external dependencies)
 docs/          Decision log, evaluation methodology, failure analysis
 ```
