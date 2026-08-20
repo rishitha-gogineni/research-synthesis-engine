@@ -1,0 +1,312 @@
+[
+  {
+    "id": "corpus_01",
+    "query": "What does the indexed corpus say about retrieval augmented generation?",
+    "expected_route": "corpus",
+    "expected_tools": [
+      "search_local_corpus"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "corpus_02",
+    "query": "In our papers, how is hallucination evaluated?",
+    "expected_route": "corpus",
+    "expected_tools": [
+      "search_local_corpus"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "corpus_03",
+    "query": "Explain LoRA from the uploaded papers.",
+    "expected_route": "corpus",
+    "expected_tools": [
+      "search_local_corpus"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "corpus_04",
+    "query": "What datasets are used in the collection for RAG?",
+    "expected_route": "corpus",
+    "expected_tools": [
+      "search_local_corpus"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "corpus_05",
+    "query": "What are the limitations of methods in the indexed papers?",
+    "expected_route": "corpus",
+    "expected_tools": [
+      "search_local_corpus"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "corpus_06",
+    "query": "According to the papers, what does BM25 contribute?",
+    "expected_route": "corpus",
+    "expected_tools": [
+      "search_local_corpus"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "corpus_07",
+    "query": "Compare RAG and fine-tuning as represented in the corpus.",
+    "expected_route": "corpus",
+    "expected_tools": [
+      "search_local_corpus"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "corpus_08",
+    "query": "What is the difference between dense and sparse retrieval?",
+    "expected_route": "corpus",
+    "expected_tools": [
+      "search_local_corpus"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "live_01",
+    "query": "What are the latest papers on RAG?",
+    "expected_route": "live",
+    "expected_tools": [
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "live_02",
+    "query": "What recent research studies hallucination detection?",
+    "expected_route": "live",
+    "expected_tools": [
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "live_03",
+    "query": "What is the current Semantic Scholar work on LoRA?",
+    "expected_route": "live",
+    "expected_tools": [
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "live_04",
+    "query": "Search the web for new papers on AI agents.",
+    "expected_route": "live",
+    "expected_tools": [
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "live_05",
+    "query": "Find papers on Arxiv about tool use.",
+    "expected_route": "live",
+    "expected_tools": [
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "live_06",
+    "query": "Find new papers about citation grounding.",
+    "expected_route": "live",
+    "expected_tools": [
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "live_07",
+    "query": "What are the latest benchmark papers for retrieval?",
+    "expected_route": "live",
+    "expected_tools": [
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "live_08",
+    "query": "What recent methods address long context retrieval?",
+    "expected_route": "live",
+    "expected_tools": [
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "hybrid_01",
+    "query": "Compare the latest RAG papers with the indexed papers.",
+    "expected_route": "hybrid",
+    "expected_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "hybrid_02",
+    "query": "Compare current hallucination work with the papers in our papers.",
+    "expected_route": "hybrid",
+    "expected_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "hybrid_03",
+    "query": "What is the difference between recent LoRA papers and the indexed corpus?",
+    "expected_route": "hybrid",
+    "expected_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "hybrid_04",
+    "query": "Compare new papers on Arxiv with the uploaded papers.",
+    "expected_route": "hybrid",
+    "expected_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "hybrid_05",
+    "query": "Compare current web results with our papers.",
+    "expected_route": "hybrid",
+    "expected_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "hybrid_06",
+    "query": "How does the latest research in the collection compare with prior work?",
+    "expected_route": "hybrid",
+    "expected_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "hybrid_07",
+    "query": "Compare recent Semantic Scholar results with the indexed papers.",
+    "expected_route": "hybrid",
+    "expected_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "hybrid_08",
+    "query": "What is the difference between current agentic RAG and the uploaded papers?",
+    "expected_route": "hybrid",
+    "expected_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true
+  },
+  {
+    "id": "refusal_01",
+    "query": "What does the indexed corpus say about marine biology and coral bleaching?",
+    "expected_route": "corpus",
+    "expected_tools": [
+      "search_local_corpus"
+    ],
+    "should_answer": false
+  },
+  {
+    "id": "refusal_02",
+    "query": "Can the corpus answer a question about quantum chemistry?",
+    "expected_route": "corpus",
+    "expected_tools": [
+      "search_local_corpus"
+    ],
+    "should_answer": false
+  },
+  {
+    "id": "refusal_03",
+    "query": "What do our papers say about weather?",
+    "expected_route": "corpus",
+    "expected_tools": [
+      "search_local_corpus"
+    ],
+    "should_answer": false
+  },
+  {
+    "id": "refusal_04",
+    "query": "Tell me the stock price of Apple now.",
+    "expected_route": "corpus",
+    "expected_tools": [
+      "search_local_corpus"
+    ],
+    "should_answer": false
+  },
+  {
+    "id": "refusal_05",
+    "query": "What is the best restaurant in San Jose right now?",
+    "expected_route": "corpus",
+    "expected_tools": [
+      "search_local_corpus"
+    ],
+    "should_answer": false
+  },
+  {
+    "id": "refusal_06",
+    "query": "How do I repair my car engine?",
+    "expected_route": "corpus",
+    "expected_tools": [
+      "search_local_corpus"
+    ],
+    "should_answer": false
+  }
+]

@@ -144,7 +144,7 @@ flowchart TD
 | Full-text chunks | 4,909 |
 | Evaluation queries | 100 chunk-grounded (from 250 audited source queries) |
 | Exact-ID labeled | 95 (5 out-of-corpus confidence checks) |
-| Core tests | 413 passing tests (Python >=3.11) |
+| Core tests | 415 passing tests (Python >=3.11) |
 
 Research areas: Retrieval-Augmented Generation, Transformers & Attention, LLM Evaluation & Hallucination Detection, AI Agents & Tool Use, Fine-tuning (LoRA / PEFT)
 
@@ -211,7 +211,7 @@ python -m pytest -q
 ```
 
 
-Validate the deterministic agentic planner and citation contract:
+Validate the 30-case agentic planner benchmark and optional recorded-response metrics:
 ```bash
 python scripts/evaluate_agentic.py
 ```
