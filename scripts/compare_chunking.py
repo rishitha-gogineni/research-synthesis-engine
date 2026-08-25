@@ -4,7 +4,7 @@ Usage:
     python -m scripts.compare_chunking
 
 Reads scripts/sample_text.txt and shows how 6 different chunking strategies
-carve it up. Meant as an eyeball comparison, not an eval — pick the strategy
+carve it up. Meant as an eyeball comparison, not an eval - pick the strategy
 that best preserves the kind of semantic boundaries your queries care about.
 """
 
@@ -33,7 +33,7 @@ def preview(text: str, max_chars: int = 200) -> str:
 
 
 def chunk_fixed_words(text: str, size: int = 100, overlap: int = 20) -> list[str]:
-    """Current RSE strategy — fixed word window with overlap."""
+    """Current RSE strategy - fixed word window with overlap."""
     words = text.split()
     if not words:
         return []
@@ -50,7 +50,7 @@ def chunk_fixed_words(text: str, size: int = 100, overlap: int = 20) -> list[str
 
 
 def chunk_fixed_chars(text: str, size: int = 600, overlap: int = 100) -> list[str]:
-    """Fixed character count — respects nothing, just counts."""
+    """Fixed character count - respects nothing, just counts."""
     if not text:
         return []
     chunks = []
@@ -114,12 +114,12 @@ def chunk_recursive(text: str, size: int = 600, overlap: int = 100) -> list[str]
 
 
 def chunk_sliding_window(text: str, size: int = 100, overlap: int = 50) -> list[str]:
-    """Heavy overlap — for high context preservation."""
+    """Heavy overlap - for high context preservation."""
     return chunk_fixed_words(text, size=size, overlap=overlap)
 
 
 def chunk_paragraph(text: str) -> list[str]:
-    """Split on paragraph boundaries only — variable size, respects meaning."""
+    """Split on paragraph boundaries only - variable size, respects meaning."""
     paragraphs = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
     if paragraphs:
         return paragraphs

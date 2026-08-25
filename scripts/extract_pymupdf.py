@@ -7,7 +7,7 @@ Reads data/pdfs/*.pdf and produces data/full_text_papers_v2.json with:
 
 Section detection strategy:
 1. Look for common header patterns ("1. Introduction", "Methods", "3.2 Results")
-2. Use font size to disambiguate — headers are typically 1.2-1.5x body size
+2. Use font size to disambiguate - headers are typically 1.2-1.5x body size
 
 This is v2's replacement for pypdf-based extraction. Filters out author lists,
 affiliations, references, page footers where possible.

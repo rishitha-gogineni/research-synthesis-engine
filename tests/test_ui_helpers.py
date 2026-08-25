@@ -451,7 +451,7 @@ def test_metadata_listing_uses_ranked_paper_language_and_hides_empty_tabs():
     assert "metadata search" in api_client.weak_evidence_intro(payload)
     assert api_client.weak_evidence_guidance(payload)[0] == "Returned 1 ranked papers that match the metadata request."
     assert api_client.top_evidence_heading(payload) == "Ranked Papers"
-    assert api_client.visible_section_labels(payload) == ["Sources · 1 papers / 0 chunks"]
+    assert api_client.visible_section_labels(payload) == ["Sources  |  1 papers / 0 chunks"]
     assert evidence_check["kicker"] == "Retrieval check"
     assert evidence_check["title"] == "Ranked bibliography returned"
     assert evidence_check["status_label"] == "Result"
@@ -466,8 +466,8 @@ def test_visible_sections_hide_distracting_optional_tabs_for_comparison_queries(
 
     assert api_client.payload_intent(payload) == "comparison"
     assert api_client.visible_section_labels(payload) == [
-        "Evidence Matrix · 1 claims",
-        "Sources · 1 papers / 1 chunks",
+        "Evidence Matrix  |  1 claims",
+        "Sources  |  1 papers / 1 chunks",
     ]
 
 
@@ -481,14 +481,14 @@ def test_visible_sections_focus_specific_paper_explanations_on_sources():
     }
 
     assert api_client.payload_intent(payload) == "paper_explanation"
-    assert api_client.visible_section_labels(payload) == ["Sources · 1 papers / 1 chunks"]
+    assert api_client.visible_section_labels(payload) == ["Sources  |  1 papers / 1 chunks"]
 
 
 def test_visible_sections_keep_reading_path_first_for_reading_queries():
     payload = sample_guidance_payload()
     payload["question"] = "Which LoRA and PEFT papers should I read first?"
 
-    assert api_client.visible_section_labels(payload)[0] == "Reading Path · 1 stages"
+    assert api_client.visible_section_labels(payload)[0] == "Reading Path  |  1 stages"
 
 
 def test_build_guidance_payload_includes_chat_history_when_present():

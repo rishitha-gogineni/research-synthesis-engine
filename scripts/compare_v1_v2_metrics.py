@@ -71,11 +71,11 @@ def main() -> None:
     r1 = val(v1["recall"], 10) or 0
     r2 = val(v2["recall"], 10) or 0
     if r2 > r1 + 0.02:
-        print(f"  ✅ Recall improved meaningfully (+{(r2-r1)*100:.1f} pts)")
+        print(f"  [OK] Recall improved meaningfully (+{(r2-r1)*100:.1f} pts)")
     elif r2 > r1 - 0.02:
-        print(f"  ➖ Recall unchanged — PyMuPDF preserves what pypdf lost, but retrieval was already finding it")
+        print(f"  - Recall unchanged - PyMuPDF preserves what pypdf lost, but retrieval was already finding it")
     else:
-        print(f"  ⚠️  Recall dropped — investigate; chunking may be too aggressive")
+        print(f"  [WARN]  Recall dropped - investigate; chunking may be too aggressive")
 
 
 if __name__ == "__main__":

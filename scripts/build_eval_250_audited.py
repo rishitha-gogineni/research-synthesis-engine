@@ -147,7 +147,7 @@ SPECIFIC_RATIONALE_PATTERNS = (
 
 
 def normalize_text(value: str) -> str:
-    value = value.replace("'", "").replace("’", "")
+    value = value.replace("'", "").replace("'", "")
     ascii_value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode()
     return re.sub(r"[^a-z0-9]+", " ", ascii_value.lower()).strip()
 

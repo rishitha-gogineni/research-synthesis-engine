@@ -75,7 +75,7 @@ def extract_pymupdf(path: Path, page_range: tuple[int, int] | None) -> str:
 
 
 def extract_pymupdf_blocks(path: Path, page_range: tuple[int, int] | None) -> str:
-    """PyMuPDF 'blocks' mode — emits paragraph-like blocks with \\n\\n between."""
+    """PyMuPDF 'blocks' mode - emits paragraph-like blocks with \\n\\n between."""
     import fitz
     doc = fitz.open(str(path))
     if page_range:
@@ -145,7 +145,7 @@ def main() -> None:
             print(f"  | {line}")
 
     print("\n\n=== SUMMARY TABLE ===\n")
-    print(f"{'Extractor':<20} {'chars':>8} {'words':>7} {'¶':>5} {'hyph':>5} {'lc%':>6} {'rep':>5} {'time':>7}")
+    print(f"{'Extractor':<20} {'chars':>8} {'words':>7} {'paragraph':>5} {'hyph':>5} {'lc%':>6} {'rep':>5} {'time':>7}")
     print("-" * 70)
     for name, text, elapsed in results:
         print(

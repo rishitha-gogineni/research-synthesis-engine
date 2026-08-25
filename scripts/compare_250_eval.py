@@ -49,12 +49,12 @@ def main() -> None:
     args = parse_args()
     v1, v2, v3 = load(args.v1), load(args.v2), load(args.v3)
     print("=" * 100)
-    print("RSE — three-way retrieval comparison on 250-query eval fixture")
+    print("RSE - three-way retrieval comparison on 250-query eval fixture")
     print("(same 250-query fixture and paper-ID ground truth for all three runs)")
     print("=" * 100)
 
     if v1 is None:
-        print(f"\n❌ Missing {args.v1}")
+        print(f"\n[ERROR] Missing {args.v1}")
         return
 
     rows = [
@@ -83,11 +83,11 @@ def main() -> None:
         h3 = val(v3["id_relevant_hit_rate"], 10) or 0
         print("\n=== Verdict ===")
         if r3 > r1 + 0.02 or h3 > h1 + 0.02:
-            print(f"  ✅ v3 (semantic) wins — deploy with RSE_CHUNK_COLLECTION=research_paper_chunks_v3")
+            print(f"  [OK] v3 (semantic) wins - deploy with RSE_CHUNK_COLLECTION=research_paper_chunks_v3")
         elif r3 >= r1 - 0.01:
-            print(f"  ➖ v3 roughly matches v1 — chunking isn't the bottleneck")
+            print(f"  - v3 roughly matches v1 - chunking isn't the bottleneck")
         else:
-            print(f"  ❌ v3 worse than v1 — semantic chunking didn't help here")
+            print(f"  [ERROR] v3 worse than v1 - semantic chunking didn't help here")
 
 
 if __name__ == "__main__":

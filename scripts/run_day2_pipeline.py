@@ -1,4 +1,4 @@
-"""One-command runbook to execute Day 2 tasks (embed → index → eval).
+"""One-command runbook to execute Day 2 tasks (embed -> index -> eval).
 
 Usage:
     python scripts/run_day2_pipeline.py
@@ -36,14 +36,14 @@ def run(cmd: list[str], desc: str) -> None:
     print(f"{'='*70}\n")
     result = subprocess.run(cmd, cwd=ROOT)
     if result.returncode != 0:
-        print(f"\n❌ FAILED: {desc}")
+        print(f"\n[ERROR] FAILED: {desc}")
         sys.exit(1)
-    print(f"\n✅ DONE: {desc}")
+    print(f"\n[OK] DONE: {desc}")
 
 
 def main() -> None:
     print("=" * 70)
-    print("DAY 2 PIPELINE — PyMuPDF v2 migration")
+    print("DAY 2 PIPELINE - PyMuPDF v2 migration")
     print("=" * 70)
     print(f"Chunks input : {CHUNKS_V2}")
     print(f"Collection   : {COLLECTION_V2}")
@@ -51,7 +51,7 @@ def main() -> None:
     print(f"Estimated time: ~45-60 min")
 
     if not CHUNKS_V2.exists():
-        print(f"\n❌ {CHUNKS_V2} missing. Run scripts/chunk_paragraph_aware.py first.")
+        print(f"\n[ERROR] {CHUNKS_V2} missing. Run scripts/chunk_paragraph_aware.py first.")
         sys.exit(1)
 
     t0 = time.perf_counter()
@@ -72,7 +72,7 @@ def main() -> None:
         f"Index v2 chunks to Qdrant collection '{COLLECTION_V2}'"
     )
 
-    # Step 3: Baseline eval (v1 collection) — capture JSON directly
+    # Step 3: Baseline eval (v1 collection) - capture JSON directly
     print("\n" + "=" * 70)
     print("STEP: Baseline eval on v1 collection (research_paper_chunks)")
     print("=" * 70 + "\n")
@@ -83,10 +83,10 @@ def main() -> None:
         cwd=ROOT, capture_output=True, text=True,
     )
     if result.returncode != 0:
-        print(f"❌ Baseline eval failed:\n{result.stderr}")
+        print(f"[ERROR] Baseline eval failed:\n{result.stderr}")
         sys.exit(1)
     RESULTS_BASELINE.write_text(result.stdout)
-    print(f"✅ Baseline saved: {RESULTS_BASELINE}")
+    print(f"[OK] Baseline saved: {RESULTS_BASELINE}")
 
     # Step 4: v2 eval
     print("\n" + "=" * 70)
@@ -100,10 +100,10 @@ def main() -> None:
         cwd=ROOT, capture_output=True, text=True,
     )
     if result.returncode != 0:
-        print(f"❌ v2 eval failed:\n{result.stderr}")
+        print(f"[ERROR] v2 eval failed:\n{result.stderr}")
         sys.exit(1)
     RESULTS_V2.write_text(result.stdout)
-    print(f"✅ v2 saved: {RESULTS_V2}")
+    print(f"[OK] v2 saved: {RESULTS_V2}")
 
     elapsed = time.perf_counter() - t0
     print(f"\n{'='*70}")

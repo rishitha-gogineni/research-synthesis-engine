@@ -39,11 +39,11 @@ def delta_str(base: float | None, new: float | None) -> str:
 def main() -> None:
     v1, v2, v3 = load(V1), load(V2), load(V3)
     if v1 is None:
-        print(f"❌ Missing {V1.name}")
+        print(f"[ERROR] Missing {V1.name}")
         return
 
     print("=" * 100)
-    print("RSE — three-way retrieval comparison")
+    print("RSE - three-way retrieval comparison")
     print("v1 = pypdf + fixed-word (production baseline)")
     print("v2 = PyMuPDF + paragraph-aware (structural upgrade, no overlap)")
     print("v3 = PyMuPDF + semantic chunking + overlap + keep appendix")
@@ -73,16 +73,16 @@ def main() -> None:
         h3 = val(v3["id_relevant_hit_rate"], 10) or 0
         print("\n=== Verdict ===")
         if r3 > r1 + 0.02:
-            print(f"  ✅ v3 recall meaningfully improved (+{(r3-r1)*100:.1f} pts)")
-            print(f"  ✅ v3 hit@10 vs v1: {'up' if h3 > h1 else 'down'}")
-            print(f"  → Ship: merge branch to main, redeploy with RSE_CHUNK_COLLECTION=research_paper_chunks_v3")
+            print(f"  [OK] v3 recall meaningfully improved (+{(r3-r1)*100:.1f} pts)")
+            print(f"  [OK] v3 hit@10 vs v1: {'up' if h3 > h1 else 'down'}")
+            print(f"  -> Ship: merge branch to main, redeploy with RSE_CHUNK_COLLECTION=research_paper_chunks_v3")
         elif r3 > r1 - 0.02:
-            print(f"  ➖ v3 recall roughly flat vs v1 (Δ={(r3-r1)*100:+.1f} pts)")
-            print(f"  → Interesting finding: chunking strategy is NOT the retrieval bottleneck")
-            print(f"  → Ship: 'measured, learned' story in README; keep v1 in production")
+            print(f"  - v3 recall roughly flat vs v1 (delta={(r3-r1)*100:+.1f} pts)")
+            print(f"  -> Interesting finding: chunking strategy is NOT the retrieval bottleneck")
+            print(f"  -> Ship: 'measured, learned' story in README; keep v1 in production")
         else:
-            print(f"  ❌ v3 recall dropped ({(r3-r1)*100:+.1f} pts)")
-            print(f"  → Do NOT merge; investigate")
+            print(f"  [ERROR] v3 recall dropped ({(r3-r1)*100:+.1f} pts)")
+            print(f"  -> Do NOT merge; investigate")
 
 
 if __name__ == "__main__":

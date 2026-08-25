@@ -1,4 +1,4 @@
-"""Semantic chunker (v3) — sentence-level topic-shift detection.
+"""Semantic chunker (v3) - sentence-level topic-shift detection.
 
 Reads data/full_text_papers_v2.json (already extracted, section-tagged)
 and produces data/full_text_chunks_v3.json with chunks that respect:
@@ -64,7 +64,7 @@ V2_TO_V1_SECTION = {
     "appendix": "methodology",  # appendix usually has methods details
 }
 
-# Sentence splitter — dodge Python's fixed-width lookbehind restriction by
+# Sentence splitter - dodge Python's fixed-width lookbehind restriction by
 # temporarily masking abbreviation dots, splitting, then unmasking.
 _ABBREVIATIONS = (
     "e.g.", "i.e.", "cf.", "vs.", "etc.", "Fig.", "Tab.", "Eq.", "Ref.",
@@ -135,7 +135,7 @@ def embed_batch(client: OpenAI, texts: list[str], retries: int = 3) -> np.ndarra
 def find_boundaries(similarities: list[float], target_boundaries: int) -> set[int]:
     """Return sentence indices AFTER which a chunk break should be inserted.
 
-    Uses the percentile of similarity drops — the lowest-similarity transitions
+    Uses the percentile of similarity drops - the lowest-similarity transitions
     become the break points. Guarantees at least `target_boundaries` breaks.
     """
     if not similarities:
@@ -143,7 +143,7 @@ def find_boundaries(similarities: list[float], target_boundaries: int) -> set[in
     if target_boundaries <= 0:
         return set()
     # Similarities align with the gap AFTER sentence i (similarities[i] is between
-    # sentence i and sentence i+1). Lower similarity → bigger topic shift → good break.
+    # sentence i and sentence i+1). Lower similarity -> bigger topic shift -> good break.
     threshold = float(np.percentile(similarities, BOUNDARY_PERCENTILE))
     # Get all indices with similarity <= threshold, ranked lowest-first
     candidates = sorted(range(len(similarities)), key=lambda i: similarities[i])
@@ -195,7 +195,7 @@ def chunk_section(
             return
         text = " ".join(buffer)
         if word_count(text) < MIN_WORDS and chunks:
-            # Too small — merge into previous chunk
+            # Too small - merge into previous chunk
             chunks[-1] = chunks[-1] + " " + text
         else:
             chunks.append(text)
@@ -292,7 +292,7 @@ def main() -> None:
             total_sentences += sum(len(split_sentences(b["text"])) for b in paper.get("blocks", []))
             elapsed = time.perf_counter() - t0
             eta = elapsed / i * (len(deduped) - i)
-            print(f"  [{i}/{len(deduped)}] {title:<50} → {len(chunks)} chunks  ({elapsed:.0f}s elapsed, {eta:.0f}s ETA)")
+            print(f"  [{i}/{len(deduped)}] {title:<50} -> {len(chunks)} chunks  ({elapsed:.0f}s elapsed, {eta:.0f}s ETA)")
         except Exception as exc:
             print(f"  [{i}/{len(deduped)}] {title} FAILED: {exc}")
 

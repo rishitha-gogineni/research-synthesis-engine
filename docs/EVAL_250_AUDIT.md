@@ -84,6 +84,6 @@ labels and route expectations differ. Compare v1, v2, and v3 only when they
 were run on the same fixture and code revision.
 
 One source-data issue remains separate from retrieval: the local metadata lists
-“Attention Is All You Need” as 2025. The benchmark builder treats it as 2017
+"Attention Is All You Need" as 2025. The benchmark builder treats it as 2017
 for year filters without mutating the source corpus. Correct and re-index that
 record separately if production filtering also needs the fix.

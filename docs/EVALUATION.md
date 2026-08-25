@@ -62,7 +62,7 @@ Rigorous labeled-subset metrics:
 - Recall@5 / Recall@10 (what fraction of all labeled relevant IDs for a query were retrieved?)
 - MRR
 
-These are computed only for queries where `expected_relevant_ids` is non-empty. Hit rate and Recall are reported as two separate numbers because they answer different questions: a query with two labeled relevant IDs where only one is retrieved scores 1.0 on hit rate (at least one found) but 0.5 on true recall. They will look identical whenever every labeled query in the fixture happens to have exactly one relevant ID, which was true of earlier fixture versions — but they are not interchangeable, and only Recall@K is the textbook IR metric.
+These are computed only for queries where `expected_relevant_ids` is non-empty. Hit rate and Recall are reported as two separate numbers because they answer different questions: a query with two labeled relevant IDs where only one is retrieved scores 1.0 on hit rate (at least one found) but 0.5 on true recall. They will look identical whenever every labeled query in the fixture happens to have exactly one relevant ID, which was true of earlier fixture versions - but they are not interchangeable, and only Recall@K is the textbook IR metric.
 
 Sanity and behavior metrics:
 
@@ -127,8 +127,8 @@ The 82-query v2 fixture is stricter than the older 50-query fixture: it has more
 
 Promotion was kept because the A/B run improved Hit Rate@10 from 0.691 to 0.721, Recall@10 from 0.384 to 0.393, and MRR from 0.408 to 0.412, while preserving route accuracy and leaving `metadata_filter` result IDs unchanged.
 
-### Prior run (2026-07-28) — 50-query fixture
-### Prior run (2026-07-28) — 50-query fixture
+### Prior run (2026-07-28) - 50-query fixture
+### Prior run (2026-07-28) - 50-query fixture
 
 Run date: 2026-07-28, real live run against a correctly rebuilt Docker Qdrant instance (4,909/4,909 chunks verified against `data/embedded_full_text_chunks.json` beforehand). This replaces the 2026-07-24 run below, whose `recall@K` figures were computed under the old, mislabeled hit-rate definition.
 
@@ -158,7 +158,7 @@ A genuine gap between Hit Rate@10 (1.00) and true Recall@10 (0.76) was expected 
 
 
 
-### Prior run (2026-07-24) — kept for history, recall figures were mislabeled at the time
+### Prior run (2026-07-24) - kept for history, recall figures were mislabeled at the time
 
 Run date: 2026-07-24, with local Qdrant collections available. **Note (added when the Hit Rate vs. Recall bug was fixed):** the `recall@5`/`recall@10` figures below were computed under the *old* metric definition, which was actually a relevant-ID hit rate (>=1 relevant id retrieved), not textbook Recall@K. They are kept here, correctly relabeled, as a historical record superseded by the 2026-07-28 run above.
 

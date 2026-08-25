@@ -578,7 +578,7 @@ def evidence_check_summary(payload: dict[str, Any]) -> dict[str, str]:
             "status_label": "Result",
             "status_value": "Ranked list",
             "route": route_label(summary.get("route")),
-            "counts": f"{summary.get('paper_count', 0)} papers · {summary.get('chunk_count', 0)} chunks",
+            "counts": f"{summary.get('paper_count', 0)} papers  |  {summary.get('chunk_count', 0)} chunks",
             "reason": summary.get("reason") or "Metadata filters matched papers in the local corpus.",
         }
     return {
@@ -587,7 +587,7 @@ def evidence_check_summary(payload: dict[str, Any]) -> dict[str, str]:
         "status_label": "Confidence",
         "status_value": summary.get("label") or "unknown",
         "route": route_label(summary.get("route")),
-        "counts": f"{summary.get('paper_count', 0)} papers · {summary.get('chunk_count', 0)} chunks",
+        "counts": f"{summary.get('paper_count', 0)} papers  |  {summary.get('chunk_count', 0)} chunks",
         "reason": summary.get("reason") or "No routing reason returned.",
     }
 
@@ -646,10 +646,10 @@ def visible_section_labels(payload: dict[str, Any], *, include_diagnostics: bool
         allowed = {"Evidence", "Sources"}
 
     label_for = {
-        "Evidence": f"Evidence Matrix · {counts['Evidence']}",
-        "Reading Path": f"Reading Path · {counts['Reading Path']}",
-        "Open Problems": f"Open Problems · {counts['Open Problems']}",
-        "Sources": f"Sources · {counts['Sources']}",
+        "Evidence": f"Evidence Matrix  |  {counts['Evidence']}",
+        "Reading Path": f"Reading Path  |  {counts['Reading Path']}",
+        "Open Problems": f"Open Problems  |  {counts['Open Problems']}",
+        "Sources": f"Sources  |  {counts['Sources']}",
     }
     labels = [label_for[section] for section in ordered_sections(_payload_question(payload)) if available.get(section) and section in allowed]
     if include_diagnostics:

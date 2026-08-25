@@ -39,12 +39,12 @@ def delta(a: float | None, b: float | None) -> str:
 def main() -> None:
     v1, v2, v3 = load(V1), load(V2), load(V3)
     print("=" * 100)
-    print("RSE — three-way retrieval comparison on NATURAL eval fixture")
+    print("RSE - three-way retrieval comparison on NATURAL eval fixture")
     print("(154 queries with chunking-agnostic ground truth)")
     print("=" * 100)
 
     if v1 is None:
-        print(f"\n❌ Missing {V1.name} — run eval on v1 collection first")
+        print(f"\n[ERROR] Missing {V1.name} - run eval on v1 collection first")
         return
 
     rows = [
@@ -71,18 +71,18 @@ def main() -> None:
         h3 = val(v3["id_relevant_hit_rate"], 10) or 0
         print("\n=== Verdict on the CHUNKING-AGNOSTIC eval ===")
         if r3 > r1 + 0.02 or h3 > h1 + 0.02:
-            print(f"  ✅ v3 (semantic) improved retrieval on fair eval")
-            print(f"  → The old fixture's chunk_id coupling WAS hiding a real improvement")
-            print(f"  → Ship: merge branch, deploy with RSE_CHUNK_COLLECTION=research_paper_chunks_v3")
+            print(f"  [OK] v3 (semantic) improved retrieval on fair eval")
+            print(f"  -> The old fixture's chunk_id coupling WAS hiding a real improvement")
+            print(f"  -> Ship: merge branch, deploy with RSE_CHUNK_COLLECTION=research_paper_chunks_v3")
         elif abs(r3 - r1) <= 0.02:
-            print(f"  ➖ v3 roughly matches v1 on fair eval")
-            print(f"  → PyMuPDF migration produces EQUIVALENT retrieval quality")
-            print(f"  → Old fixture was penalizing it — the '20% drop' was measurement artifact")
-            print(f"  → Ship: could deploy v3, or keep v1 (both fine)")
+            print(f"  - v3 roughly matches v1 on fair eval")
+            print(f"  -> PyMuPDF migration produces EQUIVALENT retrieval quality")
+            print(f"  -> Old fixture was penalizing it - the '20% drop' was measurement artifact")
+            print(f"  -> Ship: could deploy v3, or keep v1 (both fine)")
         else:
-            print(f"  ❌ v3 still worse than v1 on fair eval ({(r3-r1)*100:+.1f} pts)")
-            print(f"  → Migration genuinely doesn't help — chunking strategy isn't the bottleneck")
-            print(f"  → Ship: 'measured, rejected hypothesis' story")
+            print(f"  [ERROR] v3 still worse than v1 on fair eval ({(r3-r1)*100:+.1f} pts)")
+            print(f"  -> Migration genuinely doesn't help - chunking strategy isn't the bottleneck")
+            print(f"  -> Ship: 'measured, rejected hypothesis' story")
 
 
 if __name__ == "__main__":

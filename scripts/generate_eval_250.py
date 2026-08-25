@@ -2,7 +2,7 @@
 
 Ground truth is deterministic from corpus metadata (paper_id, topic, title,
 citation_count, year, key_result, dataset_used, limitations, methodology).
-Works with ANY chunking strategy — no chunk_ids in expected_relevant_ids.
+Works with ANY chunking strategy - no chunk_ids in expected_relevant_ids.
 
 Usage:
     python scripts/generate_eval_250.py
@@ -120,7 +120,7 @@ def make_query(
 
 
 # ---------------------------------------------------------------------------
-# Category 1: Factual Recall — Numerical Results (30 queries)
+# Category 1: Factual Recall - Numerical Results (30 queries)
 # ---------------------------------------------------------------------------
 
 def generate_factual_recall(papers: list[dict]) -> list[dict]:
@@ -1002,20 +1002,20 @@ def generate_adversarial(papers: list[dict], by_topic: dict[str, list[dict]]) ->
     queries = []
 
     adversarial_cases = [
-        # Typos — should still retrieve
+        # Typos - should still retrieve
         ("What is LoRa fine tuning?", "Fine-tuning (LoRA / PEFT)", ["lora"], True),
         ("Tell me about retrevial augmented generation", "Retrieval-Augmented Generation (RAG)", ["retrieval", "rag"], True),
         ("How does atention mechanism work?", "Transformers / Attention Mechanisms", ["attention"], True),
-        # Ambiguous — could go multiple ways
+        # Ambiguous - could go multiple ways
         ("What is attention?", "Transformers / Attention Mechanisms", ["attention"], True),
         ("Tell me about agents.", "AI Agents & Tool Use", ["agent"], True),
-        # Too vague — system should still try but results may be noisy
+        # Too vague - system should still try but results may be noisy
         ("Tell me everything about AI.", None, ["ai"], True),
         ("What's interesting in this corpus?", None, [], True),
         # Paper exists but question targets wrong content
         ("What does Attention Is All You Need say about LoRA?", "Transformers / Attention Mechanisms", [], False),
         ("What does the LoRA paper say about hallucinations?", "Fine-tuning (LoRA / PEFT)", [], False),
-        # Very specific — tests precision
+        # Very specific - tests precision
         ("What is the exact BLEU score on WMT 2014 English-to-German from the original Transformer paper?",
          "Transformers / Attention Mechanisms", ["28.4", "bleu"], True),
         # Abbreviations
@@ -1104,7 +1104,7 @@ def main() -> None:
     # Write output
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(json.dumps(all_queries, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(f"\n✅ Written to {OUTPUT_PATH}")
+    print(f"\n[OK] Written to {OUTPUT_PATH}")
     print(f"   {len(all_queries)} queries across {len(categories)} categories")
 
 

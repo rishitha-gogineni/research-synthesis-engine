@@ -96,7 +96,6 @@ st.markdown(
     h2 { font-size: 1.12rem !important; color: var(--rse-ink); font-weight: 680 !important; }
     h3 { font-size: 1rem !important; color: var(--rse-muted); font-weight: 620 !important; }
     .rse-title-wrap { display: flex; align-items: center; gap: 0.78rem; margin-bottom: 0.15rem; }
-    .rse-title-emoji { font-size: 1.75rem; line-height: 1; transform: translateY(-1px); }
     .rse-muted { color: var(--rse-muted); font-size: 0.9rem; margin-bottom: 0.8rem; }
     .rse-page-shell { max-width: 920px; margin: 0 auto; }
     .rse-query-card, .rse-card, .rse-status {
@@ -224,7 +223,7 @@ def render_corpus_stats():
 
 def render_title():
     st.markdown(
-        "<div class='rse-title-wrap'><span class='rse-title-emoji'>📚</span><h1>Research Synthesis Engine</h1></div>",
+        "<div class='rse-title-wrap'><h1>Research Synthesis Engine</h1></div>",
         unsafe_allow_html=True,
     )
     st.markdown("<div class='rse-muted'>Ask a question, inspect the evidence, trace the sources.</div>", unsafe_allow_html=True)
@@ -234,7 +233,7 @@ def render_status(health: dict, stats: dict):
     papers = stats.get("paper_count") or stats.get("enriched_papers") or "-"
     topics = stats.get("topics") or "-"
     st.markdown(
-        f"<div class='rse-status'><strong>Corpus:</strong> {papers} papers · {topics} topics</div>",
+        f"<div class='rse-status'><strong>Corpus:</strong> {papers} papers  |  {topics} topics</div>",
         unsafe_allow_html=True,
     )
 
@@ -272,7 +271,7 @@ def render_badge_row(payload: dict):
         f"""<div class="rse-badge-row">
             <span class="rse-badge rse-badge-route">{route_label(route)}</span>
             <span class="rse-badge rse-badge-{kind}">{label}</span>
-            <span class="rse-badge-stat">{paper_count} papers · {chunk_count} chunks</span>
+            <span class="rse-badge-stat">{paper_count} papers  |  {chunk_count} chunks</span>
         </div>""",
         unsafe_allow_html=True,
     )
@@ -318,7 +317,7 @@ def render_evidence_gate(payload: dict):
         <div class='rse-trust-card'>
             <div class='rse-kicker'>{kicker}</div>
             <div class='rse-trust-title'>{title}</div>
-            <div class='rse-trust-meta'>{status_label}: <strong>{status_value}</strong> · Route: <strong>{route}</strong> · Retrieved: <strong>{counts}</strong><br/>{reason}</div>
+            <div class='rse-trust-meta'>{status_label}: <strong>{status_value}</strong>  |  Route: <strong>{route}</strong>  |  Retrieved: <strong>{counts}</strong><br/>{reason}</div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -400,7 +399,7 @@ def _source_links_html(source_value: str) -> str:
             links.append("chunk evidence")
         else:
             links.append(html.escape(source))
-    return " · ".join(links) or "No source IDs returned."
+    return "  |  ".join(links) or "No source IDs returned."
 
 
 def render_top_evidence(payload: dict):
@@ -463,7 +462,7 @@ def render_reading_path(payload: dict):
                 citations = paper.get("citation_count") or 0
                 reason = paper.get("reason_to_read") or "No reason returned."
                 st.markdown(f"**{order}. {title}**")
-                st.caption(f"{year} · {citations} citations")
+                st.caption(f"{year}  |  {citations} citations")
                 st.write(reason)
     if path.get("limitations"):
         with st.expander("Reading path limitations", expanded=False):
@@ -483,7 +482,7 @@ def render_open_problems(payload: dict):
     for problem in problems:
         with st.container(border=True):
             st.markdown(f"**{problem.get('title') or 'Open problem'}**")
-            st.caption(f"{problem.get('category') or 'uncategorized'} · {problem.get('evidence_strength') or 'unknown'} evidence")
+            st.caption(f"{problem.get('category') or 'uncategorized'}  |  {problem.get('evidence_strength') or 'unknown'} evidence")
             st.write(problem.get("why_it_matters") or "No explanation returned.")
             sources = ", ".join(problem.get("supporting_source_ids", []) or [])
             if sources:
@@ -505,8 +504,8 @@ def chunk_display_label(chunk: dict, index: int) -> str:
     title = " ".join(str(title).split())
     if len(title) > 86:
         title = f"{title[:83]}..."
-    score_text = f" · score {float(score):.2f}" if isinstance(score, (int, float)) else ""
-    return f"{index}. {title} · {section}{score_text}"
+    score_text = f"  |  score {float(score):.2f}" if isinstance(score, (int, float)) else ""
+    return f"{index}. {title}  |  {section}{score_text}"
 
 
 def render_sources(payload: dict):
@@ -752,7 +751,7 @@ def render_rewrite_context(payload: dict):
         return
     with st.expander("Standalone query used for retrieval", expanded=False):
         st.write(summary["Standalone Query"])
-        st.caption(f"Method: {summary['Method']} · {summary['Reason']}")
+        st.caption(f"Method: {summary['Method']}  |  {summary['Reason']}")
 
 
 def submit_question(question: str) -> bool:
@@ -844,7 +843,7 @@ def render_query_page(health: dict, stats: dict):
         help="Guided corpus uses the existing synthesis workflow. Agentic research adds bounded tool selection and grounded OpenAI synthesis.",
     )
     st.selectbox("Suggested question", SUGGESTED_QUESTIONS, key="suggested_question", on_change=sync_question_from_suggestion)
-    st.markdown("<div class='rse-symbol-label'>⌕ Question</div>", unsafe_allow_html=True)
+    st.markdown("<div class='rse-symbol-label'> Question</div>", unsafe_allow_html=True)
     st.text_area(
         "Question",
         key="question",

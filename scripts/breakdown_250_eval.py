@@ -68,7 +68,7 @@ def fixture_rationales(path: Path = DEFAULT_FIXTURE) -> dict[str, str]:
 def main() -> None:
     path = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_FILE
     if not path.exists():
-        print(f"❌ Missing {path.name}")
+        print(f"[ERROR] Missing {path.name}")
         return
 
     data = load(path)
@@ -85,7 +85,7 @@ def main() -> None:
         categories[cat].append(ev)
 
     print("=" * 110)
-    print(f"PER-CATEGORY BREAKDOWN — {path.name} ({len(evaluations)} queries)")
+    print(f"PER-CATEGORY BREAKDOWN - {path.name} ({len(evaluations)} queries)")
     print("=" * 110)
 
     print(f"\n{'Category':<28}{'#':>4}{'route%':>8}{'hit@5':>8}{'hit@10':>8}{'recall@5':>9}{'recall@10':>10}{'MRR':>8}{'conf%':>8}")

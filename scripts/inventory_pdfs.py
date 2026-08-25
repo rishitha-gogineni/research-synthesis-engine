@@ -1,4 +1,4 @@
-"""Task 1: Inventory 152 PDFs — count pages, detect corrupt/scanned, sample quality."""
+"""Task 1: Inventory 152 PDFs - count pages, detect corrupt/scanned, sample quality."""
 
 from __future__ import annotations
 

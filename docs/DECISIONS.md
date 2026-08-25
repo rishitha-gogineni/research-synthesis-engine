@@ -672,7 +672,7 @@ Decision:
 
 `select_results()` returned `paper_results + chunk_results` for `hybrid_both`, and `id_hits()` then took `results[:top_k]`. Because the evaluator sets `paper_top_k` and `chunk_top_k` both to `max(top_ks)`, the first `max(top_ks)` entries of that concatenation are always *all papers*. At k=10 the measured window therefore contained ten papers and zero chunks, and raising the probe to k=20 only lengthened the paper prefix.
 
-Every chunk-ID label on a `hybrid_both` query was structurally unreachable, no matter how well retrieval performed. That accounts for the 12 `cross_topic_comparison` failures in `docs/eval_failure_analysis_v2.md` — 100% of that category — which are exactly the queries whose ground truth is half chunk IDs.
+Every chunk-ID label on a `hybrid_both` query was structurally unreachable, no matter how well retrieval performed. That accounts for the 12 `cross_topic_comparison` failures in `docs/eval_failure_analysis_v2.md` - 100% of that category - which are exactly the queries whose ground truth is half chunk IDs.
 
 Decision:
 - Add `merge_ranked_lists()`, which interleaves the two lists by reciprocal rank. Paper scores (weighted fusion) and chunk scores (dense cosine) are on incomparable scales, so the merge uses rank position only and breaks ties deterministically toward papers.

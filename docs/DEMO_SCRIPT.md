@@ -156,13 +156,13 @@ What to point out:
 
 ```text
 OpenAlex corpus + legal full-text PDFs
-→ abstract-level paper index + full-text chunk index
-→ query router
-→ paper retrieval / chunk retrieval / metadata filter
-→ reranking and citation-aware scoring
-→ CRAG confidence gate
-→ grounded brief, evidence matrix, reading path, open problems
-→ FastAPI backend and Streamlit workspace
+-> abstract-level paper index + full-text chunk index
+-> query router
+-> paper retrieval / chunk retrieval / metadata filter
+-> reranking and citation-aware scoring
+-> CRAG confidence gate
+-> grounded brief, evidence matrix, reading path, open problems
+-> FastAPI backend and Streamlit workspace
 ```
 
 ## Strong Closing Line

@@ -13,7 +13,7 @@ Chunking strategy:
 - Skip references, acknowledgments (noise for retrieval)
 - Map v2 section names to v1 section_hint values for eval compatibility
 
-This is drop-in compatible with the RSE eval fixture — chunks match on
+This is drop-in compatible with the RSE eval fixture - chunks match on
 paper_id since v1's eval accepts both chunk_id and paper_id for hits.
 """
 
@@ -66,7 +66,7 @@ def pack_paragraphs(paragraphs: list[str], target: int, max_w: int, min_w: int) 
 
     Fills a buffer until it hits target words, then closes it and starts a new
     one. If a single paragraph exceeds max_words, it becomes its own chunk
-    (respecting the boundary — we do NOT split it further).
+    (respecting the boundary - we do NOT split it further).
     """
     chunks: list[str] = []
     buffer: list[str] = []

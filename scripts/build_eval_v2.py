@@ -41,8 +41,8 @@ def score(text, keywords):
     return sum(text.count(k.lower()) for k in keywords)
 
 def pick_papers(keywords, topics, n=3, min_hits=2, year_min=None, rank_by="score"):
-    """rank_by='score' → most keyword-relevant (tie-break citations).
-       rank_by='citation' → most-cited among on-topic keyword matches
+    """rank_by='score' -> most keyword-relevant (tie-break citations).
+       rank_by='citation' -> most-cited among on-topic keyword matches
        (for 'most-cited'/'foundational'/'reading-path' queries)."""
     cands = []
     for pid, txt in PAPER_TEXT.items():
@@ -85,7 +85,7 @@ LORA  = "Fine-tuning (LoRA / PEFT)"
 
 # Each spec: (query, route, topics, keywords, focus, category, extra)
 # route in: paper_level | chunk_level | hybrid_both | metadata_filter | refuse
-# extra: dict overrides — acceptable_routes, year_min, chunk_kw, restrict_to_matched_papers
+# extra: dict overrides - acceptable_routes, year_min, chunk_kw, restrict_to_matched_papers
 SPECS = [
  # ---------- Simple factual / paper-level (15) ----------
  ("What are the main approaches to retrieval-augmented generation?", "paper_level", [RAG],
@@ -217,7 +217,7 @@ SPECS = [
  ("How do systems combine searching and writing an answer?", "hybrid_both", [RAG],
    ["retrieval","generation","augmented","rag"], "route_selection", "paraphrase", {}),
 
- # ---------- Out-of-scope / refusal (12) — NO relevant IDs on purpose ----------
+ # ---------- Out-of-scope / refusal (12) - NO relevant IDs on purpose ----------
  ("What are the best convolutional architectures for image classification?", "refuse", [],
    [], "refusal", "out_of_scope", {}),
  ("How does reinforcement learning train robotic arms for grasping?", "refuse", [],

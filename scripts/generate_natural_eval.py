@@ -15,7 +15,7 @@ Ground truth is deterministic from paper metadata:
   - `expected_keywords`     : semantic keywords the retrieved chunk should contain
   - `expected_topics`       : topics the retrieved paper should belong to
 
-This eval is deliberately CHUNKING-AGNOSTIC — it does not encode any specific
+This eval is deliberately CHUNKING-AGNOSTIC - it does not encode any specific
 chunk_id, only paper_id + keyword presence. Any chunking strategy that retrieves
 the correct paper AND surfaces the right content will score well.
 
@@ -36,7 +36,7 @@ PAPERS_PATH = Path("data/full_text_papers.json")
 OUT_PATH = Path("tests/fixtures/eval_queries_natural.json")
 
 
-# Topic → route mapping (matches RSE router expectations)
+# Topic -> route mapping (matches RSE router expectations)
 TOPIC_TO_ROUTE = {
     "Retrieval-Augmented Generation (RAG)": "paper_level",
     "Transformers / Attention Mechanisms": "paper_level",
@@ -61,7 +61,7 @@ def find_papers_by_topic(papers: list[dict], topic: str) -> list[str]:
 
 
 def concept_overview_queries(papers: list[dict]) -> list[dict]:
-    """'What is X?' / 'How does Y work?' style queries — topic-level intent."""
+    """'What is X?' / 'How does Y work?' style queries - topic-level intent."""
     queries = []
     concepts = [
         ("retrieval-augmented generation", "Retrieval-Augmented Generation (RAG)", ["retrieval-augmented", "rag", "retrieval"]),
@@ -103,7 +103,7 @@ def concept_overview_queries(papers: list[dict]) -> list[dict]:
 
 
 def method_specific_queries(papers: list[dict]) -> list[dict]:
-    """Named-method questions — pull from papers whose title contains the method name."""
+    """Named-method questions - pull from papers whose title contains the method name."""
     methods = [
         ("LoRA", "reduce GPU memory during fine-tuning", ["lora", "low-rank", "memory"]),
         ("QLoRA", "quantize models for fine-tuning", ["qlora", "quantization", "4-bit"]),
@@ -150,7 +150,7 @@ def method_specific_queries(papers: list[dict]) -> list[dict]:
 
 
 def comparison_queries(papers: list[dict]) -> list[dict]:
-    """Cross-topic comparison queries — natural 'X vs Y' questions."""
+    """Cross-topic comparison queries - natural 'X vs Y' questions."""
     comparisons = [
         (
             "How does RAG compare to fine-tuning for injecting new knowledge into LLMs?",
@@ -214,7 +214,7 @@ def comparison_queries(papers: list[dict]) -> list[dict]:
 
 
 def dataset_benchmark_queries(papers: list[dict]) -> list[dict]:
-    """Dataset / benchmark discovery — 'what datasets are used for X'."""
+    """Dataset / benchmark discovery - 'what datasets are used for X'."""
     dataset_queries = [
         (
             "What datasets are used to evaluate hallucination in LLMs?",
@@ -266,7 +266,7 @@ def dataset_benchmark_queries(papers: list[dict]) -> list[dict]:
 
 
 def paper_anchored_queries(papers: list[dict]) -> list[dict]:
-    """'What does <paper title> propose?' — precise paper_id ground truth."""
+    """'What does <paper title> propose?' - precise paper_id ground truth."""
     # Pick well-known / high-citation papers (top 40 by citation)
     ranked = sorted(papers, key=lambda p: p.get("citation_count", 0) or 0, reverse=True)
     picks = ranked[:40]
@@ -294,7 +294,7 @@ def paper_anchored_queries(papers: list[dict]) -> list[dict]:
 
 
 def section_specific_queries(papers: list[dict]) -> list[dict]:
-    """Section-specific questions — 'what are the limitations of X?' etc."""
+    """Section-specific questions - 'what are the limitations of X?' etc."""
     queries = []
     section_templates = [
         ("What are the limitations of {topic}?", ["limitation", "future work", "shortcoming"], "full_text_evidence"),
