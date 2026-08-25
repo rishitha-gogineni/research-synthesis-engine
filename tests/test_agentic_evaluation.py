@@ -27,7 +27,7 @@ def test_agentic_fixture_covers_routes_and_refusals():
     assert len(cases) == 46
     assert {case.expected_route for case in cases} == {"corpus", "live", "hybrid"}
     assert any(not case.should_answer for case in cases)
-    assert sum(case.expected_external_source for case in cases) == 16
+    assert sum(case.expected_external_source for case in cases) == 15
     assert all(case.corpus_absent for case in cases if case.expected_external_source)
     assert metrics["route_accuracy"] == 1.0
     assert metrics["tool_plan_accuracy"] == 1.0

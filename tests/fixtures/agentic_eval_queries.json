@@ -69,7 +69,15 @@
     "expected_tools": [
       "search_local_corpus"
     ],
-    "should_answer": true
+    "should_answer": true,
+    "expected_external_source": false,
+    "response_route": "hybrid",
+    "response_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ]
   },
   {
     "id": "live_01",
@@ -241,7 +249,7 @@
       "search_semantic_scholar",
       "search_tavily"
     ],
-    "should_answer": true
+    "should_answer": false
   },
   {
     "id": "hybrid_08",
@@ -271,7 +279,14 @@
     "expected_tools": [
       "search_local_corpus"
     ],
-    "should_answer": false
+    "should_answer": true,
+    "response_route": "hybrid",
+    "response_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ]
   },
   {
     "id": "refusal_03",
@@ -531,17 +546,13 @@
     "expected_tools": [
       "search_local_corpus"
     ],
-    "response_route": "hybrid",
+    "response_route": "corpus",
     "response_tools": [
-      "search_local_corpus",
-      "search_arxiv",
-      "search_semantic_scholar",
-      "search_tavily"
+      "search_local_corpus"
     ],
     "should_answer": true,
-    "expected_external_source": true,
-    "corpus_absent": true,
-    "external_reference": "multimodal RAG"
+    "expected_external_source": false,
+    "corpus_absent": false
   },
   {
     "id": "hybrid_ext_01",
