@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import re
 import time
+import threading
 import xml.etree.ElementTree as ET
 from typing import Any
 import requests
@@ -31,23 +32,53 @@ class ExternalSearchClient:
     ARXIV_URL = "https://export.arxiv.org/api/query"
     SEMANTIC_SCHOLAR_URL = "https://api.semanticscholar.org/graph/v1/paper/search"
     TAVILY_URL = "https://api.tavily.com/search"
-    def __init__(self, session: requests.Session | None = None, *, timeout: float = 12.0, max_retries: int = 2, backoff_seconds: float = 0.5, semantic_scholar_api_key: str | None = None, tavily_api_key: str | None = None) -> None:
+    def __init__(
+        self,
+        session: requests.Session | None = None,
+        *,
+        timeout: float = 12.0,
+        max_retries: int = 2,
+        backoff_seconds: float = 0.5,
+        semantic_scholar_api_key: str | None = None,
+        tavily_api_key: str | None = None,
+        semantic_scholar_min_interval: float = 1.1,
+    ) -> None:
         self.session = session or requests.Session()
         self.timeout = timeout
         self.max_retries = max(0, max_retries)
         self.backoff_seconds = max(0.0, backoff_seconds)
         self.semantic_scholar_api_key = os.getenv("SEMANTIC_SCHOLAR_API_KEY") if semantic_scholar_api_key is None else semantic_scholar_api_key
         self.tavily_api_key = os.getenv("TAVILY_API_KEY") if tavily_api_key is None else tavily_api_key
-    def _request(self, method: str, url: str, **kwargs: Any) -> requests.Response:
+        self.semantic_scholar_min_interval = max(0.0, semantic_scholar_min_interval)
+        self._last_semantic_scholar_request = 0.0
+        self._semantic_scholar_lock = threading.Lock()
+
+    def _throttle_semantic_scholar(self) -> None:
+        with self._semantic_scholar_lock:
+            elapsed = time.monotonic() - self._last_semantic_scholar_request
+            delay = self.semantic_scholar_min_interval - elapsed
+            if delay > 0:
+                time.sleep(delay)
+            self._last_semantic_scholar_request = time.monotonic()
+
+    def _request(self, method: str, url: str, *, semantic_scholar: bool = False, **kwargs: Any) -> requests.Response:
         kwargs.setdefault("timeout", self.timeout)
         last_error: Exception | None = None
         for attempt in range(self.max_retries + 1):
+            if semantic_scholar:
+                self._throttle_semantic_scholar()
             try:
                 response = self.session.request(method, url, **kwargs)
                 status = int(getattr(response, "status_code", 200))
                 if status in {408, 425, 429} or status >= 500:
                     if attempt < self.max_retries:
-                        time.sleep(self.backoff_seconds * (2**attempt))
+                        retry_after = 0.0
+                        headers = getattr(response, "headers", {}) or {}
+                        try:
+                            retry_after = float(headers.get("Retry-After", 0.0) or 0.0)
+                        except (TypeError, ValueError):
+                            retry_after = 0.0
+                        time.sleep(max(self.backoff_seconds * (2**attempt), retry_after))
                         continue
                 if status >= 400:
                     raise ExternalSearchError(f"provider returned HTTP {status}")
@@ -61,6 +92,7 @@ class ExternalSearchClient:
                 else:
                     break
         raise ExternalSearchError(f"provider request failed: {last_error or 'unknown error'}")
+
     @staticmethod
     def _validate(query: str) -> str:
         query = " ".join(query.split())
@@ -83,7 +115,7 @@ class ExternalSearchClient:
     def search_semantic_scholar(self, query: str, max_results: int = 5) -> list[ExternalPaper]:
         query = self._validate(query)
         headers = {"x-api-key": self.semantic_scholar_api_key} if self.semantic_scholar_api_key else {}
-        response = self._request("GET", self.SEMANTIC_SCHOLAR_URL, headers=headers, params={"query": query, "limit": min(max_results, 100), "fields": "paperId,title,abstract,authors,year,citationCount,url,publicationDate"})
+        response = self._request("GET", self.SEMANTIC_SCHOLAR_URL, semantic_scholar=True, headers=headers, params={"query": query, "limit": min(max_results, 100), "fields": "paperId,title,abstract,authors,year,citationCount,url,publicationDate"})
         try: data = response.json()
         except ValueError as exc: raise ExternalSearchError("invalid Semantic Scholar JSON response") from exc
         papers = []

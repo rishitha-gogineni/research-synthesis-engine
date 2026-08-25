@@ -56,10 +56,21 @@ def agentic_research(request: AgenticResearchRequest, http_request: Request) -> 
     decision = state.get("confidence_decision")
     if state["status"] == "completed" and decision not in {"ask_clarifying_question", "insufficient_evidence"}:
         try:
+            route = state.get("route")
+            route_tools = {
+                "corpus": ("search_local_corpus",),
+                "live": ("search_arxiv", "search_semantic_scholar", "search_tavily"),
+                "hybrid": ("search_local_corpus", "search_arxiv", "search_semantic_scholar", "search_tavily"),
+            }.get(route)
+            route_budget = min(
+                request.max_tool_calls,
+                {"corpus": 1, "live": 3, "hybrid": 3}.get(route, request.max_tool_calls),
+            )
             result: LLMResult = run_grounded_answer(
                 request.question,
                 state.get("evidence", []),
-                max_tool_calls=request.max_tool_calls,
+                max_tool_calls=route_budget,
+                allowed_tools=route_tools,
             )
             answer = result.answer
             citations = result.citations

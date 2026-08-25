@@ -71,12 +71,9 @@
     ],
     "should_answer": true,
     "expected_external_source": false,
-    "response_route": "hybrid",
+    "response_route": "corpus",
     "response_tools": [
-      "search_local_corpus",
-      "search_arxiv",
-      "search_semantic_scholar",
-      "search_tavily"
+      "search_local_corpus"
     ]
   },
   {

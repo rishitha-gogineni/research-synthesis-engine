@@ -51,6 +51,16 @@ AI_DOMAIN_PATTERNS = (
     re.compile(r"\bdatasets?\b", re.IGNORECASE),
     re.compile(r"\bembeddings?\b", re.IGNORECASE),
     re.compile(r"\bvector\s+search\b", re.IGNORECASE),
+    re.compile(r"\bbm25\b", re.IGNORECASE),
+    re.compile(r"\bsparse\s+retrieval\b", re.IGNORECASE),
+    re.compile(r"\bdense\s+retrieval\b", re.IGNORECASE),
+    re.compile(r"\bretrieval\b", re.IGNORECASE),
+)
+CORPUS_SCOPE_PATTERNS = (
+    re.compile(r"\bindexed\s+(?:papers?|corpus)\b", re.IGNORECASE),
+    re.compile(r"\b(?:our|uploaded|local)\s+papers?\b", re.IGNORECASE),
+    re.compile(r"\baccording\s+to\s+(?:the\s+)?papers?\b", re.IGNORECASE),
+    re.compile(r"\bin\s+the\s+(?:indexed\s+)?corpus\b", re.IGNORECASE),
 )
 CORPUS_TOPIC_ALIASES = {
     "rag": "Retrieval-Augmented Generation (RAG)",
@@ -71,7 +81,7 @@ CORPUS_TOPIC_ALIASES = {
 SCOPE_GENERIC_TERMS = {
     "about", "achieve", "current", "does", "evidence", "explain", "how", "main",
     "methods", "method", "modeling", "paper", "papers", "role", "say", "state",
-    "system", "used", "what", "which", "work",
+    "system", "used", "what", "which", "work", "contribute", "describe",
 }
 BROAD_SCOPE_PATTERNS = (
     re.compile(r"\brole of\b", re.IGNORECASE),
@@ -83,7 +93,7 @@ BROAD_SCOPE_PATTERNS = (
 
 QUERY_STOPWORDS = {
     "about", "after", "against", "answer", "answers", "are", "can", "compare", "corpus",
-    "does", "explain", "from", "give", "hardware", "highly", "implementation", "implementations",
+    "according", "does", "explain", "from", "give", "hardware", "highly", "implementation", "implementations",
     "indexed", "into", "know", "knows", "main", "paper", "papers", "policies", "question", "recent",
     "research", "results", "should", "show", "system", "systems",
     "that", "their", "there", "these", "they", "this", "those", "used", "user", "what",
@@ -139,6 +149,8 @@ def query_domain_anchors(query: str) -> list[str]:
             value = match.group(0).lower()
             if value not in anchors:
                 anchors.append(value)
+    if any(pattern.search(query) for pattern in CORPUS_SCOPE_PATTERNS):
+        anchors.append("indexed corpus scope")
     return anchors
 
 

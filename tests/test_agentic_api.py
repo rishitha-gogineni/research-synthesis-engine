@@ -7,7 +7,7 @@ def test_agentic_request_normalizes_question():
 def test_agentic_endpoint_returns_trace(monkeypatch):
     fake_state = {"query": "latest papers", "status": "completed", "route": "live", "route_reason": "current", "route_confidence": 0.9, "planned_tools": ["search_arxiv"], "tool_calls": [{"tool": "search_arxiv"}], "evidence": [{"kind": "external", "title": "Paper"}], "warnings": []}
     monkeypatch.setattr("agentic.api.run_agentic_research", lambda query, top_k: fake_state)
-    monkeypatch.setattr("agentic.api.run_grounded_answer", lambda query, evidence, max_tool_calls: LLMResult("Grounded answer [source_1]", ["source_1"], [{"tool": "search_arxiv", "status": "completed"}], [], {"total_tokens": 12}, 4.0))
+    monkeypatch.setattr("agentic.api.run_grounded_answer", lambda query, evidence, max_tool_calls, allowed_tools=None: LLMResult("Grounded answer [source_1]", ["source_1"], [{"tool": "search_arxiv", "status": "completed"}], [], {"total_tokens": 12}, 4.0))
     request = SimpleNamespace(state=SimpleNamespace(request_id="request-123"))
     response = agentic_research(AgenticResearchRequest(question="latest papers"), request)
     assert response.request_id == "request-123"

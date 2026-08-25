@@ -216,6 +216,8 @@ Validate the 46-case agentic planner and external-routing benchmark and optional
 python scripts/evaluate_agentic.py
 ```
 
+The latest recorded 46-case run (top_k=8, max_tool_calls=3) achieved 1.00 planner and response route/tool-plan accuracy, 1.00 external-source coverage (15 cases), 0.978 answer-or-refusal accuracy, 0.872 citation validity, and 1.00 citation coverage. Tool success was 0.942 because provider retries and rate limits are reported rather than hidden; rerun this benchmark when provider availability changes.
+
 Run a live agentic smoke test only when the API, Qdrant, and provider keys are available:
 ```bash
 curl -X POST http://localhost:8000/agentic/research \

@@ -51,6 +51,7 @@ def run_grounded_answer(
     model: str = "gpt-4o-mini",
     max_tool_calls: int = 3,
     executor: Callable[..., dict[str, Any]] = execute_tool,
+    allowed_tools: tuple[str, ...] | None = None,
 ) -> LLMResult:
     if not query.strip(): raise ValueError("query must not be empty")
     if max_tool_calls < 0: raise ValueError("max_tool_calls must be non-negative")
@@ -62,12 +63,20 @@ def run_grounded_answer(
     traces: list[dict[str, Any]] = []
     warnings: list[str] = []
     total_calls = 0
+    seen_tool_calls: set[tuple[str, str]] = set()
+    tool_specs = tool_definitions()
+    if allowed_tools is not None:
+        allowed = set(allowed_tools)
+        tool_specs = [
+            spec for spec in tool_specs
+            if spec.get("function", {}).get("name") in allowed
+        ]
     prompt_tokens = completion_tokens = 0
     started = time.perf_counter()
     while True:
         kwargs: dict[str, Any] = {"model": model, "messages": messages, "temperature": 0.1}
-        if total_calls < max_tool_calls:
-            kwargs.update({"tools": tool_definitions(), "tool_choice": "auto"})
+        if total_calls < max_tool_calls and tool_specs:
+            kwargs.update({"tools": tool_specs, "tool_choice": "auto"})
         else:
             messages.append({"role": "system", "content": "The tool-call budget is exhausted. Answer only from the evidence already collected, or refuse if it is insufficient."})
         response = client.chat.completions.create(**kwargs)
@@ -91,10 +100,17 @@ def run_grounded_answer(
             name = _value(_value(call, "function"), "name", "")
             raw_args = _value(_value(call, "function"), "arguments", "{}") or "{}"
             trace = {"tool": name, "status": "completed"}
-            if total_calls >= max_tool_calls:
+            call_key = (name, raw_args)
+            if call_key in seen_tool_calls:
+                trace["status"] = "duplicate_blocked"
+                warnings.append(f"Duplicate tool request blocked: {name}.")
+                result = {"error": "duplicate tool request blocked; use the existing result"}
+                total_calls = max(total_calls, max_tool_calls)
+            elif total_calls >= max_tool_calls:
                 trace["status"] = "budget_exhausted"
-                result: dict[str, Any] = {"error": "tool-call budget exhausted"}
+                result = {"error": "tool-call budget exhausted"}
             else:
+                seen_tool_calls.add(call_key)
                 total_calls += 1
                 try:
                     arguments = json.loads(raw_args)
