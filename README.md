@@ -59,20 +59,47 @@ The repository includes 422 automated tests with external services mocked for de
 flowchart LR
     User --> Streamlit
     Streamlit --> FastAPI
-    FastAPI --> Router
-    Router --> PaperSearch[Paper search]
-    Router --> ChunkSearch[Full-text search]
-    Router --> HybridSearch[Paper and passage search]
-    Router --> Metadata[Metadata filters]
-    PaperSearch --> Qdrant
-    ChunkSearch --> Qdrant
-    PaperSearch --> BM25
-    ChunkSearch --> BM25
-    Qdrant --> Confidence[Confidence gate]
-    BM25 --> Confidence
-    Confidence --> Synthesis[Grounded synthesis]
-    Confidence --> Refusal[Refusal with evidence status]
-    Synthesis --> Citations[Citations and research brief]
+
+    subgraph CorpusFlow[Standard corpus workflow]
+        FastAPI --> Router[Intent router]
+        Router --> PaperRoute[Paper retrieval]
+        Router --> ChunkRoute[Full-text retrieval]
+        Router --> HybridRoute[Paper and passage retrieval]
+        Router --> MetadataRoute[Metadata filters]
+        PaperRoute --> DenseP[OpenAI query embedding]
+        DenseP --> QdrantP[Qdrant paper collection]
+        ChunkRoute --> DenseC[OpenAI query embedding]
+        DenseC --> QdrantC[Qdrant chunk collection]
+        HybridRoute --> DenseP
+        HybridRoute --> DenseC
+        PaperRoute --> SparseP[BM25]
+        ChunkRoute --> SparseC[Chunk BM25]
+        HybridRoute --> SparseP
+        HybridRoute --> SparseC
+        QdrantP --> Fusion[Score fusion, promotion, optional reranking]
+        QdrantC --> Fusion
+        SparseP --> Fusion
+        SparseC --> Fusion
+        MetadataRoute --> Confidence[Confidence gate]
+        Fusion --> Confidence
+    end
+
+    Confidence -->|sufficient evidence| Synthesis[Grounded GPT-4o-mini synthesis]
+    Confidence -->|insufficient evidence| Refusal[Refusal with evidence status]
+    Synthesis --> Outputs[Citations and research outputs]
+
+    subgraph AgenticFlow[Optional agentic workflow]
+        FastAPI --> Guardrail[Guardrail]
+        Guardrail --> Planner[Planner]
+        Planner --> LocalTool[Local corpus tool]
+        Planner --> ExternalTools[Arxiv, Semantic Scholar, Tavily]
+        LocalTool --> AgentDecision{Evidence sufficient?}
+        AgentDecision -->|yes| AgentEvidence[Evidence state]
+        AgentDecision -->|no| ExternalTools
+        ExternalTools --> AgentEvidence
+        AgentEvidence --> BoundedSynthesis[Bounded grounded synthesis]
+        BoundedSynthesis --> Outputs
+    end
 ~~~
 
 ## Data and retrieval design
