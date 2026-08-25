@@ -19,6 +19,11 @@ class PlannerEvalCase:
 class AgenticEvalCase(PlannerEvalCase):
     case_id: str
     should_answer: bool = True
+    response_route: str | None = None
+    response_tools: tuple[str, ...] | None = None
+    expected_external_source: bool = False
+    corpus_absent: bool = False
+    external_reference: str | None = None
 
 
 DEFAULT_PLANNER_CASES = (
@@ -46,6 +51,18 @@ def load_agentic_cases(path: str | Path) -> tuple[AgenticEvalCase, ...]:
                 expected_route=str(item["expected_route"]),
                 expected_tools=tuple(str(tool) for tool in item["expected_tools"]),
                 should_answer=bool(item.get("should_answer", True)),
+                response_route=str(item.get("response_route", item["expected_route"])),
+                response_tools=tuple(
+                    str(tool)
+                    for tool in item.get("response_tools", item["expected_tools"])
+                ),
+                expected_external_source=bool(item.get("expected_external_source", False)),
+                corpus_absent=bool(item.get("corpus_absent", False)),
+                external_reference=(
+                    str(item["external_reference"])
+                    if item.get("external_reference") is not None
+                    else None
+                ),
             )
         )
     return tuple(cases)
@@ -106,6 +123,7 @@ def evaluate_agentic_responses(
 ) -> dict[str, Any]:
     cases = tuple(cases)
     route_hits = tool_hits = refusal_hits = 0
+    external_hits = external_total = 0
     tool_successes = tool_total = 0
     answered_cases = 0
     valid_citation_cases = 0
@@ -114,8 +132,10 @@ def evaluate_agentic_responses(
 
     for case in cases:
         response = responses.get(case.case_id) or {}
-        route_ok = response.get("route") == case.expected_route
-        tools_ok = tuple(response.get("planned_tools") or []) == tuple(case.expected_tools)
+        expected_route = case.response_route or case.expected_route
+        expected_tools = case.response_tools or case.expected_tools
+        route_ok = response.get("route") == expected_route
+        tools_ok = tuple(response.get("planned_tools") or []) == tuple(expected_tools)
         status_ok = response.get("status") == "completed" and not response.get("error")
         tool_entries = list(response.get("tool_calls") or []) + list(response.get("llm_tool_calls") or [])
         if tool_entries:
@@ -133,6 +153,18 @@ def evaluate_agentic_responses(
             not case.should_answer and decision in {"insufficient_evidence", "ask_clarifying_question"}
         )
         citation_metrics = validate_grounded_response(response)
+        external_payload = response.get("external_response") or {}
+        external_present = bool(
+            any(item.get("kind") == "external" for item in response.get("evidence") or [])
+            or (
+                isinstance(external_payload, dict)
+                and bool(external_payload.get("results"))
+            )
+        )
+        external_ok = not case.expected_external_source or external_present
+        if case.expected_external_source:
+            external_total += 1
+            external_hits += int(external_ok)
         route_hits += int(route_ok)
         tool_hits += int(tools_ok)
         refusal_hits += int(refusal_ok)
@@ -142,7 +174,7 @@ def evaluate_agentic_responses(
             recognized_citations += citation_metrics["recognized_citation_count"]
             valid_citation_cases += int(citation_metrics["citations_valid"])
 
-        if not (route_ok and tools_ok and status_ok and refusal_ok):
+        if not (route_ok and tools_ok and status_ok and refusal_ok and external_ok):
             failures.append(
                 {
                     "id": case.case_id,
@@ -150,6 +182,9 @@ def evaluate_agentic_responses(
                     "tools_ok": tools_ok,
                     "status_ok": status_ok,
                     "refusal_or_answer_ok": refusal_ok,
+                    "external_source_ok": external_ok,
+                    "expected_route": expected_route,
+                    "expected_tools": list(expected_tools),
                     "actual_route": response.get("route"),
                     "actual_tools": response.get("planned_tools", []),
                 }
@@ -160,6 +195,8 @@ def evaluate_agentic_responses(
         "cases": total,
         "route_accuracy": round(route_hits / total, 3) if total else 0.0,
         "tool_plan_accuracy": round(tool_hits / total, 3) if total else 0.0,
+        "external_source_accuracy": round(external_hits / external_total, 3) if external_total else None,
+        "external_source_cases": external_total,
         "tool_success_rate": round(tool_successes / tool_total, 3) if tool_total else 0.0,
         "answer_or_refusal_accuracy": round(refusal_hits / total, 3) if total else 0.0,
         "citation_validity_rate": round(valid_citation_cases / answered_cases, 3) if answered_cases else 0.0,

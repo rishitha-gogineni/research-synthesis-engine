@@ -308,5 +308,327 @@
       "search_local_corpus"
     ],
     "should_answer": false
+  },
+  {
+    "id": "live_ext_01",
+    "query": "What are the latest findings in the DeepSeek-R1 reasoning paper?",
+    "expected_route": "live",
+    "expected_tools": [
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "response_route": "live",
+    "response_tools": [
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true,
+    "expected_external_source": true,
+    "corpus_absent": true,
+    "external_reference": "DeepSeek-R1"
+  },
+  {
+    "id": "live_ext_02",
+    "query": "What does the current AlphaFold 3 research report about biomolecular interactions?",
+    "expected_route": "live",
+    "expected_tools": [
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "response_route": "live",
+    "response_tools": [
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true,
+    "expected_external_source": true,
+    "corpus_absent": true,
+    "external_reference": "AlphaFold 3"
+  },
+  {
+    "id": "live_ext_03",
+    "query": "Search Arxiv for the Mamba-2 state space model paper.",
+    "expected_route": "live",
+    "expected_tools": [
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "response_route": "live",
+    "response_tools": [
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true,
+    "expected_external_source": true,
+    "corpus_absent": true,
+    "external_reference": "Mamba-2"
+  },
+  {
+    "id": "live_ext_04",
+    "query": "Find the latest Semantic Scholar metadata for the SWE-bench Verified benchmark paper.",
+    "expected_route": "live",
+    "expected_tools": [
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "response_route": "live",
+    "response_tools": [
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true,
+    "expected_external_source": true,
+    "corpus_absent": true,
+    "external_reference": "SWE-bench Verified"
+  },
+  {
+    "id": "live_ext_05",
+    "query": "Search the web for recent test-time scaling research in language models.",
+    "expected_route": "live",
+    "expected_tools": [
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "response_route": "live",
+    "response_tools": [
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true,
+    "expected_external_source": true,
+    "corpus_absent": true,
+    "external_reference": "test-time scaling"
+  },
+  {
+    "id": "live_ext_06",
+    "query": "What are the newest multimodal RAG papers and their reported benchmarks?",
+    "expected_route": "live",
+    "expected_tools": [
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "response_route": "live",
+    "response_tools": [
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true,
+    "expected_external_source": true,
+    "corpus_absent": true,
+    "external_reference": "multimodal RAG"
+  },
+  {
+    "id": "fallback_ext_01",
+    "query": "Explain the DeepSeek-R1 reasoning approach.",
+    "expected_route": "corpus",
+    "expected_tools": [
+      "search_local_corpus"
+    ],
+    "response_route": "hybrid",
+    "response_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true,
+    "expected_external_source": true,
+    "corpus_absent": true,
+    "external_reference": "DeepSeek-R1"
+  },
+  {
+    "id": "fallback_ext_02",
+    "query": "What does AlphaFold 3 change for biomolecular structure prediction?",
+    "expected_route": "corpus",
+    "expected_tools": [
+      "search_local_corpus"
+    ],
+    "response_route": "hybrid",
+    "response_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true,
+    "expected_external_source": true,
+    "corpus_absent": true,
+    "external_reference": "AlphaFold 3"
+  },
+  {
+    "id": "fallback_ext_03",
+    "query": "How does Mamba-2 improve state space language models?",
+    "expected_route": "corpus",
+    "expected_tools": [
+      "search_local_corpus"
+    ],
+    "response_route": "hybrid",
+    "response_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true,
+    "expected_external_source": true,
+    "corpus_absent": true,
+    "external_reference": "Mamba-2"
+  },
+  {
+    "id": "fallback_ext_04",
+    "query": "What is the SWE-bench Verified benchmark?",
+    "expected_route": "corpus",
+    "expected_tools": [
+      "search_local_corpus"
+    ],
+    "response_route": "hybrid",
+    "response_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true,
+    "expected_external_source": true,
+    "corpus_absent": true,
+    "external_reference": "SWE-bench Verified"
+  },
+  {
+    "id": "fallback_ext_05",
+    "query": "What is test-time scaling in language models?",
+    "expected_route": "corpus",
+    "expected_tools": [
+      "search_local_corpus"
+    ],
+    "response_route": "hybrid",
+    "response_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true,
+    "expected_external_source": true,
+    "corpus_absent": true,
+    "external_reference": "test-time scaling"
+  },
+  {
+    "id": "fallback_ext_06",
+    "query": "How do multimodal RAG systems combine image and text evidence?",
+    "expected_route": "corpus",
+    "expected_tools": [
+      "search_local_corpus"
+    ],
+    "response_route": "hybrid",
+    "response_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true,
+    "expected_external_source": true,
+    "corpus_absent": true,
+    "external_reference": "multimodal RAG"
+  },
+  {
+    "id": "hybrid_ext_01",
+    "query": "Compare recent DeepSeek-R1 research with the indexed RAG papers.",
+    "expected_route": "hybrid",
+    "expected_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "response_route": "hybrid",
+    "response_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true,
+    "expected_external_source": true,
+    "corpus_absent": true,
+    "external_reference": "DeepSeek-R1"
+  },
+  {
+    "id": "hybrid_ext_02",
+    "query": "Compare current AlphaFold 3 research with methods in the corpus.",
+    "expected_route": "hybrid",
+    "expected_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "response_route": "hybrid",
+    "response_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true,
+    "expected_external_source": true,
+    "corpus_absent": true,
+    "external_reference": "AlphaFold 3"
+  },
+  {
+    "id": "hybrid_ext_03",
+    "query": "Compare recent Mamba-2 results with the indexed papers.",
+    "expected_route": "hybrid",
+    "expected_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "response_route": "hybrid",
+    "response_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true,
+    "expected_external_source": true,
+    "corpus_absent": true,
+    "external_reference": "Mamba-2"
+  },
+  {
+    "id": "hybrid_ext_04",
+    "query": "Compare current SWE-bench Verified findings with our papers.",
+    "expected_route": "hybrid",
+    "expected_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "response_route": "hybrid",
+    "response_tools": [
+      "search_local_corpus",
+      "search_arxiv",
+      "search_semantic_scholar",
+      "search_tavily"
+    ],
+    "should_answer": true,
+    "expected_external_source": true,
+    "corpus_absent": true,
+    "external_reference": "SWE-bench Verified"
   }
 ]

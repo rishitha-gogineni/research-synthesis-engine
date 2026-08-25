@@ -20,8 +20,10 @@ LIVE_HINTS = (
     "current",
     "today",
     "new papers",
+    "newest",
     "search the web",
     "on arxiv",
+    "search arxiv",
     "on semantic scholar",
 )
 COMPARISON_HINTS = ("compare", "comparison", "versus", " vs ", "difference between")

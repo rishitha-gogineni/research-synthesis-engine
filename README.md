@@ -211,7 +211,7 @@ python -m pytest -q
 ```
 
 
-Validate the 30-case agentic planner benchmark and optional recorded-response metrics:
+Validate the 46-case agentic planner and external-routing benchmark and optional recorded-response metrics:
 ```bash
 python scripts/evaluate_agentic.py
 ```
@@ -312,6 +312,6 @@ agent/         Query rewriting, confidence gate, synthesis, evidence outputs
 api/           FastAPI service
 ui/            Streamlit app
 shared/        Pydantic schemas
-tests/         419 tests (mocked external dependencies)
+tests/         421 tests (mocked external dependencies)
 docs/          Decision log, evaluation methodology, failure analysis
 ```
