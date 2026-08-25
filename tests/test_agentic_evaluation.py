@@ -143,3 +143,28 @@ def test_external_only_cases_are_absent_from_current_corpus_titles():
             assert case.external_reference
             needle = case.external_reference.lower()
             assert not any(needle in title for title in titles), case.external_reference
+
+
+def test_recorded_response_metrics_treat_explicit_abstention_as_refusal():
+    case = AgenticEvalCase(
+        case_id="answerable",
+        query="answerable",
+        expected_route="corpus",
+        expected_tools=("search_local_corpus",),
+        should_answer=True,
+    )
+    response = {
+        "status": "completed",
+        "route": "corpus",
+        "planned_tools": ["search_local_corpus"],
+        "tool_calls": [{"tool": "search_local_corpus", "status": "completed"}],
+        "answer": "I cannot provide a supported answer from the available evidence.",
+        "evidence": [{"title": "Paper One"}],
+        "citations": [],
+    }
+
+    metrics = evaluate_agentic_responses((case,), {"answerable": response})
+
+    assert metrics["answer_or_refusal_accuracy"] == 0.0
+    assert metrics["citation_validity_rate"] == 0.0
+    assert metrics["failures"][0]["answer_is_refusal"] is True

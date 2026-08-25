@@ -312,6 +312,6 @@ agent/         Query rewriting, confidence gate, synthesis, evidence outputs
 api/           FastAPI service
 ui/            Streamlit app
 shared/        Pydantic schemas
-tests/         421 tests (mocked external dependencies)
+tests/         422 tests (mocked external dependencies)
 docs/          Decision log, evaluation methodology, failure analysis
 ```

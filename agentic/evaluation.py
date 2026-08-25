@@ -26,6 +26,24 @@ class AgenticEvalCase(PlannerEvalCase):
     external_reference: str | None = None
 
 
+REFUSAL_MARKERS = (
+    "cannot provide",
+    "can't provide",
+    "cannot answer",
+    "can't answer",
+    "insufficient evidence",
+    "not enough evidence",
+    "unable to verify",
+    "do not have enough evidence",
+    "evidence does not support",
+)
+
+
+def looks_like_refusal(answer: str) -> bool:
+    normalized = " ".join(answer.lower().split())
+    return any(marker in normalized for marker in REFUSAL_MARKERS)
+
+
 DEFAULT_PLANNER_CASES = (
     PlannerEvalCase("What does the indexed corpus say about RAG?", "corpus", ("search_local_corpus",)),
     PlannerEvalCase("Compare current RAG papers with the indexed papers.", "hybrid", ("search_local_corpus", "search_arxiv", "search_semantic_scholar", "search_tavily")),
@@ -147,9 +165,11 @@ def evaluate_agentic_responses(
         else:
             tool_total += 1
             tool_successes += int(status_ok)
-        answer_present = bool(str(response.get("answer") or "").strip())
+        raw_answer = str(response.get("answer") or "").strip()
         decision = response.get("confidence_decision")
-        refusal_ok = (answer_present if case.should_answer else not answer_present) or (
+        answer_is_refusal = not raw_answer or looks_like_refusal(raw_answer)
+        answer_present = bool(raw_answer) and not answer_is_refusal
+        refusal_ok = (not answer_is_refusal if case.should_answer else answer_is_refusal) or (
             not case.should_answer and decision in {"insufficient_evidence", "ask_clarifying_question"}
         )
         citation_metrics = validate_grounded_response(response)
@@ -182,6 +202,7 @@ def evaluate_agentic_responses(
                     "tools_ok": tools_ok,
                     "status_ok": status_ok,
                     "refusal_or_answer_ok": refusal_ok,
+                    "answer_is_refusal": answer_is_refusal,
                     "external_source_ok": external_ok,
                     "expected_route": expected_route,
                     "expected_tools": list(expected_tools),
