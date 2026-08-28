@@ -22,6 +22,7 @@ from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator
 
 from agent.evidence_matrix import EvidenceMatrixError, build_evidence_matrix
 from agentic.api import router as agentic_router
+from multi_agent.api import router as multi_agent_router
 from agent.open_problems import OpenProblemsError, build_open_problems_report
 from agent.query_rewriter import ChatTurn, QueryRewriteResult, rewrite_query
 from agent.reading_path import ReadingPathError, build_reading_path
@@ -317,6 +318,7 @@ app.add_middleware(
 )
 
 app.include_router(agentic_router)
+app.include_router(multi_agent_router)
 
 
 SERVICE_ERRORS = (

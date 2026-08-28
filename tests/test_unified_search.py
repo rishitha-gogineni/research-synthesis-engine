@@ -67,7 +67,7 @@ def fake_paper_retriever(query, **kwargs):
 
 def fake_chunk_retriever(query, **kwargs):
     assert query
-    assert kwargs["collection_name"] == "research_paper_chunks"
+    assert kwargs["collection_name"] == "research_paper_chunks_contextual"
     assert kwargs["top_k"] == (6 if query.startswith("Compare") else 4)
     return [
         {
@@ -171,7 +171,7 @@ def test_retrieve_chunks_embeds_query_and_searches_chunk_collection():
 
     class FakeQdrant:
         def query_points(self, collection_name, query, limit, with_payload):
-            assert collection_name == "research_paper_chunks"
+            assert collection_name == "research_paper_chunks_contextual"
             assert len(query) == 1024
             assert limit == 1
             assert with_payload is True

@@ -1,0 +1,552 @@
+[
+  {
+    "query": "How does few-shot learning impact performance on Multi-Span-QA tasks?",
+    "gold_chunk_ids": [
+      "chunk-8a1d548920a23897"
+    ],
+    "paper_id": "https://openalex.org/W4402670429",
+    "title": "Chain-of-Verification Reduces Hallucination in Large Language Models",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses the expected improvements in few-shot learning for Multi-Span-QA tasks and compares performance metrics."
+  },
+  {
+    "query": "What metrics are used to evaluate different RAG approaches?",
+    "gold_chunk_ids": [
+      "chunk-2a28836b07d9690e"
+    ],
+    "paper_id": "https://openalex.org/W4404351611",
+    "title": "HybridRAG: Integrating Knowledge Graphs and Vector Retrieval Augmented Generation for Efficient Information Extraction",
+    "section": "limitations",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses various metrics for assessing RAG methodologies, including comprehensiveness and diversity."
+  },
+  {
+    "query": "How do different formats store memory information in agents?",
+    "gold_chunk_ids": [
+      "chunk-a2a112821adce7bb"
+    ],
+    "paper_id": "https://openalex.org/W4393065402",
+    "title": "A survey on large language model based autonomous agents",
+    "section": "unknown",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses various formats for storing memory, including natural language, embeddings, and databases, highlighting their strengths and examples."
+  },
+  {
+    "query": "How do different components affect RAG system performance?",
+    "gold_chunk_ids": [
+      "chunk-4ae5d62cf4290ab7"
+    ],
+    "paper_id": "https://openalex.org/W4403560390",
+    "title": "CRUD-RAG: A Comprehensive Chinese Benchmark for Retrieval-Augmented Generation of Large Language Models",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses the evaluation of various components in RAG systems and their impact on performance."
+  },
+  {
+    "query": "How does GPT-4 perform on high school competition problems?",
+    "gold_chunk_ids": [
+      "chunk-900875a45e7c59e6"
+    ],
+    "paper_id": "https://openalex.org/W4383605161",
+    "title": "A Survey on Evaluation of Large Language Models",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses GPT-4's accuracy on various problem types, particularly in high school competitions."
+  },
+  {
+    "query": "How does fine-tuning affect the performance of smaller encoders?",
+    "gold_chunk_ids": [
+      "chunk-4cc6238988e6ac15"
+    ],
+    "paper_id": "https://openalex.org/W4401042735",
+    "title": "Reducing hallucination in structured outputs via Retrieval-Augmented Generation",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses the impact of fine-tuning on the performance of a 110M parameter encoder compared to larger models."
+  },
+  {
+    "query": "What are the different types of interaction structures in multi-agent systems?",
+    "gold_chunk_ids": [
+      "chunk-d579eba8739397f4"
+    ],
+    "paper_id": "https://openalex.org/W4403203873",
+    "title": "A survey on LLM-based multi-agent systems: workflow, infrastructure, and challenges",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk describes various interaction structures and their characteristics within multi-agent systems."
+  },
+  {
+    "query": "What factors affect the translation accuracy of specific words in CommonMT?",
+    "gold_chunk_ids": [
+      "chunk-55b0b35839c92cbc"
+    ],
+    "paper_id": "https://openalex.org/W4404782209",
+    "title": "Encouraging Divergent Thinking in Large Language Models through Multi-Agent Debate",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses how certain words may be translated inconsistently with common sense and mentions the evaluation of bias in translations."
+  },
+  {
+    "query": "How does sentiment steering impact women's decision-making on reproductive health?",
+    "gold_chunk_ids": [
+      "chunk-1ee919636d913daa"
+    ],
+    "paper_id": "https://openalex.org/W4401043416",
+    "title": "Backdooring Instruction-Tuned Large Language Models with Virtual Prompt Injection",
+    "section": "experiments",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses the effects of sentiment steering on women's decision-making regarding reproductive health."
+  },
+  {
+    "query": "How does the proposed method's accuracy compare to ViT's accuracy?",
+    "gold_chunk_ids": [
+      "chunk-3bac364ade5d88ab"
+    ],
+    "paper_id": "https://openalex.org/W3209798173",
+    "title": "Facial Expression Recognition With Visual Transformers and Attentional Selective Fusion",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses the recognition accuracy of the proposed method versus ViT, including statistical significance."
+  },
+  {
+    "query": "How does TransAttUnet compare to other segmentation models?",
+    "gold_chunk_ids": [
+      "chunk-eb8dc89f90b1e984"
+    ],
+    "paper_id": "https://openalex.org/W4386561400",
+    "title": "TransAttUnet: Multi-Level Attention-Guided U-Net With Transformer for Medical Image Segmentation",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses the performance of TransAttUnet relative to various models, highlighting its superiority."
+  },
+  {
+    "query": "What capabilities does the NPC demonstrate in user interactions?",
+    "gold_chunk_ids": [
+      "chunk-71c7c4688a897928"
+    ],
+    "paper_id": "https://openalex.org/W4287891012",
+    "title": "Craft an Iron Sword: Dynamically Generating Interactive Game Characters by Prompting Large Language Models Tuned on Code",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk outlines the various capabilities of the NPC as observed in user interactions during the study."
+  },
+  {
+    "query": "How do different weights affect performance in adaptive prefix tuning?",
+    "gold_chunk_ids": [
+      "chunk-dac33fbb0038b353"
+    ],
+    "paper_id": "https://openalex.org/W4385570973",
+    "title": "Towards Adaptive Prefix Tuning for Parameter-Efficient Language Model Fine-tuning",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses the effects of various weights on performance, highlighting their importance."
+  },
+  {
+    "query": "What are the key principles influencing LLM agents in social networks?",
+    "gold_chunk_ids": [
+      "chunk-905d6bd74a83e71a"
+    ],
+    "paper_id": "https://openalex.org/W4402901320",
+    "title": "Large language models empowered agent-based modeling and simulation: a survey and perspectives",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses how LLM agents form social networks and the principles affecting their dynamics."
+  },
+  {
+    "query": "How does Hybrid GNN perform against Rencos in summarization metrics?",
+    "gold_chunk_ids": [
+      "chunk-266b1b091812c928"
+    ],
+    "paper_id": "https://openalex.org/W3123811550",
+    "title": "Retrieval-Augmented Generation for Code Summarization via Hybrid GNN",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses the performance of Hybrid GNN compared to Rencos and provides specific metric outcomes."
+  },
+  {
+    "query": "What limitations affect the study's findings on research question assessments?",
+    "gold_chunk_ids": [
+      "chunk-e213a4242f4a723b"
+    ],
+    "paper_id": "https://openalex.org/W4324129637",
+    "title": "Evaluating the use of large language model in identifying top research questions in gastroenterology",
+    "section": "limitations",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses the limitations of the expert panel size and composition, affecting the representativeness of findings."
+  },
+  {
+    "query": "How does RAG-end2end improve domain adaptation in retrieval models?",
+    "gold_chunk_ids": [
+      "chunk-427d13aea32a86da"
+    ],
+    "paper_id": "https://openalex.org/W4317898419",
+    "title": "Improving the Domain Adaptation of Retrieval Augmented Generation (RAG) Models for Open Domain Question Answering",
+    "section": "limitations",
+    "difficulty": "medium",
+    "reasoning": "The chunk explains the benefits of RAG-end2end training for domain adaptation in retrieval models, particularly its efficiency compared to training DPR separately."
+  },
+  {
+    "query": "How does DA-TransUNet improve feature representation in medical image segmentation?",
+    "gold_chunk_ids": [
+      "chunk-d28c170abd4ff78d"
+    ],
+    "paper_id": "https://openalex.org/W4396973073",
+    "title": "DA-TransUNet: integrating spatial and channel dual attention with transformer U-net for medical image segmentation",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses the architecture and processes of DA-TransUNet, highlighting its efficiency and feature representation capabilities."
+  },
+  {
+    "query": "How should story fragments be evaluated for quality and relevance?",
+    "gold_chunk_ids": [
+      "chunk-a182ca323eab0f69"
+    ],
+    "paper_id": "https://openalex.org/W4385571232",
+    "title": "Can Large Language Models Be an Alternative to Human Evaluations?",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk outlines the evaluation criteria for story fragments, including fit, likability, and relevance based on a prompt."
+  },
+  {
+    "query": "What are some recent studies on attributed question answering?",
+    "gold_chunk_ids": [
+      "chunk-02f951d7f88dc254"
+    ],
+    "paper_id": "https://openalex.org/W4412889782",
+    "title": "Medical Graph RAG: Evidence-based Medical Large Language Model via Graph Retrieval-Augmented Generation",
+    "section": "experiments",
+    "difficulty": "medium",
+    "reasoning": "The chunk lists recent research papers related to attributed question answering and their authors."
+  },
+  {
+    "query": "What are effective prompting strategies for improving LLM performance in medical tasks?",
+    "gold_chunk_ids": [
+      "chunk-659596e6c35d22d6"
+    ],
+    "paper_id": "https://openalex.org/W4391640544",
+    "title": "Comparison of Prompt Engineering and Fine-Tuning Strategies in Large Language Models in the Classification of Clinical Notes",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses various prompting techniques and their impact on model performance in clinical scenarios."
+  },
+  {
+    "query": "How does informing a protagonist affect belief in a transfer task?",
+    "gold_chunk_ids": [
+      "chunk-f539d2be66106822"
+    ],
+    "paper_id": "https://openalex.org/W4319452268",
+    "title": "Evaluating Large Language Models in Theory of Mind Tasks",
+    "section": "unknown",
+    "difficulty": "medium",
+    "reasoning": "This chunk discusses how the belief of a protagonist changes when informed about the transfer of a cat in a scenario."
+  },
+  {
+    "query": "What techniques were evaluated for predicting pedestrian behavior in the study?",
+    "gold_chunk_ids": [
+      "chunk-0ec4af2d1bac6846"
+    ],
+    "paper_id": "https://openalex.org/W4404852772",
+    "title": "RAG-based explainable prediction of road users behaviors for automated driving using knowledge graphs and large language models",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses various models and methods used to predict pedestrian behavior, including Decision Trees and Fuzzy Logic."
+  },
+  {
+    "query": "How does GPT-4's performance compare to supervised models on BEIR?",
+    "gold_chunk_ids": [
+      "chunk-cac0a7a654eb24bb"
+    ],
+    "paper_id": "https://openalex.org/W4389523765",
+    "title": "Is ChatGPT Good at Search? Investigating Large Language Models as Re-Ranking Agents",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses GPT-4's performance improvements over monoT5 and its results against supervised baselines on the BEIR dataset."
+  },
+  {
+    "query": "How do AI agents' political beliefs influence their views on price hikes?",
+    "gold_chunk_ids": [
+      "chunk-b24a00dcc07a27d0"
+    ],
+    "paper_id": "https://openalex.org/W4363624465",
+    "title": "Large Language Models as Simulated Economic Agents: What Can We Learn from Homo Silicus?",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk explains how different political orientations of AI agents affect their perceptions of price increases, highlighting their moral judgments."
+  },
+  {
+    "query": "What types of questions can be categorized in social media interactions?",
+    "gold_chunk_ids": [
+      "chunk-8df60f35af61fb7e"
+    ],
+    "paper_id": "https://openalex.org/W3194309076",
+    "title": "Adapting Language Models for Zero-shot Learning by Meta-tuning on Dataset and Prompt Collections",
+    "section": "unknown",
+    "difficulty": "medium",
+    "reasoning": "The chunk provides examples of different question types, including factual, opinion, and socializing."
+  },
+  {
+    "query": "How does BitFit relate to HuggingFace parameter naming conventions?",
+    "gold_chunk_ids": [
+      "chunk-860abf7ff81d0ee1"
+    ],
+    "paper_id": "https://openalex.org/W3176828726",
+    "title": "BitFit: Simple Parameter-efficient Fine-tuning for Transformer-based Masked Language-models",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk explains the mapping of BitFit notation to HuggingFace parameter names."
+  },
+  {
+    "query": "How does the model handle the sequence of actions with the knife?",
+    "gold_chunk_ids": [
+      "chunk-3ba482596c0f633f"
+    ],
+    "paper_id": "https://openalex.org/W4304195432",
+    "title": "Distributing Accountability, Not Capability: Phase Separation and the LLM Workflow Quadrant in Autonomous AI Agent Architectures",
+    "section": "unknown",
+    "difficulty": "medium",
+    "reasoning": "The chunk describes the actions taken by the model regarding finding, cleaning, and placing the knife, highlighting its inability to recover from a mistake."
+  },
+  {
+    "query": "How does CoVe evaluate long-form text generation performance?",
+    "gold_chunk_ids": [
+      "chunk-8d9f0da9a7231808"
+    ],
+    "paper_id": "https://openalex.org/W4402670429",
+    "title": "Chain-of-Verification Reduces Hallucination in Large Language Models",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses the evaluation of CoVe's performance on generating biographies using a specific benchmark and metric."
+  },
+  {
+    "query": "What are some recent advancements in language model training techniques?",
+    "gold_chunk_ids": [
+      "chunk-90acbdfb4ace852f"
+    ],
+    "paper_id": "https://openalex.org/W4362508448",
+    "title": "CAMEL: Communicative Agents for \"Mind\" Exploration of Large Language Model Society",
+    "section": "methodology",
+    "difficulty": "medium",
+    "reasoning": "The chunk lists various papers and contributions related to advancements in language models and their applications."
+  },
+  {
+    "query": "What are some notable works on vision transformers and their applications?",
+    "gold_chunk_ids": [
+      "chunk-494030b0004e5d82"
+    ],
+    "paper_id": "https://openalex.org/W3176153963",
+    "title": "Focal Self-attention for Local-Global Interactions in Vision Transformers",
+    "section": "unknown",
+    "difficulty": "medium",
+    "reasoning": "The chunk lists various research papers related to vision transformers and their applications in tasks like segmentation and tracking."
+  },
+  {
+    "query": "What are some recent studies on large language models and their applications?",
+    "gold_chunk_ids": [
+      "chunk-35a113228f1f987c"
+    ],
+    "paper_id": "https://openalex.org/W4386794445",
+    "title": "The Rise and Potential of Large Language Model Based Agents: A Survey",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk provides references to various studies and papers related to large language models and their applications."
+  },
+  {
+    "query": "How should participants evaluate messages from CAMEL and ChatGPT?",
+    "gold_chunk_ids": [
+      "chunk-f7012e04c63fa551"
+    ],
+    "paper_id": "https://openalex.org/W4362508448",
+    "title": "CAMEL: Communicative Agents for \"Mind\" Exploration of Large Language Model Society",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk outlines the evaluation process for comparing messages generated by CAMEL and ChatGPT, including voting criteria and anonymity."
+  },
+  {
+    "query": "How do AI agents respond to price gouging based on political views?",
+    "gold_chunk_ids": [
+      "chunk-255c630a98fb6641"
+    ],
+    "paper_id": "https://openalex.org/W4363624465",
+    "title": "Large Language Models as Simulated Economic Agents: What Can We Learn from Homo Silicus?",
+    "section": "experiments",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses the responsiveness of AI agents to price changes influenced by their political endowments, detailing the experimental setup and results."
+  },
+  {
+    "query": "How does APrompt compare to other tuning methods in accuracy?",
+    "gold_chunk_ids": [
+      "chunk-8167b604d328d847"
+    ],
+    "paper_id": "https://openalex.org/W4389520746",
+    "title": "APrompt: Attention Prompt Tuning for Efficient Adaptation of Pre-trained Language Models",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses the accuracy of APrompt relative to other tuning methods, highlighting its superior performance."
+  },
+  {
+    "query": "How are spatial patches embedded for video processing in Transformers?",
+    "gold_chunk_ids": [
+      "chunk-711f38da59155288"
+    ],
+    "paper_id": "https://openalex.org/W3126721948",
+    "title": "Is Space-Time Attention All You Need for Video Understanding?",
+    "section": "unknown",
+    "difficulty": "medium",
+    "reasoning": "The chunk explains the linear embedding of spatial patches and their representation in the Transformer model for video understanding."
+  },
+  {
+    "query": "How does APROMPT's performance compare to other parameter efficient methods?",
+    "gold_chunk_ids": [
+      "chunk-99190d7aca5882e2"
+    ],
+    "paper_id": "https://openalex.org/W4389520746",
+    "title": "APrompt: Attention Prompt Tuning for Efficient Adaptation of Pre-trained Language Models",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses the performance of APROMPT relative to various non-prompt tuning methods, highlighting its superior results."
+  },
+  {
+    "query": "What are some key references for methodologies in language model analysis?",
+    "gold_chunk_ids": [
+      "chunk-1027768e1ecdb110"
+    ],
+    "paper_id": "https://openalex.org/W3166143997",
+    "title": "Why Do Pretrained Language Models Help in Downstream Tasks? An Analysis of Head and Prompt Tuning",
+    "section": "methodology",
+    "difficulty": "medium",
+    "reasoning": "The chunk lists several important references related to methodologies in analyzing language models."
+  },
+  {
+    "query": "What are some notable papers on data augmentation and knowledge distillation?",
+    "gold_chunk_ids": [
+      "chunk-ea5917a73c1072f8"
+    ],
+    "paper_id": "https://openalex.org/W3116489684",
+    "title": "Training data-efficient image transformers & distillation through attention",
+    "section": "methodology",
+    "difficulty": "medium",
+    "reasoning": "The chunk provides references to various research papers related to self-training, knowledge distillation, and data augmentation techniques."
+  },
+  {
+    "query": "What are some benchmarks for evaluating retrieval-augmented generation models?",
+    "gold_chunk_ids": [
+      "chunk-dc17d642baac9039"
+    ],
+    "paper_id": "https://openalex.org/W4389984066",
+    "title": "Retrieval-Augmented Generation for Large Language Models: A Survey",
+    "section": "experiments",
+    "difficulty": "medium",
+    "reasoning": "The chunk lists various benchmarks and their authors related to retrieval-augmented generation in large language models."
+  },
+  {
+    "query": "How does quantization bit width affect model accuracy in QA-LoRA?",
+    "gold_chunk_ids": [
+      "chunk-9ea2b8a5bd87bdb1"
+    ],
+    "paper_id": "https://openalex.org/W4387156572",
+    "title": "QA-LoRA: Quantization-Aware Low-Rank Adaptation of Large Language Models",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses the relationship between quantization bit width and accuracy, particularly the need for more data at lower bit widths."
+  },
+  {
+    "query": "What are the contributions of each author in the research paper?",
+    "gold_chunk_ids": [
+      "chunk-51ebb3c51361070d"
+    ],
+    "paper_id": "https://openalex.org/W4403203873",
+    "title": "A survey on LLM-based multi-agent systems: workflow, infrastructure, and challenges",
+    "section": "results",
+    "difficulty": "easy",
+    "reasoning": "The chunk details the specific contributions of each author involved in the study."
+  },
+  {
+    "query": "How can NPCs maintain context in long conversations with players?",
+    "gold_chunk_ids": [
+      "chunk-66ab47f6239c5b6f"
+    ],
+    "paper_id": "https://openalex.org/W4287891012",
+    "title": "Craft an Iron Sword: Dynamically Generating Interactive Game Characters by Prompting Large Language Models Tuned on Code",
+    "section": "methodology",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses challenges with maintaining conversational context for NPCs and suggests solutions like pruning irrelevant parts and multi-stage prompting."
+  },
+  {
+    "query": "What performance metrics are used for medical image segmentation evaluation?",
+    "gold_chunk_ids": [
+      "chunk-06aa8d2ff8290325"
+    ],
+    "paper_id": "https://openalex.org/W4396973073",
+    "title": "DA-TransUNet: integrating spatial and channel dual attention with transformer U-net for medical image segmentation",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses various metrics like Sørensen-Dice coefficient and Hausdorff Distance for evaluating image segmentation models."
+  },
+  {
+    "query": "What are imitative falsehoods and why are they important in language models?",
+    "gold_chunk_ids": [
+      "chunk-5e69cb2b0d47811c"
+    ],
+    "paper_id": "https://openalex.org/W3201174429",
+    "title": "TruthfulQA: Measuring How Models Mimic Human Falsehoods",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses imitative falsehoods and their implications for language models and benchmarks."
+  },
+  {
+    "query": "How has OpenQA evolved to improve question answering capabilities?",
+    "gold_chunk_ids": [
+      "chunk-ee566d3001445fb9"
+    ],
+    "paper_id": "https://openalex.org/W3088056511",
+    "title": "PRAG: Paninian Retrieval-Augmented Generation for Safety-Critical Medical Question Answering",
+    "section": "experiments",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses the development of OpenQA and advances in models for better question answering."
+  },
+  {
+    "query": "What are some applications of language models in interactive environments?",
+    "gold_chunk_ids": [
+      "chunk-132642015579bc03"
+    ],
+    "paper_id": "https://openalex.org/W4386794445",
+    "title": "The Rise and Potential of Large Language Model Based Agents: A Survey",
+    "section": "introduction",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses how language models can be utilized in fantasy worlds and interactive text games."
+  },
+  {
+    "query": "What training approach improves model performance in retrieval-augmented generation?",
+    "gold_chunk_ids": [
+      "chunk-7d298eaaa7b79425"
+    ],
+    "paper_id": "https://openalex.org/W4404782883",
+    "title": "Searching for Best Practices in Retrieval-Augmented Generation",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses the effectiveness of mixing relevant and random documents during training."
+  },
+  {
+    "query": "How do researchers measure consistency in LLM responses to detect hallucinations?",
+    "gold_chunk_ids": [
+      "chunk-75732049771e1e8d"
+    ],
+    "paper_id": "https://openalex.org/W4386501849",
+    "title": "Siren's Song in the AI Ocean: A Survey on Hallucination in Large Language Models",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses methods for measuring consistency in LLM responses to identify hallucinations."
+  },
+  {
+    "query": "How do retrieval-augmented strategies impact language model performance?",
+    "gold_chunk_ids": [
+      "chunk-54b6094d7e6deadb"
+    ],
+    "paper_id": "https://openalex.org/W4387156782",
+    "title": "Design and Evaluation of a Retrieval-Augmented Generation Architecture for OWASP Security Data",
+    "section": "results",
+    "difficulty": "medium",
+    "reasoning": "The chunk discusses the effects of retrieval-augmented strategies on performance and evaluation challenges."
+  }
+]

@@ -1,5 +1,12 @@
 """Shared state types for the RSE multi-agent workflow."""
-from typing import Any, Literal, NotRequired, TypedDict
+import sys
+
+from typing import Any, Literal, TypedDict
+
+if sys.version_info >= (3, 11):
+    from typing import NotRequired
+else:
+    from typing_extensions import NotRequired
 
 AgentRoute = Literal["corpus", "live", "hybrid"]
 AgentStatus = Literal["ready", "blocked", "completed", "pending_external_tools"]

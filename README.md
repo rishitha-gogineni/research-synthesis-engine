@@ -1,25 +1,53 @@
-# Research Synthesis Engine
+# Multi-Agent Research System
 
-Research Synthesis Engine is a grounded research assistant for asking questions across a curated corpus of 250 AI research papers. It combines paper-level metadata search, full-text passage retrieval, hybrid dense and BM25 search, intent-aware routing, confidence checks, and citation-aware synthesis.
+A multi-agent research system built on an orchestrator-worker pattern, inspired by [Anthropic's multi-agent research architecture](https://www.anthropic.com/engineering/multi-agent-research-system). A lead agent decomposes research queries into subtasks and delegates to specialized subagents that search in parallel, then synthesizes findings into cited reports scored by an LLM-as-judge.
 
-[Live Streamlit app](https://research-synthesis-engine-mhupghrfkhudtzy4uvqzq6.streamlit.app/) | [Live API](https://research-synthesis-engine-api.onrender.com)
+Built on top of a grounded RAG assistant with 250 AI research papers, hybrid dense+BM25 retrieval, contextual embeddings, and confidence-gated synthesis.
 
-The live services run on Render, Streamlit Community Cloud, and Qdrant Cloud. Free-tier services may take up to 60 seconds to wake after inactivity.
+## Architecture
 
-## Why this project
+```
+User Query
+    ↓
+LeadResearcher (GPT-4o)
+├── Plans approach + classifies complexity
+├── Decomposes into subtasks
+├── Spawns parallel subagents:
+│   ├── LocalCorpusAgent (Qdrant hybrid search)
+│   ├── ArxivAgent (arXiv API)
+│   ├── SemanticScholarAgent (S2 API)
+│   └── WebAgent (Tavily)
+│   └── Each: search → evaluate → refine → complete
+│   └── Writes findings to shared storage
+├── Synthesizes findings
+├── "More research needed?" → loop or exit
+    ↓
+CitationAgent (source attribution)
+    ↓
+LLM-as-Judge (5 quality dimensions)
+    ↓
+Final cited report → User
+```
 
-Research questions often require more than semantic similarity. A useful system must find the right paper or passage, preserve enough context, identify when the corpus is insufficient, and show where the answer came from. This project treats retrieval quality, refusal behavior, and evidence attribution as first-class engineering concerns.
+## Key design patterns
+
+- **Orchestrator-worker**: Lead agent plans and delegates; subagents execute independently
+- **Effort scaling**: Simple queries get 1 agent; complex queries get 3-5 parallel subagents
+- **Contextual embeddings**: Document-level context prepended to each chunk before embedding
+- **Findings store**: Subagents write to shared storage, avoiding the "game of telephone" effect
+- **Iterative research loop**: Lead can spawn follow-up subagents when gaps are identified
+- **LLM-as-judge**: Automated scoring on factual accuracy, citation accuracy, completeness, source quality, and tool efficiency
 
 ## Core capabilities
 
-- Routes questions to paper-level, full-text, hybrid, or metadata retrieval.
-- Combines OpenAI dense embeddings with BM25 keyword search.
-- Retrieves section-aware passages with paper, section, and page metadata.
-- Applies route-aware promotion and optional cross-encoder reranking.
-- Uses a confidence gate to decline unsupported questions instead of guessing.
-- Generates grounded research briefs, evidence matrices, reading paths, and open-problem summaries.
-- Provides an optional agentic route with Arxiv, Semantic Scholar, Tavily, and MCP-backed research tools.
-- Records request IDs, tool calls, evidence, citations, confidence decisions, latency, and token usage.
+- Multi-agent parallel research with orchestrator-worker pattern
+- Contextual retrieval with hybrid dense+BM25 search
+- Routes questions to paper-level, full-text, hybrid, or metadata retrieval
+- Confidence gate declines unsupported questions instead of hallucinating
+- Generates grounded research briefs with proper citations
+- External tool integration: arXiv, Semantic Scholar, Tavily, MCP servers
+- LLM-as-judge evaluation across 5 quality dimensions
+- Full observability with structured tracing
 
 ## Example questions
 
@@ -38,16 +66,18 @@ The canonical benchmark contains 100 queries:
 - 5 out-of-corpus confidence checks
 - factual, methodology, results, comparison, metadata, reading-path, and refusal cases
 
-Retrieval results with the fixed production configuration:
+Retrieval results with contextual embeddings (default collection):
 
-| Metric | Result |
-| --- | ---: |
-| Route accuracy | 1.00 |
-| Keyword Hit@10 | 0.967 |
-| Relevant-ID Hit@10 | 0.705 |
-| Recall@10 | 0.573 |
-| MRR | 0.459 |
-| Confidence decision accuracy | 1.00 |
+| Metric | Original | Contextual | Delta |
+| --- | ---: | ---: | ---: |
+| Hit@10 (85-query benchmark) | 0.376 | 0.459 | +22% |
+| MRR (85-query benchmark) | 0.137 | 0.166 | +21% |
+| Hit@10 (50-query independent) | 0.640 | 0.700 | +9.4% |
+| MRR (50-query independent) | 0.395 | 0.386 | -2.3% |
+| Route accuracy | | 1.00 | |
+| Confidence decision accuracy | | 1.00 | |
+
+The independent eval set was generated by sampling chunks and using GPT-4o-mini to create natural queries without copying chunk phrasing, preventing generation bias from inflating the numbers.
 
 The optional 46-case agentic benchmark measures planning, route selection, tool plans, external-source coverage, answer or refusal behavior, and citation support. The latest recorded run reported 1.00 route and tool-plan accuracy, 1.00 external-source coverage across 15 cases, 0.978 answer or refusal accuracy, 0.872 citation validity, and 1.00 citation coverage. Provider failures are surfaced as warnings and are not hidden from the metrics.
 
@@ -106,9 +136,9 @@ flowchart LR
 
 - 250 paper records are indexed for metadata and abstract retrieval.
 - 152 papers have extracted full text.
-- 4,909 full-text passages are indexed with section and page metadata.
+- 4,909 full-text passages are indexed with section and page metadata using contextual embeddings (document-level context prepended before embedding).
 - Paper and passage retrieval use OpenAI text-embedding-3-large embeddings reduced to 1,024 dimensions and BM25.
-- Retrieval candidates are fused, promoted using query intent and citation signals, and optionally reranked.
+- Retrieval candidates are fused, promoted using query intent and citation signals, and optionally reranked with a cross-encoder (ms-marco-MiniLM-L-6-v2).
 - The canonical vector store is Qdrant. BM25 indexes are local artifacts under data/.
 
 ## Technology
@@ -116,12 +146,13 @@ flowchart LR
 | Area | Tools |
 | --- | --- |
 | Backend | Python, FastAPI, Pydantic |
-| Retrieval | Qdrant, BM25, OpenAI embeddings, optional cross-encoder |
-| Synthesis | OpenAI GPT-4o-mini, confidence gate, query rewriting |
+| Retrieval | Qdrant, BM25, OpenAI embeddings, contextual embeddings, optional cross-encoder |
+| Multi-Agent | LangGraph, GPT-4o orchestrator, GPT-4o-mini subagents, parallel execution |
+| Synthesis | OpenAI GPT-4o, confidence gate, query rewriting, LLM-as-judge |
 | External research | Arxiv, Semantic Scholar, Tavily, MCP tools |
-| Data pipeline | OpenAlex, PyMuPDF, section-aware chunking |
+| Data pipeline | OpenAlex, PyMuPDF, section-aware chunking, contextual embeddings |
 | Frontend | Streamlit |
-| Deployment | Render, Streamlit Community Cloud, Qdrant Cloud |
+| Deployment | Docker Compose, Qdrant |
 | Testing | Pytest with mocked external dependencies |
 
 ## Local setup
@@ -141,7 +172,7 @@ Set the required values in .env:
 OPENAI_API_KEY=
 QDRANT_URL=http://localhost:6333
 QDRANT_API_KEY=
-RSE_APPLY_RERANKING=false
+RSE_APPLY_RERANKING=true
 TAVILY_API_KEY=
 SEMANTIC_SCHOLAR_API_KEY=
 ~~~
@@ -166,6 +197,44 @@ Run the canonical retrieval benchmark:
 python -m retrieval.evaluate \
   --queries tests/fixtures/eval_queries_100_chunk_grounded.json \
   --qdrant-url http://localhost:6333
+~~~
+
+## Multi-agent research
+
+Run the multi-agent research pipeline:
+
+~~~bash
+# Preview plan only (no API calls to subagents)
+curl -X POST http://localhost:8000/multi-agent/plan \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Compare dense vs sparse retrieval methods"}'
+
+# Full pipeline (plan → subagents → synthesize → cite → judge)
+curl -X POST http://localhost:8000/multi-agent/research \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Compare dense vs sparse retrieval methods"}'
+
+# Streamlit multi-agent UI
+streamlit run ui/multi_agent_app.py
+~~~
+
+Run the contextual embeddings pipeline:
+
+~~~bash
+# Generate contextual embeddings
+python -m multi_agent.contextual_embeddings
+
+# Index into Qdrant
+python -m multi_agent.index_contextual
+
+# Compare original vs contextual retrieval
+python -m multi_agent.compare_retrieval --limit 20
+~~~
+
+Run the multi-agent benchmark (single-agent vs multi-agent comparison):
+
+~~~bash
+python -m multi_agent.benchmark --limit 5
 ~~~
 
 Validate agentic planning and recorded responses:

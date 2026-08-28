@@ -41,7 +41,7 @@ def test_chunk_search_forwards_query_filter():
 
     client = FakeQdrant()
     filters = RetrievalFilters.from_values(topics=["RAG"])
-    search_chunks(client, "research_paper_chunks", [0.1], top_k=2, retrieval_filters=filters)
+    search_chunks(client, "research_paper_chunks_contextual", [0.1], top_k=2, retrieval_filters=filters)
 
     assert "query_filter" in client.kwargs
 

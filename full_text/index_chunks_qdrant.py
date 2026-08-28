@@ -13,7 +13,7 @@ from retrieval.index_qdrant import DEFAULT_QDRANT_URL, VECTOR_SIZE, ensure_colle
 
 
 DEFAULT_INPUT = Path("data/embedded_full_text_chunks.json")
-DEFAULT_COLLECTION = "research_paper_chunks"
+DEFAULT_COLLECTION = "research_paper_chunks_contextual"
 
 
 def load_embedded_chunks(path: Path) -> list[dict[str, Any]]:
