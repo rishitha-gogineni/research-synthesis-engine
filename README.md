@@ -1,6 +1,6 @@
 # Multi-Agent Research System
 
-A multi-agent research system built on an orchestrator-worker pattern, inspired by [Anthropic's multi-agent research architecture](https://www.anthropic.com/engineering/multi-agent-research-system). A lead agent decomposes research queries into subtasks and delegates to specialized subagents that search in parallel, then synthesizes findings into cited reports scored by an LLM-as-judge.
+A multi-agent research system built on an orchestrator-worker pattern. A lead agent decomposes research queries into subtasks and delegates to specialized subagents that search in parallel, then synthesizes findings into cited reports scored by an LLM-as-judge.
 
 Built on top of a grounded RAG assistant with 250 AI research papers, hybrid dense+BM25 retrieval, contextual embeddings, and confidence-gated synthesis.
 
