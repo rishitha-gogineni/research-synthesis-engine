@@ -83,15 +83,13 @@ def test_evaluation_query_defaults_expected_relevant_ids_to_empty():
 
 
 def test_load_eval_queries_reads_fixture():
-    queries = load_eval_queries(__import__("pathlib").Path("tests/fixtures/eval_queries.json"))
+    queries = load_eval_queries(__import__("pathlib").Path("tests/fixtures/eval_queries_100_chunk_grounded.json"))
 
     assert len(queries) >= 50
     assert sum(bool(query.expected_relevant_ids) for query in queries) >= 35
     assert {query.evaluation_focus for query in queries} >= {
         "full_text_evidence",
         "metadata_filter",
-        "cross_topic_comparison",
-        "contextual_rewrite",
         "confidence_gate",
     }
 

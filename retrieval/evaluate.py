@@ -24,7 +24,7 @@ from retrieval.unified_search import (
 from shared.schemas import ConfidenceAssessment, EvaluationQuery, UnifiedSearchResponse
 
 
-DEFAULT_EVAL_QUERIES = Path("tests/fixtures/eval_queries.json")
+DEFAULT_EVAL_QUERIES = Path("tests/fixtures/eval_queries_100_chunk_grounded.json")
 DEFAULT_PAPER_ID_ALIASES = Path("data/paper_id_aliases.json")
 DEFAULT_TOP_KS = (5, 10)
 DEFAULT_MERGE_RRF_K = 60

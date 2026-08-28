@@ -546,7 +546,7 @@ def render_diagnostics(payload: dict):
             st.write(f"- {note}")
     st.subheader("System Quality")
     dataframe(evaluation_metric_rows())
-    st.caption("Latest local evaluation run on tests/fixtures/eval_queries.json. Exact-ID recall is computed only on labeled queries.")
+    st.caption("Latest local evaluation run on tests/fixtures/eval_queries_100_chunk_grounded.json. Exact-ID recall is computed only on labeled queries.")
     st.subheader("Route")
     st.json(route, expanded=False)
     st.subheader("Confidence")
