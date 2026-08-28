@@ -83,6 +83,17 @@ The optional 46-case agentic benchmark measures planning, route selection, tool 
 
 The repository includes 422 automated tests with external services mocked for deterministic regression testing.
 
+Multi-agent pipeline quality (LLM-as-judge, 5 complex queries):
+
+| Metric | Result |
+| --- | ---: |
+| Avg quality score (0-1) | 0.812 |
+| Avg agents per query | 3.0 |
+| Avg findings per query | 31.4 |
+| Avg latency | 40.2s |
+
+Judge dimensions: factual accuracy, citation accuracy, completeness, source quality, tool efficiency.
+
 ## Architecture
 
 ~~~mermaid
