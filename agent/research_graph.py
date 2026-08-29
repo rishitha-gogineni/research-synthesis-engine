@@ -2,7 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Callable, NotRequired, TypedDict
+import sys
+from typing import Callable, TypedDict
+
+if sys.version_info >= (3, 11):
+    from typing import NotRequired
+else:
+    from typing_extensions import NotRequired
 
 from agent.query_rewriter import ChatTurn, QueryRewriteResult, rewrite_query
 from agent.synthesis import build_research_brief
@@ -124,7 +130,10 @@ def reflection_rewrite_node(
 
 
 def default_searcher(query: str) -> UnifiedSearchResponse:
-    return run_unified_search(query, top_k=8)
+    import os
+    # Allow override for environments where the contextual collection isn't indexed
+    chunk_collection = os.getenv("RSE_CHUNK_COLLECTION", "research_paper_chunks")
+    return run_unified_search(query, top_k=8, chunk_collection=chunk_collection)
 
 
 def default_synthesizer(response: UnifiedSearchResponse, confidence: ConfidenceAssessment) -> ResearchBrief:

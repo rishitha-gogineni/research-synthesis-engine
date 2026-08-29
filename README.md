@@ -83,16 +83,16 @@ The optional 46-case agentic benchmark measures planning, route selection, tool 
 
 The repository includes 422 automated tests with external services mocked for deterministic regression testing.
 
-Multi-agent pipeline quality (LLM-as-judge, 5 complex queries):
+Multi-agent vs single-agent comparison (LLM-as-judge, 5 complex queries):
 
-| Metric | Result |
-| --- | ---: |
-| Avg quality score (0-1) | 0.812 |
-| Avg agents per query | 3.0 |
-| Avg findings per query | 31.4 |
-| Avg latency | 40.2s |
+| Metric | Single-agent | Multi-agent | Delta |
+| --- | ---: | ---: | ---: |
+| Avg quality score (0-1) | 0.372 | 0.840 | +126% |
+| Avg latency | 12.3s | 41.1s | 3.3x |
+| Avg agents per query | 1 | 3.0 | |
+| Avg findings per query | ~5 | 29.4 | 5.9x |
 
-Judge dimensions: factual accuracy, citation accuracy, completeness, source quality, tool efficiency.
+Multi-agent trades latency for quality: parallel subagents (LocalCorpus, Arxiv, SemanticScholar, Web) cover more ground per query, and the citation + judge passes catch hallucinations the single-agent pipeline misses. Judge dimensions: factual accuracy, citation accuracy, completeness, source quality, tool efficiency.
 
 ## Architecture
 

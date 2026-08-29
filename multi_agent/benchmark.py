@@ -72,14 +72,6 @@ class BenchmarkResult:
 def run_single_agent(query: str, client: OpenAI) -> dict[str, Any]:
     """Run existing single-agent pipeline for comparison."""
     try:
-        import sys
-        if sys.version_info < (3, 11):
-            return {
-                "synthesis": "",
-                "elapsed": 0.0,
-                "error": "single-agent graph requires Python 3.11+ (NotRequired)",
-            }
-
         from agent.research_graph import run_research_agent
 
         start = time.time()
