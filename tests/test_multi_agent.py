@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 from typing import Any
 
@@ -151,11 +152,16 @@ class TestLeadAgent:
         mock_client.chat.completions.create.return_value = mock_response
 
         tracer = Tracer()
-        plan = create_plan("What is RAG?", tracer, client=mock_client)
+        stub_response = SimpleNamespace(paper_results=[], chunk_results=[])
+        plan = create_plan(
+            "What is RAG?", tracer, client=mock_client,
+            corpus_searcher=lambda q, k: stub_response,
+        )
 
         assert "subtasks" in plan
         assert len(plan["subtasks"]) == 1
         assert plan["subtasks"][0]["source"] == "local_corpus"
+        assert plan["corpus_precheck"]["state"] == "no_match"
 
 
 class TestEndToEnd:
@@ -242,3 +248,9 @@ class TestEndToEnd:
         assert result["cited_report"]["references"][0]["title"] == "RAG Paper"
         assert result["judge_scores"]["overall"] == 0.83
         assert result["judge_scores"]["pass"] is True
+
+        # Routing/attribution fields used by the eval harness
+        assert result["plan"]["subtasks"][0]["source"] == "arxiv"
+        agents = result["store_summary"]["agents"]
+        assert agents[0]["agent_type"] == "arxiv"
+        assert agents[0]["findings"][0]["source"] == "arxiv"

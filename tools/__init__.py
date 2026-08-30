@@ -1,2 +1,2 @@
-"""MCP tool wrappers package."""
+"""Tool wrappers package."""
 

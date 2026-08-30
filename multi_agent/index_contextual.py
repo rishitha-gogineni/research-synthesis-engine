@@ -56,10 +56,13 @@ def create_collection_if_needed(
 def index_embeddings(
     input_path: Path = DEFAULT_INPUT,
     collection_name: str = DEFAULT_COLLECTION,
-    qdrant_url: str = DEFAULT_QDRANT_URL,
+    qdrant_url: str | None = None,
+    qdrant_api_key: str | None = None,
     batch_size: int = BATCH_SIZE,
 ) -> int:
     """Index contextual embeddings into Qdrant."""
+    import os
+
     if not input_path.exists():
         raise FileNotFoundError(
             f"Embeddings file not found: {input_path}. "
@@ -72,7 +75,9 @@ def index_embeddings(
         return 0
 
     dimensions = len(records[0]["embedding"])
-    client = QdrantClient(url=qdrant_url)
+    url = qdrant_url or os.getenv("QDRANT_URL", DEFAULT_QDRANT_URL)
+    api_key = qdrant_api_key or os.getenv("QDRANT_API_KEY")
+    client = QdrantClient(url=url, api_key=api_key, check_compatibility=False)
     create_collection_if_needed(client, collection_name, dimensions)
 
     indexed = 0
@@ -114,7 +119,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=DEFAULT_INPUT)
     parser.add_argument("--collection", default=DEFAULT_COLLECTION)
-    parser.add_argument("--qdrant-url", default=DEFAULT_QDRANT_URL)
+    parser.add_argument("--qdrant-url", default=None)
+    parser.add_argument("--qdrant-api-key", default=None)
     parser.add_argument("--batch-size", type=int, default=BATCH_SIZE)
     parser.add_argument("--env-file", type=Path, default=Path(".env"))
     return parser.parse_args()
@@ -127,6 +133,7 @@ def main() -> None:
         input_path=args.input,
         collection_name=args.collection,
         qdrant_url=args.qdrant_url,
+        qdrant_api_key=args.qdrant_api_key,
         batch_size=args.batch_size,
     )
 

@@ -79,4 +79,17 @@ class FindingsStore:
             "total_findings": len(self.get_all_findings()),
             "total_tokens": self.total_tokens(),
             "elapsed_seconds": time.time() - self._created_at,
+            "agents": [
+                {
+                    "agent_id": r.agent_id,
+                    "agent_type": r.agent_type,
+                    "subtask": r.subtask,
+                    "status": r.status,
+                    "findings": [
+                        {"source": f.source, "title": f.title, "url": f.url}
+                        for f in r.findings
+                    ],
+                }
+                for r in results
+            ],
         }

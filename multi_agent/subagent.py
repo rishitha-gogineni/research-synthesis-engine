@@ -19,6 +19,14 @@ class SubagentError(RuntimeError):
     pass
 
 
+SOURCE_FALLBACKS = {
+    "arxiv": ["semantic_scholar", "web"],
+    "semantic_scholar": ["arxiv", "web"],
+    "web": ["semantic_scholar"],
+    "local_corpus": ["arxiv", "semantic_scholar"],
+}
+
+
 def _papers_to_findings(papers: list[ExternalPaper], source: str) -> list[Finding]:
     return [
         Finding(
@@ -40,24 +48,56 @@ def _papers_to_findings(papers: list[ExternalPaper], source: str) -> list[Findin
 
 
 def _search_local_corpus(query: str, top_k: int = 10) -> list[Finding]:
-    """Search local Qdrant corpus using the existing hybrid search."""
+    """Search local Qdrant corpus using unified paper+chunk search."""
     try:
-        from retrieval.hybrid_search import hybrid_search
+        from retrieval.unified_search import run_unified_search
+        from multi_agent.corpus_relevance import best_score
 
-        results = hybrid_search(query, top_k=top_k)
-        findings = []
-        for r in results:
+        response = run_unified_search(query, top_k=top_k)
+        findings: list[Finding] = []
+
+        # Prefer chunks (full text) over papers (abstract-only) for depth
+        for chunk in response.chunk_results[:top_k]:
             findings.append(
                 Finding(
                     source="local_corpus",
-                    title=r.get("title", ""),
-                    content=r.get("abstract", r.get("text", "")),
-                    url="",
-                    relevance_score=r.get("score", 0.0),
-                    metadata=r.get("metadata", {}),
+                    title=chunk.title or "",
+                    content=chunk.text or "",
+                    url=chunk.pdf_url or "",
+                    relevance_score=best_score(chunk),
+                    metadata={
+                        "paper_id": chunk.paper_id,
+                        "section": chunk.section_hint,
+                        "chunk_index": chunk.chunk_index,
+                        "year": chunk.year,
+                        "citation_count": chunk.citation_count,
+                        "level": "chunk",
+                    },
                 )
             )
-        return findings
+
+        # Add paper-level results only if we haven't already found the paper
+        seen_paper_ids = {f.metadata.get("paper_id") for f in findings if f.metadata.get("paper_id")}
+        for paper in response.paper_results[:top_k]:
+            if paper.paper_id in seen_paper_ids:
+                continue
+            findings.append(
+                Finding(
+                    source="local_corpus",
+                    title=paper.title or "",
+                    content=paper.abstract or "",
+                    url=paper.pdf_url or "",
+                    relevance_score=best_score(paper),
+                    metadata={
+                        "paper_id": paper.paper_id,
+                        "year": paper.year,
+                        "citation_count": paper.citation_count,
+                        "level": "paper",
+                    },
+                )
+            )
+
+        return findings[:top_k]
     except Exception as exc:
         raise SubagentError(f"Local corpus search failed: {exc}") from exc
 
@@ -142,6 +182,12 @@ def run_subagent(
     queries_used: list[str] = []
     tool_calls = 0
 
+    # Agent-to-agent awareness: check what other agents have already found
+    existing_findings = store.get_all_findings()
+    existing_titles = {f.title.lower().strip() for f in existing_findings}
+    if existing_titles:
+        tracer.log(agent_id, "aware_of_peers", existing_findings_count=len(existing_titles))
+
     for query in queries[:max_tool_calls]:
         elapsed = time.time() - start_time
         if elapsed > SUBAGENT_TIMEOUT_SECONDS:
@@ -158,9 +204,23 @@ def run_subagent(
             queries_used.append(query)
             tool_calls += 1
         except (SubagentError, Exception) as exc:
-            tracer.log(agent_id, "error", error=str(exc), query=query)
+            tracer.log(agent_id, "error", error=str(exc), query=query, source=source)
             tool_calls += 1
-            continue
+            # Error recovery: try fallback sources
+            fallbacks = SOURCE_FALLBACKS.get(source, [])
+            for fallback in fallbacks:
+                try:
+                    tracer.log(agent_id, "fallback", original_source=source, fallback_source=fallback, query=query)
+                    findings = _search_source(fallback, query, external_client)
+                    all_findings.extend(findings)
+                    queries_used.append(query)
+                    tool_calls += 1
+                    tracer.log(agent_id, "fallback_success", fallback_source=fallback, count=len(findings))
+                    break
+                except Exception:
+                    continue
+            else:
+                continue
 
         evaluation = _evaluate_results(
             openai_client, query, len(findings), objective, model
@@ -175,8 +235,8 @@ def run_subagent(
         if next_query and next_query not in queries:
             queries.append(next_query)
 
-    # Deduplicate findings by title
-    seen_titles: set[str] = set()
+    # Deduplicate findings by title (including across other agents)
+    seen_titles: set[str] = set(existing_titles)
     unique_findings: list[Finding] = []
     for f in all_findings:
         key = f.title.lower().strip()

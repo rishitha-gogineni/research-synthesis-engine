@@ -17,7 +17,6 @@ dependencies = [
     "requests>=2.31.0",
     "pypdf>=4.0.0",
     "langgraph>=0.2.0",
-    "mcp>=1.0.0",
     "arxiv>=2.1.0",
     "tavily-python>=0.4.0",
 ]
@@ -33,7 +32,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["ingestion*", "retrieval*", "full_text*", "agent*", "agentic*", "mcp_servers*", "tools*", "api*", "ui*", "shared*"]
+include = ["ingestion*", "retrieval*", "full_text*", "agent*", "agentic*", "multi_agent*", "tools*", "api*", "ui*", "shared*"]
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
