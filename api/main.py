@@ -18,13 +18,12 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from agent.evidence_matrix import EvidenceMatrixError, build_evidence_matrix
 from agentic.api import router as agentic_router
 from multi_agent.api import router as multi_agent_router
 from agent.open_problems import OpenProblemsError, build_open_problems_report
-from agent.query_rewriter import ChatTurn, QueryRewriteResult, rewrite_query
+from agent.query_rewriter import QueryRewriteResult, rewrite_query
 from agent.reading_path import ReadingPathError, build_reading_path
 from agent.research_guidance import ResearchGuidanceError
 from agent.research_graph import ResearchAgentState, run_research_agent
@@ -35,45 +34,27 @@ from retrieval.index_qdrant import DEFAULT_COLLECTION as DEFAULT_PAPER_COLLECTIO
 from retrieval.index_qdrant import DEFAULT_QDRANT_URL, get_qdrant_client, load_env_file
 from retrieval.router import route_query
 from retrieval.unified_search import UnifiedSearchError, run_unified_search
-from shared.schemas import (
-    ConfidenceAssessment,
-    EvidenceMatrix,
-    OpenProblemsReport,
-    QueryRoute,
-    ReadingPath,
-    ResearchBrief,
-    RetrievedChunk,
-    RetrievedPaper,
-    UnifiedSearchResponse,
+from shared.schemas import ConfidenceAssessment, EvidenceMatrix, OpenProblemsReport, ReadingPath, ResearchBrief, UnifiedSearchResponse
+from api.schemas import (
+    AgentTraceStep,
+    ApiAgentResearchResponse,
+    ApiErrorResponse,
+    ApiGuidanceResponse,
+    ApiQueryRequest,
+    ApiRetrievalResponse,
+    ApiRoutePreviewResponse,
+    RequestMetrics,
+    SUPPORTED_RESEARCH_TOPICS,
+    env_bool,
 )
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = PROJECT_ROOT / "data"
-DEFAULT_TOP_K = 10
-DEFAULT_MAX_PROBLEMS = 6
-MAX_QUESTION_LENGTH = 2000
-SUPPORTED_RESEARCH_TOPICS = [
-    "Retrieval-Augmented Generation (RAG)",
-    "Transformers / Attention Mechanisms",
-    "LLM Evaluation & Hallucination Detection",
-    "AI Agents & Tool Use",
-    "Fine-tuning (LoRA / PEFT)",
-]
 REQUEST_ID_PATTERN = re.compile(r"^[A-Za-z0-9_.:-]{8,128}$")
 LOGGER = logging.getLogger("research_synthesis_engine.api")
 QUERY_CACHE_TTL_SECONDS = int(os.getenv("RSE_QUERY_CACHE_TTL_SECONDS", "300"))
 QUERY_CACHE_MAX_ENTRIES = int(os.getenv("RSE_QUERY_CACHE_MAX_ENTRIES", "128"))
-
-
-def env_bool(name: str, default: bool) -> bool:
-    value = os.getenv(name)
-    if value is None:
-        return default
-    return value.strip().lower() in {"1", "true", "yes", "on"}
-
-
-DEFAULT_APPLY_RERANKING = env_bool("RSE_APPLY_RERANKING", True)
 DEFAULT_FUSION_METHOD = os.getenv("RSE_FUSION_METHOD", "weighted")
 DEFAULT_APPLY_PROMOTION = env_bool("RSE_APPLY_PROMOTION", False)
 DEFAULT_POOL_MULTIPLIER = int(os.getenv("RSE_POOL_MULTIPLIER", "1"))
@@ -124,159 +105,6 @@ class RetrievalCache:
 
 
 RETRIEVAL_CACHE = RetrievalCache()
-
-
-class RequestMetrics(BaseModel):
-    """Lightweight request timing metrics, returned only in debug mode."""
-
-    routing_ms: float | None = None
-    retrieval_ms: float | None = None
-    confidence_ms: float | None = None
-    brief_ms: float | None = None
-    evidence_matrix_ms: float | None = None
-    reading_path_ms: float | None = None
-    open_problems_ms: float | None = None
-    total_ms: float
-
-
-class ApiErrorBody(BaseModel):
-    code: str
-    message: str
-    details: Any | None = None
-    request_id: str | None = None
-
-
-class ApiErrorResponse(BaseModel):
-    error: ApiErrorBody
-    detail: str | None = None
-
-
-class ApiQueryRequest(BaseModel):
-    """Request body for live query-time API endpoints."""
-
-    model_config = ConfigDict(populate_by_name=True)
-
-    question: str = Field(
-        ...,
-        min_length=3,
-        max_length=MAX_QUESTION_LENGTH,
-        validation_alias=AliasChoices("question", "query"),
-        json_schema_extra={"examples": ["Compare RAG and self-verification methods."]},
-    )
-    top_k: int = Field(default=DEFAULT_TOP_K, ge=1, le=50)
-    paper_top_k: int | None = Field(default=None, ge=1, le=50)
-    chunk_top_k: int | None = Field(default=None, ge=1, le=50)
-    dense_top_k: int = Field(default=20, ge=1, le=100)
-    sparse_top_k: int = Field(default=20, ge=1, le=100)
-    apply_reranking: bool = DEFAULT_APPLY_RERANKING
-    max_papers: int = Field(default=8, ge=1, le=20)
-    max_problems: int = Field(default=DEFAULT_MAX_PROBLEMS, ge=1, le=20)
-    research_areas: list[str] | None = None
-    publication_year_min: int | None = Field(default=None, ge=1900, le=2100)
-    publication_year_max: int | None = Field(default=None, ge=1900, le=2100)
-    full_text_only: bool = False
-    include_debug: bool = False
-    include_evidence_matrix: bool = True
-    include_reading_path: bool = True
-    include_open_problems: bool = True
-    chat_history: list[ChatTurn] = Field(default_factory=list, max_length=12)
-
-    @property
-    def query(self) -> str:
-        """Backward-compatible internal name used by earlier Day 20 code."""
-        return self.question
-
-    @field_validator("question")
-    @classmethod
-    def question_must_not_be_blank(cls, value: str) -> str:
-        stripped = value.strip()
-        if not stripped:
-            raise ValueError("question must not be empty")
-        return stripped
-
-    @field_validator("research_areas")
-    @classmethod
-    def validate_research_areas(cls, value: list[str] | None) -> list[str] | None:
-        if value is None:
-            return value
-        cleaned = [item.strip() for item in value if item and item.strip()]
-        unsupported = sorted(set(cleaned) - set(SUPPORTED_RESEARCH_TOPICS))
-        if unsupported:
-            raise ValueError(f"unsupported research areas: {unsupported}")
-        return cleaned
-
-    @model_validator(mode="after")
-    def validate_year_range(self) -> "ApiQueryRequest":
-        if (
-            self.publication_year_min is not None
-            and self.publication_year_max is not None
-            and self.publication_year_min > self.publication_year_max
-        ):
-            raise ValueError("publication_year_min must not exceed publication_year_max")
-        return self
-
-
-class ApiRoutePreviewResponse(BaseModel):
-    selected_route: str
-    route_confidence: float
-    reason: str
-    matched_signals: list[str]
-
-
-class ApiRetrievalResponse(BaseModel):
-    question: str
-    route: QueryRoute
-    paper_result_count: int
-    chunk_result_count: int
-    paper_results: list[RetrievedPaper]
-    chunk_results: list[RetrievedChunk]
-    warnings: list[str] = Field(default_factory=list)
-    metrics: RequestMetrics | None = None
-    debug: dict[str, Any] | None = None
-
-
-class ApiGuidanceResponse(BaseModel):
-    """Combined API response for the main user-facing guidance endpoint."""
-
-    question: str
-    standalone_query: str
-    rewrite_used: bool = False
-    rewrite_method: str = "none"
-    rewrite_reason: str = "No rewrite needed."
-    retrieval: ApiRetrievalResponse
-    confidence: ConfidenceAssessment
-    brief: ResearchBrief | None = None
-    evidence_matrix: EvidenceMatrix | None = None
-    reading_path: ReadingPath | None = None
-    open_problems: OpenProblemsReport | None = None
-    warnings: list[str] = Field(default_factory=list)
-    metrics: RequestMetrics | None = None
-    debug: dict[str, Any] | None = None
-
-
-class AgentTraceStep(BaseModel):
-    step: str
-    status: str = "completed"
-    detail: str | None = None
-
-
-class ApiAgentResearchResponse(BaseModel):
-    """Response for the bounded research-agent loop."""
-
-    original_query: str
-    standalone_query: str
-    attempted_queries: list[str]
-    retry_count: int
-    confidence_decision: str | None
-    retrieved_paper_count: int
-    retrieved_chunk_count: int
-    retrieval: ApiRetrievalResponse | None = None
-    confidence: ConfidenceAssessment | None = None
-    brief: ResearchBrief | None = None
-    warnings: list[str] = Field(default_factory=list)
-    trace: list[AgentTraceStep] = Field(default_factory=list)
-    metrics: RequestMetrics | None = None
-    debug: dict[str, Any] | None = None
 
 
 class Timer:

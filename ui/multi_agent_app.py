@@ -182,10 +182,10 @@ SOURCE_BADGE = {
 }
 
 SOURCE_ICON = {
-    "local_corpus": "📚",
-    "arxiv": "🎓",
-    "semantic_scholar": "🔬",
-    "web": "🌐",
+    "local_corpus": "Corpus",
+    "arxiv": "arXiv",
+    "semantic_scholar": "S2",
+    "web": "Web",
 }
 
 
@@ -198,21 +198,21 @@ def _score_cls(v: float) -> str:
 # ---------------------------------------------------------------------------
 
 AGENT_PATTERNS = [
-    ("📈", "Effort scaling", "Query complexity sets how many subagents run"),
-    ("🗂️", "Corpus pre-check", "Qdrant is checked first before external search"),
-    ("🛡️", "Guardrails", "Unsafe or out-of-scope queries are blocked early"),
-    ("🤝", "Agent-to-agent awareness", "Subagents see what peers already found"),
-    ("🔁", "Error recovery & fallbacks", "A failed source retries via a backup"),
-    ("🧪", "Evaluator-optimizer", "Weak syntheses trigger a refinement pass"),
-    ("🙋", "Human-in-the-loop", "Preview the plan before agents run"),
-    ("⚖️", "LLM-as-judge", "5-dimension score: accuracy, citations, more"),
+    ("Scaling", "Effort scaling", "Query complexity sets how many subagents run"),
+    ("Precheck", "Corpus pre-check", "Qdrant is checked first before external search"),
+    ("Guard", "Guardrails", "Unsafe or out-of-scope queries are blocked early"),
+    ("Aware", "Agent-to-agent awareness", "Subagents see what peers already found"),
+    ("Retry", "Error recovery & fallbacks", "A failed source retries via a backup"),
+    ("Refine", "Evaluator-optimizer", "Weak syntheses trigger a refinement pass"),
+    ("Review", "Human-in-the-loop", "Preview the plan before agents run"),
+    ("Judge", "LLM-as-judge", "5-dimension score: accuracy, citations, more"),
 ]
 
 SOURCE_LIST = [
-    ("📚", "Local corpus", "Qdrant"),
-    ("🎓", "arXiv", "papers"),
-    ("🔬", "Semantic Scholar", "papers"),
-    ("🌐", "Web", "Tavily"),
+    ("Corpus", "Local corpus", "Qdrant"),
+    ("arXiv", "arXiv", "papers"),
+    ("S2", "Semantic Scholar", "papers"),
+    ("Web", "Web", "Tavily"),
 ]
 
 
@@ -220,14 +220,14 @@ def render_sidebar():
     with st.sidebar:
         st.markdown(
             """<div class="ma-sys-card">
-                <strong>🧠 System Info</strong>
+                <strong>System Info</strong>
                 <p>Orchestrator-worker: a lead agent plans, parallel subagents search,
                 and an LLM judge scores quality.</p>
             </div>""",
             unsafe_allow_html=True,
         )
 
-        st.markdown("### ⚙️ Agent Patterns")
+        st.markdown("### Agent Patterns")
         pattern_html = "".join(
             f"""<div class="ma-pattern">
                 <div class="ma-pattern-icon">{icon}</div>
@@ -237,7 +237,7 @@ def render_sidebar():
         )
         st.markdown(f'<div class="ma-sys-card">{pattern_html}</div>', unsafe_allow_html=True)
 
-        st.markdown("### 🔌 Sources")
+        st.markdown("### Sources")
         source_html = "".join(
             f'<div class="ma-source-row">{icon} <strong>{name}</strong>'
             f'<span style="color:var(--muted);font-size:0.78rem;margin-left:auto">{tag}</span></div>'
@@ -433,7 +433,7 @@ def render_results(result: dict):
         for i, agent in enumerate(agents):
             atype = agent.get("agent_type", "?")
             badge = SOURCE_BADGE.get(atype, "ma-badge-precheck")
-            icon = SOURCE_ICON.get(atype, "🔎")
+            icon = SOURCE_ICON.get(atype, "Search")
             n_findings = len(agent.get("findings", []))
             elapsed_a = agent.get("elapsed_seconds", 0)
             status_a = agent.get("status", "?")
@@ -534,15 +534,15 @@ def main():
     st.markdown(
         """
         <div class="ma-hero">
-            <h1>🧭 Multi-Agent Research System</h1>
+            <h1>Multi-Agent Research System</h1>
             <p>Ask a research question. The system checks your corpus first, plans the search,
             spawns parallel agents, synthesizes findings, and scores quality — start to finish.</p>
             <div class="ma-pill-strip">
-                <span class="ma-pill">📚 Local corpus</span>
-                <span class="ma-pill">🎓 arXiv</span>
-                <span class="ma-pill">🔬 Semantic Scholar</span>
-                <span class="ma-pill">🌐 Web</span>
-                <span class="ma-pill">⚖️ LLM-as-judge</span>
+                <span class="ma-pill">Local corpus</span>
+                <span class="ma-pill">arXiv</span>
+                <span class="ma-pill">Semantic Scholar</span>
+                <span class="ma-pill">Web</span>
+                <span class="ma-pill">LLM-as-judge</span>
             </div>
         </div>
         """,
