@@ -160,6 +160,8 @@ def format_relevance_context(relevance: CorpusRelevance) -> str:
     return (
         f"CORPUS PRE-CHECK: abstract_only. {relevance.reason}\n"
         f"Matching papers (abstract only):\n{paper_lines}\n"
-        f"→ Spawn local_corpus subagent AND arxiv subagent in parallel. "
-        f"The corpus has the paper's abstract but not full text — arxiv can fetch the full paper."
+        f"→ Spawn local_corpus subagent AND ONE external subagent in parallel — "
+        f"pick arxiv (fetch the full paper) or semantic_scholar (citation counts / "
+        f"impact) based on what the query is actually asking for, per the source "
+        f"selection rules."
     )

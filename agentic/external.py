@@ -85,6 +85,17 @@ class ExternalSearchClient:
                 return response
             except ExternalSearchError:
                 raise
+            except requests.Timeout as exc:
+                # A slow/hanging provider rarely recovers within the same
+                # request budget — retrying it the full max_retries times just
+                # burns ~timeout-seconds per attempt for no benefit, and eats
+                # into the time a fallback source could have used instead. One
+                # retry (to rule out a one-off blip) is enough before bailing.
+                last_error = exc
+                if attempt < 1:
+                    time.sleep(self.backoff_seconds * (2**attempt))
+                else:
+                    break
             except requests.RequestException as exc:
                 last_error = exc
                 if attempt < self.max_retries:
@@ -100,7 +111,15 @@ class ExternalSearchClient:
         return query
     def search_arxiv(self, query: str, max_results: int = 5) -> list[ExternalPaper]:
         query = self._validate(query)
-        response = self._request("GET", self.ARXIV_URL, params={"search_query": f"all:{query}", "start": 0, "max_results": min(max_results, 20), "sortBy": "relevance"})
+        # arXiv's search backend has no documented default boolean for bare
+        # space-separated terms within one field prefix, and in practice
+        # behaves like OR — a single common token (e.g. a bare year like
+        # "2026") is then enough to surface unrelated papers ahead of ones
+        # that actually match every term. AND the terms explicitly so all of
+        # them must match.
+        terms = query.split()
+        search_query = f"all:({' AND '.join(terms)})" if len(terms) > 1 else f"all:{query}"
+        response = self._request("GET", self.ARXIV_URL, params={"search_query": search_query, "start": 0, "max_results": min(max_results, 20), "sortBy": "relevance"})
         try: root = ET.fromstring(response.text)
         except (ET.ParseError, AttributeError) as exc: raise ExternalSearchError("invalid Arxiv XML response") from exc
         ns = {"a": "http://www.w3.org/2005/Atom"}

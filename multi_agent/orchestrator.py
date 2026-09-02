@@ -23,6 +23,51 @@ from multi_agent.trace import Tracer
 from agentic.external import ExternalSearchClient, DEFAULT_EXTERNAL_CLIENT
 
 
+def _dedupe_follow_up_subtasks(
+    follow_up_subtasks: list[dict[str, Any]],
+    executed_subtasks: list[dict[str, Any]],
+    tracer: Tracer,
+) -> list[dict[str, Any]]:
+    """Drop follow-up subtasks that just re-run a source with near-identical queries.
+
+    The follow-up planner sometimes proposes a source again to "fill a gap" that
+    an earlier subtask already searched for and simply found nothing on — spawning
+    it again wastes a tool-call/API-cost budget without adding new coverage.
+    """
+
+    def _query_words(subtask: dict[str, Any]) -> set[str]:
+        queries = subtask.get("queries") or subtask.get("search_queries") or []
+        return {w for q in queries for w in q.lower().split()}
+
+    deduped = []
+    for subtask in follow_up_subtasks:
+        source = (subtask.get("source") or subtask.get("search_source") or "").lower()
+        words = _query_words(subtask)
+
+        is_duplicate = False
+        for prior in executed_subtasks:
+            prior_source = (prior.get("source") or prior.get("search_source") or "").lower()
+            if prior_source != source:
+                continue
+            prior_words = _query_words(prior)
+            if not words or not prior_words:
+                continue
+            overlap = len(words & prior_words) / len(words | prior_words)
+            if overlap >= 0.6:
+                is_duplicate = True
+                break
+
+        if is_duplicate:
+            tracer.log(
+                "orchestrator", "follow_up_deduped",
+                source=source, objective=subtask.get("objective", ""),
+            )
+        else:
+            deduped.append(subtask)
+
+    return deduped
+
+
 def _run_subagents_parallel(
     subtasks: list[dict[str, Any]],
     store: FindingsStore,
@@ -145,6 +190,9 @@ def run_research(
             query, synthesis, tracer, client=openai_client, effort=effort, model=model
         )
         follow_up_subtasks = follow_up.get("subtasks", [])
+        follow_up_subtasks = _dedupe_follow_up_subtasks(
+            follow_up_subtasks, executed_subtasks, tracer
+        )
         if not follow_up_subtasks:
             break
 

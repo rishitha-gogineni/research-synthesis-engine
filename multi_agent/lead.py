@@ -15,6 +15,7 @@ from multi_agent.prompts import (
     LEAD_SYNTHESIS_PROMPT,
     LEAD_MORE_RESEARCH_PROMPT,
 )
+from multi_agent.schemas import validate_or_raw, PlanSchema, FollowUpPlanSchema, SynthesisSchema
 from multi_agent.trace import Tracer
 
 
@@ -53,6 +54,10 @@ def _call_llm(
     system: str,
     user: str,
     model: str = DEFAULT_MODEL,
+    *,
+    tracer: Tracer | None = None,
+    agent_id: str = "lead",
+    schema: type | None = None,
 ) -> dict[str, Any]:
     response = client.chat.completions.create(
         model=model,
@@ -63,11 +68,22 @@ def _call_llm(
         response_format={"type": "json_object"},
         temperature=0.3,
     )
+    if tracer is not None and response.usage is not None:
+        tracer.log(
+            agent_id, "llm_usage",
+            model=model,
+            prompt_tokens=response.usage.prompt_tokens,
+            completion_tokens=response.usage.completion_tokens,
+            total_tokens=response.usage.total_tokens,
+        )
     content = response.choices[0].message.content or "{}"
     try:
-        return json.loads(content)
+        data = json.loads(content)
     except json.JSONDecodeError as exc:
         raise PlanningError(f"Failed to parse LLM response: {content[:200]}") from exc
+    if schema is not None:
+        data = validate_or_raw(schema, data)
+    return data
 
 
 def create_plan(
@@ -104,7 +120,7 @@ def create_plan(
     )
     prompt = f"{relevance_context}\n\n{prompt}"
 
-    plan = _call_llm(client, LEAD_SYSTEM_PROMPT, prompt, model)
+    plan = _call_llm(client, LEAD_SYSTEM_PROMPT, prompt, model, tracer=tracer, agent_id="lead", schema=PlanSchema)
 
     subtasks = plan.get("subtasks", [])
     if not subtasks:
@@ -179,7 +195,13 @@ def synthesize_findings(
         client = OpenAI()
 
     completed = store.get_completed()
-    if not completed:
+    total_findings = sum(len(r.findings) for r in completed)
+    if not completed or total_findings == 0:
+        # Don't hand an LLM an empty findings block and trust it to say "I
+        # don't know" — with nothing to ground on, it will still sometimes
+        # answer from its own training data instead (e.g. inventing a
+        # specific citation count), which the prompt's "don't guess" rule
+        # doesn't reliably prevent. Skip the LLM call entirely here.
         return {
             "synthesis": "No findings available from subagents.",
             "key_themes": [],
@@ -200,7 +222,7 @@ def synthesize_findings(
         findings_text=findings_text,
     )
 
-    synthesis = _call_llm(client, LEAD_SYSTEM_PROMPT, prompt, model)
+    synthesis = _call_llm(client, LEAD_SYSTEM_PROMPT, prompt, model, tracer=tracer, agent_id="lead", schema=SynthesisSchema)
     tracer.log(
         "lead",
         "synthesis_complete",
@@ -237,7 +259,7 @@ def plan_follow_up(
         gaps=json.dumps(gaps),
     )
 
-    plan = _call_llm(client, LEAD_SYSTEM_PROMPT, prompt, model)
+    plan = _call_llm(client, LEAD_SYSTEM_PROMPT, prompt, model, tracer=tracer, agent_id="lead", schema=FollowUpPlanSchema)
     subtasks = plan.get("subtasks", [])[:effort.max_subagents]
     plan["subtasks"] = subtasks
 
@@ -305,6 +327,6 @@ def refine_synthesis(
         }),
     )
 
-    refined = _call_llm(client, LEAD_SYSTEM_PROMPT, prompt, model)
+    refined = _call_llm(client, LEAD_SYSTEM_PROMPT, prompt, model, tracer=tracer, agent_id="lead", schema=SynthesisSchema)
     tracer.log("lead", "refinement_complete")
     return refined

@@ -37,6 +37,9 @@ def multi_agent_research(request: ResearchRequest) -> ResearchResponse:
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Research failed: {exc}")
 
+    from multi_agent.run_logger import log_run
+    log_run(request.query, result, source="api")
+
     return ResearchResponse(
         query=request.query,
         effort_level=result["effort_level"],

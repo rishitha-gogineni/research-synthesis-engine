@@ -1,12 +1,4 @@
 services:
-  qdrant:
-    image: qdrant/qdrant:v1.18.0
-    ports:
-      - "6333:6333"
-      - "6334:6334"
-    volumes:
-      - qdrant_storage:/qdrant/storage
-
   api:
     build:
       context: .
@@ -16,12 +8,8 @@ services:
     env_file:
       - .env
     environment:
-      QDRANT_URL: http://qdrant:6333
-      QDRANT_API_KEY: ""
       RSE_APPLY_RERANKING: "false"
       RSE_CORS_ORIGINS: http://localhost:8501,http://127.0.0.1:8501
-    depends_on:
-      - qdrant
 
   ui:
     build:
@@ -29,10 +17,10 @@ services:
       dockerfile: ui/Dockerfile
     ports:
       - "8501:8501"
+    env_file:
+      - .env
     environment:
+      RSE_APPLY_RERANKING: "false"
       RSE_API_URL: http://api:8000
     depends_on:
       - api
-
-volumes:
-  qdrant_storage:

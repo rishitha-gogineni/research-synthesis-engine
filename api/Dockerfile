@@ -12,6 +12,8 @@ RUN pip install --upgrade pip \
     && pip install -r requirements.txt
 
 COPY agent ./agent
+COPY agentic ./agentic
+COPY multi_agent ./multi_agent
 COPY api ./api
 COPY full_text ./full_text
 COPY ingestion ./ingestion

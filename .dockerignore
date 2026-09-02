@@ -16,3 +16,4 @@ data/*
 !data/full_text_sources.json
 !data/full_text_papers.json
 !data/full_text_chunks.json
+!data/chunk_bm25_index.pkl

@@ -33,67 +33,137 @@ st.markdown(
     """
     <style>
     :root {
-        --bg: #FFFFFF; --panel: #F7F7F7; --card: #FFFFFF;
-        --ink: #111111; --muted: #5F6368; --line: #E5E5E5;
-        --accent: #0B0B0B;
+        --bg: #FAFAFC; --panel: #F3F1FF; --card: #FFFFFF;
+        --ink: #14131F; --muted: #6B6B7B; --line: #E9E7F5;
+        --accent: #6D5BF6; --accent2: #22C1DC;
         --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", sans-serif;
-        --success-bg: #DCFCE7; --success-text: #166534; --success-border: #86EFAC;
+        --success-bg: #E3FCEF; --success-text: #0B7A46; --success-border: #86EFAC;
         --warn-bg: #FEF3C7; --warn-text: #92400E; --warn-border: #FCD34D;
         --danger-bg: #FEE2E2; --danger-text: #991B1B; --danger-border: #FCA5A5;
     }
-    .stApp { background: var(--bg); color: var(--ink); font-family: var(--font); }
-    .block-container { max-width: 1080px; padding-top: 2.5rem; }
-    section[data-testid="stSidebar"] { background: var(--panel); border-right: 1px solid var(--line); }
-    h1 { font-family: var(--font) !important; font-size: 1.8rem !important; font-weight: 760 !important; margin: 0 0 0.15rem 0 !important; }
+    .stApp {
+        background: radial-gradient(circle at 15% 0%, #F1EEFF 0%, var(--bg) 45%);
+        color: var(--ink); font-family: var(--font);
+    }
+    .block-container { max-width: 1080px; padding-top: 1.5rem; }
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #FBFAFF 0%, var(--panel) 100%);
+        border-right: 1px solid var(--line);
+    }
     h2 { font-size: 1.1rem !important; font-weight: 680 !important; }
     h3 { font-size: 0.95rem !important; color: var(--muted); font-weight: 620 !important; }
-    .ma-muted { color: var(--muted); font-size: 0.88rem; margin-bottom: 0.7rem; }
+    .ma-muted { color: var(--muted); font-size: 0.92rem; margin-bottom: 0.7rem; }
+
+    .ma-hero {
+        background: linear-gradient(120deg, var(--accent) 0%, #8B7DFA 45%, var(--accent2) 100%);
+        border-radius: 20px; padding: 1.6rem 1.8rem; margin-bottom: 1.4rem;
+        box-shadow: 0 16px 40px rgba(109,91,246,0.28);
+        position: relative; overflow: hidden;
+    }
+    .ma-hero::after {
+        content: ""; position: absolute; inset: 0;
+        background: radial-gradient(circle at 90% 10%, rgba(255,255,255,0.25), transparent 55%);
+    }
+    .ma-hero h1 {
+        color: #fff !important; font-family: var(--font) !important;
+        font-size: 2rem !important; font-weight: 780 !important; margin: 0 !important;
+        letter-spacing: -0.01em; position: relative; z-index: 1;
+    }
+    .ma-hero p {
+        color: rgba(255,255,255,0.92); font-size: 0.96rem; margin: 0.45rem 0 0 0;
+        position: relative; z-index: 1; max-width: 640px;
+    }
+    .ma-pill-strip { display: flex; gap: 0.4rem; margin-top: 0.9rem; flex-wrap: wrap; position: relative; z-index: 1; }
+    .ma-pill {
+        background: rgba(255,255,255,0.18); color: #fff; font-size: 0.72rem; font-weight: 650;
+        padding: 0.22rem 0.65rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.35);
+        backdrop-filter: blur(4px);
+    }
+
     .ma-question {
-        background: var(--card); border: 1px solid var(--line); border-radius: 14px;
-        padding: 0.9rem 1.1rem; margin: 0.8rem 0;
-        box-shadow: 0 8px 24px rgba(17,17,17,0.035);
+        background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+        padding: 0.9rem 1.15rem; margin: 0.8rem 0;
+        box-shadow: 0 10px 28px rgba(20,19,31,0.05);
     }
     .ma-question strong { color: var(--ink); font-weight: 650; }
     .ma-badge-row { display: flex; gap: 0.5rem; align-items: center; margin: 0.5rem 0 0.7rem; flex-wrap: wrap; }
     .ma-badge {
         display: inline-block; font-size: 0.76rem; font-weight: 680;
-        padding: 0.2rem 0.58rem; border-radius: 999px; border: 1px solid transparent;
+        padding: 0.25rem 0.65rem; border-radius: 999px; border: 1px solid transparent;
     }
     .ma-badge-safe { background: var(--success-bg); color: var(--success-text); border-color: var(--success-border); }
     .ma-badge-blocked { background: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-border); }
-    .ma-badge-precheck { background: #DBEAFE; color: #1E40AF; border-color: #93C5FD; }
-    .ma-badge-effort { background: #F3F4F6; color: #374151; border-color: #D1D5DB; }
-    .ma-badge-corpus { background: #DCFCE7; color: #166534; border-color: #86EFAC; }
+    .ma-badge-precheck { background: #E3E8FF; color: #3730A3; border-color: #C7D2FE; }
+    .ma-badge-effort { background: #F3F1FF; color: #5B21B6; border-color: #DDD6FE; }
+    .ma-badge-corpus { background: #E3FCEF; color: #0B7A46; border-color: #86EFAC; }
     .ma-badge-arxiv { background: #DBEAFE; color: #1D4ED8; border-color: #93C5FD; }
     .ma-badge-s2 { background: #F3E8FF; color: #6B21A8; border-color: #D8B4FE; }
     .ma-badge-web { background: #FEF3C7; color: #92400E; border-color: #FCD34D; }
     .ma-badge-stat { color: var(--muted); font-size: 0.82rem; font-weight: 500; }
     .ma-precheck {
-        border: 1px solid var(--line); border-left: 4px solid #1E40AF;
-        border-radius: 12px; padding: 0.75rem 1rem; margin: 0.5rem 0; background: #F8FAFF;
+        border: 1px solid var(--line); border-left: 4px solid var(--accent);
+        border-radius: 14px; padding: 0.85rem 1.1rem; margin: 0.6rem 0;
+        background: linear-gradient(90deg, #F5F3FF 0%, #FAFAFF 100%);
     }
     .ma-agent-card {
-        border: 1px solid var(--line); border-radius: 10px;
-        padding: 0.65rem 0.85rem; margin: 0.45rem 0; background: var(--card);
+        border: 1px solid var(--line); border-radius: 14px;
+        padding: 0.75rem 1rem; margin: 0.5rem 0; background: var(--card);
+        box-shadow: 0 4px 14px rgba(20,19,31,0.04);
+        transition: box-shadow 0.15s ease;
     }
+    .ma-agent-card:hover { box-shadow: 0 8px 22px rgba(109,91,246,0.14); }
     .ma-answer {
-        border: 1px solid var(--line); border-left: 4px solid var(--ink);
-        border-radius: 14px; padding: 1rem 1.1rem; margin: 0.7rem 0;
-        background: var(--card); box-shadow: 0 8px 24px rgba(17,17,17,0.035);
+        border: 1px solid var(--line); border-left: 4px solid var(--accent);
+        border-radius: 16px; padding: 1.1rem 1.25rem; margin: 0.7rem 0;
+        background: var(--card); box-shadow: 0 12px 32px rgba(20,19,31,0.06);
     }
-    .ma-answer p { font-size: 1rem; line-height: 1.65; margin: 0.5rem 0; }
-    .ma-kicker { color: var(--muted); font-size: 0.76rem; font-weight: 720; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.2rem; }
-    .score-good { color: #166534; } .score-mid { color: #92400E; } .score-bad { color: #991B1B; }
+    .ma-answer p { font-size: 1.02rem; line-height: 1.7; margin: 0.5rem 0; }
+    .ma-kicker {
+        color: var(--accent); font-size: 0.76rem; font-weight: 750; text-transform: uppercase;
+        letter-spacing: 0.06em; margin-bottom: 0.3rem;
+    }
+    .score-good { color: #0B7A46; } .score-mid { color: #92400E; } .score-bad { color: #991B1B; }
     div[data-testid="stMetric"] {
         background: var(--card); border: 1px solid var(--line);
-        padding: 0.6rem 0.7rem; border-radius: 10px;
+        padding: 0.7rem 0.8rem; border-radius: 14px;
+        box-shadow: 0 4px 14px rgba(20,19,31,0.04);
     }
     div[data-testid="stMetric"] label { color: var(--muted) !important; }
     .stButton > button {
-        border-radius: 10px; border: 1px solid var(--accent);
-        background: var(--accent); color: #FFF; font-weight: 720; min-height: 2.5rem;
+        border-radius: 12px; border: 1px solid var(--accent);
+        background: linear-gradient(120deg, var(--accent) 0%, #8B7DFA 100%);
+        color: #FFF; font-weight: 720; min-height: 2.6rem;
+        box-shadow: 0 8px 20px rgba(109,91,246,0.3);
+        transition: transform 0.1s ease;
     }
-    div[data-testid="stExpander"] details { background: var(--card); border: 1px solid var(--line); border-radius: 10px; }
+    .stButton > button:hover { transform: translateY(-1px); }
+    div[data-testid="stExpander"] details {
+        background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    }
+    div[data-testid="stTabs"] button[role="tab"] { font-weight: 640; }
+
+    .ma-sys-card {
+        background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+        padding: 0.8rem 0.9rem; margin-bottom: 1rem;
+        box-shadow: 0 4px 14px rgba(20,19,31,0.04);
+    }
+    .ma-sys-card p { color: var(--muted); font-size: 0.83rem; line-height: 1.5; margin: 0.3rem 0 0 0; }
+    .ma-pattern {
+        display: flex; align-items: flex-start; gap: 0.55rem;
+        padding: 0.45rem 0; border-bottom: 1px solid var(--line);
+    }
+    .ma-pattern:last-child { border-bottom: none; }
+    .ma-pattern-icon {
+        flex: 0 0 auto; width: 1.6rem; height: 1.6rem; border-radius: 8px;
+        background: var(--panel); display: flex; align-items: center; justify-content: center;
+        font-size: 0.85rem;
+    }
+    .ma-pattern-body strong { font-size: 0.83rem; color: var(--ink); display: block; }
+    .ma-pattern-body span { font-size: 0.76rem; color: var(--muted); }
+    .ma-source-row {
+        display: flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0;
+        font-size: 0.85rem; color: var(--ink);
+    }
     </style>
     """,
     unsafe_allow_html=True,
@@ -111,6 +181,13 @@ SOURCE_BADGE = {
     "web": "ma-badge-web",
 }
 
+SOURCE_ICON = {
+    "local_corpus": "📚",
+    "arxiv": "🎓",
+    "semantic_scholar": "🔬",
+    "web": "🌐",
+}
+
 
 def _score_cls(v: float) -> str:
     return "score-good" if v >= 0.7 else ("score-mid" if v >= 0.4 else "score-bad")
@@ -120,25 +197,53 @@ def _score_cls(v: float) -> str:
 # Sidebar
 # ---------------------------------------------------------------------------
 
+AGENT_PATTERNS = [
+    ("📈", "Effort scaling", "Query complexity sets how many subagents run"),
+    ("🗂️", "Corpus pre-check", "Qdrant is checked first before external search"),
+    ("🛡️", "Guardrails", "Unsafe or out-of-scope queries are blocked early"),
+    ("🤝", "Agent-to-agent awareness", "Subagents see what peers already found"),
+    ("🔁", "Error recovery & fallbacks", "A failed source retries via a backup"),
+    ("🧪", "Evaluator-optimizer", "Weak syntheses trigger a refinement pass"),
+    ("🙋", "Human-in-the-loop", "Preview the plan before agents run"),
+    ("⚖️", "LLM-as-judge", "5-dimension score: accuracy, citations, more"),
+]
+
+SOURCE_LIST = [
+    ("📚", "Local corpus", "Qdrant"),
+    ("🎓", "arXiv", "papers"),
+    ("🔬", "Semantic Scholar", "papers"),
+    ("🌐", "Web", "Tavily"),
+]
+
+
 def render_sidebar():
     with st.sidebar:
-        st.markdown("### System Info")
-        st.caption(
-            "Orchestrator-worker: lead agent plans, "
-            "parallel subagents search, LLM-as-judge scores quality."
-        )
-        st.markdown("---")
-        st.markdown("### Agent Patterns")
         st.markdown(
-            "1. Effort scaling\n"
-            "2. Corpus pre-check (Qdrant-first)\n"
-            "3. Guardrails\n"
-            "4. Agent-to-agent awareness\n"
-            "5. Error recovery & fallbacks\n"
-            "6. Evaluator-optimizer\n"
-            "7. Human-in-the-loop\n"
-            "8. LLM-as-judge (5 dimensions)"
+            """<div class="ma-sys-card">
+                <strong>🧠 System Info</strong>
+                <p>Orchestrator-worker: a lead agent plans, parallel subagents search,
+                and an LLM judge scores quality.</p>
+            </div>""",
+            unsafe_allow_html=True,
         )
+
+        st.markdown("### ⚙️ Agent Patterns")
+        pattern_html = "".join(
+            f"""<div class="ma-pattern">
+                <div class="ma-pattern-icon">{icon}</div>
+                <div class="ma-pattern-body"><strong>{name}</strong><span>{desc}</span></div>
+            </div>"""
+            for icon, name, desc in AGENT_PATTERNS
+        )
+        st.markdown(f'<div class="ma-sys-card">{pattern_html}</div>', unsafe_allow_html=True)
+
+        st.markdown("### 🔌 Sources")
+        source_html = "".join(
+            f'<div class="ma-source-row">{icon} <strong>{name}</strong>'
+            f'<span style="color:var(--muted);font-size:0.78rem;margin-left:auto">{tag}</span></div>'
+            for icon, name, tag in SOURCE_LIST
+        )
+        st.markdown(f'<div class="ma-sys-card">{source_html}</div>', unsafe_allow_html=True)
 
 
 # ---------------------------------------------------------------------------
@@ -216,6 +321,9 @@ def run_pipeline(question: str):
             return
         elapsed = time.perf_counter() - started_at
         status.update(label=f"Complete in {elapsed:.1f}s", state="complete", expanded=False)
+
+        from multi_agent.run_logger import log_run
+        log_run(question, result, source="ui")
 
     st.session_state["result"] = result
     st.rerun()
@@ -325,6 +433,7 @@ def render_results(result: dict):
         for i, agent in enumerate(agents):
             atype = agent.get("agent_type", "?")
             badge = SOURCE_BADGE.get(atype, "ma-badge-precheck")
+            icon = SOURCE_ICON.get(atype, "🔎")
             n_findings = len(agent.get("findings", []))
             elapsed_a = agent.get("elapsed_seconds", 0)
             status_a = agent.get("status", "?")
@@ -333,7 +442,7 @@ def render_results(result: dict):
             q_str = ", ".join(f'"{q}"' for q in queries[:3]) if queries else "n/a"
             st.markdown(
                 f"""<div class="ma-agent-card">
-                    <span class="ma-badge {badge}">{html.escape(atype)}</span>
+                    <span class="ma-badge {badge}">{icon} {html.escape(atype)}</span>
                     <span class="ma-badge-stat">{n_findings} findings | {elapsed_a:.1f}s | {status_a}</span>
                     <br/><strong>{html.escape(obj[:80])}</strong>
                     <br/><span style="color:var(--muted);font-size:0.82rem">Queries: {html.escape(q_str)}</span>
@@ -422,10 +531,21 @@ def main():
 
     render_sidebar()
 
-    st.markdown("<h1>Multi-Agent Research System</h1>", unsafe_allow_html=True)
     st.markdown(
-        "<div class='ma-muted'>Ask a research question. The system checks your corpus first, "
-        "plans the search, spawns parallel agents, synthesizes findings, and scores quality.</div>",
+        """
+        <div class="ma-hero">
+            <h1>🧭 Multi-Agent Research System</h1>
+            <p>Ask a research question. The system checks your corpus first, plans the search,
+            spawns parallel agents, synthesizes findings, and scores quality — start to finish.</p>
+            <div class="ma-pill-strip">
+                <span class="ma-pill">📚 Local corpus</span>
+                <span class="ma-pill">🎓 arXiv</span>
+                <span class="ma-pill">🔬 Semantic Scholar</span>
+                <span class="ma-pill">🌐 Web</span>
+                <span class="ma-pill">⚖️ LLM-as-judge</span>
+            </div>
+        </div>
+        """,
         unsafe_allow_html=True,
     )
 

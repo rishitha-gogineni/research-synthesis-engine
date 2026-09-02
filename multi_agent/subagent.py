@@ -22,9 +22,18 @@ class SubagentError(RuntimeError):
 SOURCE_FALLBACKS = {
     "arxiv": ["semantic_scholar", "web"],
     "semantic_scholar": ["arxiv", "web"],
-    "web": ["semantic_scholar"],
+    # No fallback for web: it covers live/product/pricing queries that academic
+    # sources (arxiv, semantic_scholar) have no chance of answering — falling
+    # back to them would return irrelevant papers instead of failing cleanly.
+    "web": [],
     "local_corpus": ["arxiv", "semantic_scholar"],
 }
+
+# A search that already returned this many results is treated as sufficient
+# without spending an LLM call to ask — a strong hit count is itself a
+# reliable enough "stop searching" signal. Only sparse results (below this)
+# go through the LLM evaluate step, which decides whether to refine the query.
+SUFFICIENT_RESULTS_THRESHOLD = 3
 
 
 def _papers_to_findings(papers: list[ExternalPaper], source: str) -> list[Finding]:
@@ -130,8 +139,11 @@ def _evaluate_results(
     result_count: int,
     objective: str,
     model: str = SUBAGENT_MODEL,
-) -> dict[str, Any]:
-    """Ask the LLM whether current results are sufficient."""
+    *,
+    tracer: Tracer | None = None,
+    agent_id: str = "",
+) -> tuple[dict[str, Any], int]:
+    """Ask the LLM whether current results are sufficient. Returns (result, tokens_used)."""
     prompt = SUBAGENT_EVALUATE_PROMPT.format(
         query=query,
         result_count=result_count,
@@ -146,11 +158,22 @@ def _evaluate_results(
         response_format={"type": "json_object"},
         temperature=0.2,
     )
+    tokens = 0
+    if response.usage is not None:
+        tokens = response.usage.total_tokens
+        if tracer is not None:
+            tracer.log(
+                agent_id, "llm_usage",
+                model=model,
+                prompt_tokens=response.usage.prompt_tokens,
+                completion_tokens=response.usage.completion_tokens,
+                total_tokens=response.usage.total_tokens,
+            )
     content = response.choices[0].message.content or "{}"
     try:
-        return json.loads(content)
+        return json.loads(content), tokens
     except json.JSONDecodeError:
-        return {"sufficient": True, "reasoning": "Failed to parse evaluation"}
+        return {"sufficient": True, "reasoning": "Failed to parse evaluation"}, tokens
 
 
 def run_subagent(
@@ -171,9 +194,12 @@ def run_subagent(
     if external_client is None:
         external_client = DEFAULT_EXTERNAL_CLIENT
 
-    source = subtask["source"]
-    objective = subtask["objective"]
-    queries = subtask.get("queries", [])
+    # The lead LLM occasionally drifts to alternate key names (e.g. on the
+    # follow-up-plan path, which has a looser prompt schema than the initial
+    # plan). Tolerate both so a naming drift doesn't drop the whole subtask.
+    source = subtask.get("source") or subtask["search_source"]
+    objective = subtask.get("objective") or subtask.get("task", "")
+    queries = subtask.get("queries") or subtask.get("search_queries", [])
     agent_id = store.create_agent_id(source)
 
     tracer.log(agent_id, "start", objective=objective, source=source)
@@ -181,6 +207,7 @@ def run_subagent(
     all_findings: list[Finding] = []
     queries_used: list[str] = []
     tool_calls = 0
+    tokens_used = 0
 
     # Agent-to-agent awareness: check what other agents have already found
     existing_findings = store.get_all_findings()
@@ -222,9 +249,16 @@ def run_subagent(
             else:
                 continue
 
-        evaluation = _evaluate_results(
-            openai_client, query, len(findings), objective, model
+        if len(findings) >= SUFFICIENT_RESULTS_THRESHOLD:
+            tracer.log(agent_id, "evaluate_skipped", reason="result_count_sufficient",
+                       result_count=len(findings))
+            break
+
+        evaluation, eval_tokens = _evaluate_results(
+            openai_client, query, len(findings), objective, model,
+            tracer=tracer, agent_id=agent_id,
         )
+        tokens_used += eval_tokens
         tracer.log(agent_id, "evaluate", result=evaluation)
         tool_calls += 1
 
@@ -248,19 +282,25 @@ def run_subagent(
     summary_parts = [f.title for f in unique_findings[:5]]
     summary = f"Found {len(unique_findings)} results: " + "; ".join(summary_parts)
 
+    # A wipeout across the primary source and every configured fallback (or a
+    # genuinely empty result set) shouldn't self-report as "complete" -- that
+    # word should mean the subagent actually produced something. get_completed()
+    # elsewhere relies on this to mean "has usable findings".
+    status = "complete" if unique_findings else "failed"
+
     result = SubagentResult(
         agent_id=agent_id,
         agent_type=source,
         subtask=objective,
-        status="complete",
+        status=status,
         findings=unique_findings,
         summary=summary,
         queries_used=queries_used,
         tool_calls_count=tool_calls,
-        tokens_used=0,
+        tokens_used=tokens_used,
         elapsed_seconds=elapsed_seconds,
     )
 
     store.store(result)
-    tracer.log(agent_id, "complete", findings_count=len(unique_findings))
+    tracer.log(agent_id, status, findings_count=len(unique_findings))
     return result

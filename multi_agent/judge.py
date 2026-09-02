@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 from typing import Any
 
 from openai import OpenAI
@@ -11,6 +12,7 @@ from multi_agent.config import DEFAULT_MODEL
 from dataclasses import dataclass
 
 from multi_agent.prompts import JUDGE_SYSTEM_PROMPT
+from multi_agent.schemas import validate_or_raw, JudgeSchema
 from multi_agent.trace import Tracer
 
 
@@ -47,6 +49,8 @@ def evaluate_output(
 
     prompt = f"""Evaluate this research output:
 
+Today's date: {datetime.now(timezone.utc).strftime('%Y-%m-%d')}
+
 Original query: {query}
 
 Research report:
@@ -73,6 +77,15 @@ Score each dimension 0.0-1.0 and provide an overall score and pass/fail.
         temperature=0.1,
     )
 
+    if response.usage is not None:
+        tracer.log(
+            "judge", "llm_usage",
+            model=model,
+            prompt_tokens=response.usage.prompt_tokens,
+            completion_tokens=response.usage.completion_tokens,
+            total_tokens=response.usage.total_tokens,
+        )
+
     content = response.choices[0].message.content or "{}"
     try:
         result = json.loads(content)
@@ -87,6 +100,8 @@ Score each dimension 0.0-1.0 and provide an overall score and pass/fail.
             "pass": False,
             "reasoning": "Failed to parse judge response",
         }
+    else:
+        result = validate_or_raw(JudgeSchema, result)
 
     tracer.log("judge", "complete", overall=result.get("overall", 0.0))
     return result

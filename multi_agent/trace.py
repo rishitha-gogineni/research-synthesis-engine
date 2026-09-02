@@ -49,7 +49,15 @@ class Tracer:
             "agents_involved": list(agents),
             "elapsed_seconds": time.time() - self._start_time,
             "events_by_type": self._count_by_type(),
+            "total_tokens": self._sum_tokens(),
         }
+
+    def _sum_tokens(self) -> int:
+        return sum(
+            e.data.get("total_tokens", 0)
+            for e in self._events
+            if e.event_type == "llm_usage"
+        )
 
     def _count_by_type(self) -> dict[str, int]:
         counts: dict[str, int] = {}

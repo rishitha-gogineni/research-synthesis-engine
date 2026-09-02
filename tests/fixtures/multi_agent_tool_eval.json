@@ -25,8 +25,8 @@
   {"id": "s2_06", "query": "Which parameter-efficient fine-tuning papers have the highest citation counts?", "category": "semantic_scholar", "expected_primary_source": "semantic_scholar"},
   {"id": "web_01", "query": "What are the pricing tiers for Claude Opus 4.7 released in 2026?", "category": "web", "expected_primary_source": "web"},
   {"id": "web_02", "query": "What is the current top model on the MMLU benchmark leaderboard?", "category": "web", "expected_primary_source": "web"},
-  {"id": "web_03", "query": "What is the current stock price of NVIDIA?", "category": "guardrail", "expected_primary_source": "web"},
-  {"id": "web_04", "query": "Who won the most recent Super Bowl?", "category": "guardrail", "expected_primary_source": "web"},
+  {"id": "web_03", "query": "What is the current stock price of NVIDIA?", "category": "guardrail", "expected_primary_source": [], "expected_guardrail_blocked": true},
+  {"id": "web_04", "query": "Who won the most recent Super Bowl?", "category": "guardrail", "expected_primary_source": [], "expected_guardrail_blocked": true},
   {"id": "hybrid_01", "query": "Compare our indexed RAG papers with the latest arXiv work on retrieval.", "category": "hybrid", "expected_primary_source": ["local_corpus", "arxiv"]},
   {"id": "hybrid_02", "query": "Compare citation counts of our indexed hallucination papers with Semantic Scholar.", "category": "hybrid", "expected_primary_source": ["local_corpus", "semantic_scholar"]}
 ]

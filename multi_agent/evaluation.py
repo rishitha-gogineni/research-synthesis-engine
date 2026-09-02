@@ -14,6 +14,7 @@ Usage:
 from __future__ import annotations
 
 import json
+import os
 import random
 import time
 from dataclasses import dataclass, field, asdict
@@ -48,6 +49,7 @@ class ToolEvalCase:
     category: str
     expected_primary_source: list[str]
     expected_precheck: str | None = None
+    expected_guardrail_blocked: bool = False
 
 
 @dataclass
@@ -69,13 +71,16 @@ class CaseResult:
     expected_precheck: str | None = None
     actual_precheck: str | None = None
     precheck_matched: bool | None = None
+    expected_guardrail_blocked: bool = False
+    guardrail_correct: bool | None = None
+    hallucination_flags: list[str] = field(default_factory=list)
 
 
 def load_tool_eval_cases(path: Path = DEFAULT_FIXTURE) -> list[ToolEvalCase]:
     raw = json.loads(path.read_text(encoding="utf-8"))
     cases = []
     for item in raw:
-        expected = item["expected_primary_source"]
+        expected = item.get("expected_primary_source", [])
         if isinstance(expected, str):
             expected = [expected]
         cases.append(ToolEvalCase(
@@ -84,6 +89,7 @@ def load_tool_eval_cases(path: Path = DEFAULT_FIXTURE) -> list[ToolEvalCase]:
             category=item["category"],
             expected_primary_source=expected,
             expected_precheck=item.get("expected_precheck"),
+            expected_guardrail_blocked=item.get("expected_guardrail_blocked", False),
         ))
     return cases
 
@@ -191,12 +197,18 @@ def run_tool_eval(
 
         # Check guardrail
         guardrail = result.get("guardrail", {})
-        if not guardrail.get("safe", True):
-            cr.guardrail_blocked = True
+        actual_blocked = not guardrail.get("safe", True)
+        cr.guardrail_blocked = actual_blocked
+        cr.expected_guardrail_blocked = case.expected_guardrail_blocked
+        cr.guardrail_correct = actual_blocked == case.expected_guardrail_blocked
+        if actual_blocked:
             cr.judge_reasoning = f"Blocked: {guardrail.get('reason', '')}"
             results.append(cr)
-            print(f"  BLOCKED by guardrail: {guardrail.get('category')}")
+            tag = "expected" if cr.guardrail_correct else "UNEXPECTED (false positive)"
+            print(f"  BLOCKED by guardrail: {guardrail.get('category')} [{tag}]")
             continue
+        elif case.expected_guardrail_blocked:
+            print("  WARNING: expected guardrail block but query passed through (regression)")
 
         # Extract judge scores
         judge = result.get("judge_scores", {})
@@ -228,6 +240,12 @@ def run_tool_eval(
         answer = synthesis.get("synthesis", "") if isinstance(synthesis, dict) else ""
         cr.answer_snippet = answer[:200]
 
+        # Hallucination flags (numeric claims not grounded in any finding)
+        cited_report = result.get("cited_report", {})
+        cr.hallucination_flags = (
+            cited_report.get("hallucination_flags", []) if isinstance(cited_report, dict) else []
+        )
+
         # Print agent details
         store_summary = result.get("store_summary", {})
         agents = store_summary.get("agents", [])
@@ -257,7 +275,8 @@ def run_tool_eval(
         if cr.expected_precheck is not None:
             tier = "OK" if cr.precheck_matched else f"MISS(got {cr.actual_precheck})"
             pc = f" | Precheck: {tier}"
-        print(f"  Judge: {cr.judge_overall:.2f} ({status}) | Route: {route}{pc} | Sources: {cr.sources_assigned}")
+        hc = f" | Hallucinations: {cr.hallucination_flags}" if cr.hallucination_flags else ""
+        print(f"  Judge: {cr.judge_overall:.2f} ({status}) | Route: {route}{pc} | Sources: {cr.sources_assigned}{hc}")
         results.append(cr)
 
     # Compute aggregate metrics
@@ -267,12 +286,16 @@ def run_tool_eval(
     precheck_checked = [r for r in valid if r.precheck_matched is not None]
     precheck_match_count = sum(1 for r in precheck_checked if r.precheck_matched)
     untested = sorted(ALL_KNOWN_SOURCES - all_sources_invoked)
+    guardrail_checked = [r for r in results if not r.error]
+    guardrail_correct_count = sum(1 for r in guardrail_checked if r.guardrail_correct)
+    hallucination_cases = sum(1 for r in valid if r.hallucination_flags)
 
     report = {
         "total_cases": len(cases),
         "completed": len(valid),
         "errors": sum(1 for r in results if r.error),
         "guardrail_blocked": sum(1 for r in results if r.guardrail_blocked),
+        "guardrail_accuracy": round(guardrail_correct_count / len(guardrail_checked), 3) if guardrail_checked else None,
         "pass_rate": round(pass_count / len(valid), 3) if valid else 0.0,
         "avg_judge_overall": round(sum(r.judge_overall for r in valid) / len(valid), 3) if valid else 0.0,
         "routing_hint_match_rate": round(route_match_count / len(valid), 3) if valid else 0.0,
@@ -281,6 +304,7 @@ def run_tool_eval(
         "untested_tools": untested,
         "all_sources_invoked": sorted(all_sources_invoked),
         "avg_elapsed_seconds": round(sum(r.elapsed_seconds for r in valid) / len(valid), 1) if valid else 0.0,
+        "hallucination_flagged_cases": hallucination_cases,
         "cases": [asdict(r) for r in results],
     }
 
@@ -332,6 +356,12 @@ def main() -> None:
     parser.add_argument("--history", type=Path, default=DEFAULT_HISTORY_OUTPUT)
     parser.add_argument("--review", type=Path, default=DEFAULT_REVIEW_OUTPUT)
     parser.add_argument("--trace-dir", type=Path, default=DEFAULT_TRACE_DIR)
+    parser.add_argument(
+        "--pace-seconds", type=float,
+        default=float(os.environ.get("RSE_EVAL_PACE_SECONDS", 8.0)),
+        help="Seconds to sleep between cases to avoid rate limits (default 8.0, "
+             "or $RSE_EVAL_PACE_SECONDS). Lower it if your OpenAI TPM limit has headroom.",
+    )
     args = parser.parse_args()
 
     load_env_file(Path(".env"))
@@ -339,8 +369,17 @@ def main() -> None:
     if args.limit:
         cases = cases[:args.limit]
 
+    # Warm up the reranker's cross-encoder model before timing starts — it's
+    # lazily downloaded/loaded from Hugging Face on first use, and that cold
+    # start can eat enough of case 1's time budget to make its search return
+    # empty (case 1 looks like a routing/search bug when it's really just an
+    # untimed download racing the request).
+    print("Warming up reranker model...")
+    from retrieval.rerank import load_cross_encoder
+    load_cross_encoder()
+
     print(f"Running {len(cases)} eval cases...")
-    report = run_tool_eval(cases, trace_dir=args.trace_dir)
+    report = run_tool_eval(cases, trace_dir=args.trace_dir, pace_seconds=args.pace_seconds)
 
     # Save results
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -355,6 +394,7 @@ def main() -> None:
         "avg_judge_overall": report["avg_judge_overall"],
         "routing_hint_match_rate": report["routing_hint_match_rate"],
         "precheck_match_rate": report.get("precheck_match_rate"),
+        "guardrail_accuracy": report.get("guardrail_accuracy"),
         "untested_tools": report["untested_tools"],
     }
     args.history.parent.mkdir(parents=True, exist_ok=True)
@@ -377,7 +417,11 @@ def main() -> None:
     print(f"Routing hint match: {report['routing_hint_match_rate']:.1%}")
     if report.get("precheck_match_rate") is not None:
         print(f"Pre-check tier match: {report['precheck_match_rate']:.1%} ({report['precheck_cases_checked']} corpus cases)")
+    if report.get("guardrail_accuracy") is not None:
+        print(f"Guardrail accuracy: {report['guardrail_accuracy']:.1%}")
     print(f"Avg latency: {report['avg_elapsed_seconds']:.1f}s")
+    if report.get("hallucination_flagged_cases"):
+        print(f"WARNING: unverified numeric claims in {report['hallucination_flagged_cases']} case(s)")
     if report["untested_tools"]:
         print(f"WARNING: untested tools: {report['untested_tools']}")
     else:

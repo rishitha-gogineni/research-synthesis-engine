@@ -20,16 +20,54 @@ Source selection rules (FOLLOW THE CORPUS PRE-CHECK STRICTLY):
 Do NOT add arxiv/semantic_scholar/web — the corpus already has the depth.
 - If the pre-check says "abstract_only" → spawn 2 subagents in parallel: \
 local_corpus (get the abstract-level info) AND ONE external source chosen to \
-match the query's intent — use semantic_scholar if the query asks about \
-citation counts or "most cited" papers, otherwise use arxiv to fetch the full \
-paper. Do NOT spawn both arxiv and semantic_scholar here.
+match the query's intent (see the per-tool guide below). Do NOT spawn both \
+arxiv and semantic_scholar here.
 - If the pre-check says "no_match" → skip local_corpus entirely. Spawn \
-arxiv/semantic_scholar/web based on the query type:
-  - "latest"/"2026"/recent preprints → arxiv
-  - citation counts / most-cited → semantic_scholar
-  - non-research (news, prices, events) → web
+1-2 external subagents chosen by the per-tool guide below.
 - Never spawn all 4 sources at once — the pre-check tells you which are needed.
 - Do not spawn "just in case" subagents.
+
+What each tool accepts (use this to decide, don't guess):
+
+- local_corpus — a curated index of AI/ML papers (see corpus description \
+above). Always the first choice for stable concepts, methods, and findings, \
+INCLUDING simple definitional questions ("what is RAG", "what is fine-tuning", \
+"explain attention") when the topic is one the corpus covers — the pre-check \
+already tells you if it does. Never send a definitional question straight to \
+web; the corpus (or arxiv/semantic_scholar as a fallback) is authoritative and \
+cheaper.
+
+- arxiv — full paper text/abstracts, searched by keyword relevance (not \
+natural-language Q&A). Use for: "latest"/"recent"/a specific year, new \
+preprints, or any AI/ML paper-level topic the pre-check says is a no_match / \
+abstract_only. Do NOT use for product pricing, leaderboards, or anything that \
+isn't a paper.
+
+- semantic_scholar — keyword/relevance search over paper titles and \
+abstracts, not natural-language Q&A. Every result already includes a \
+citationCount field automatically. Use ONLY when the query is specifically \
+about citation counts, "most cited" papers, or a paper's academic impact. \
+Phrase queries as JUST the paper's title (e.g. "BERT: Pre-training of Deep \
+Bidirectional Transformers") — \
+do NOT append words like "citations" or "citation count", which push the \
+search toward unrelated meta-papers about citation practices instead of the \
+target paper itself.
+
+- web — for information that is true RIGHT NOW and changes over time, about \
+AI/ML products and tooling specifically, NOT indexed by academic search: \
+  - model/product pricing and specs (e.g. subscription tiers for a \
+commercial LLM API, a model's context window size)
+  - live leaderboards/benchmarks (e.g. which model currently tops a public \
+benchmark leaderboard, or ranks highest on a community arena)
+  - release notes / product announcements ("what's new in the latest Llama \
+release")
+  - current tool/library capabilities ("does vLLM support speculative \
+decoding yet")
+  Test: would the answer plausibly be outdated in 3 months? If yes → web. If \
+it's a stable concept, method, or finding → local_corpus/arxiv/semantic_scholar \
+instead, never web. Do NOT use web for anything outside the AI/ML domain \
+(stock prices, sports, weather, general news) — those should not reach \
+planning at all; the guardrail blocks them upstream.
 
 For each subtask, provide:
 1. A clear objective (what to find)
@@ -51,7 +89,7 @@ source selection rules in the system prompt — try local_corpus first for
 established AI/ML topics before adding external sources.
 
 Example 1 — in-corpus question:
-Query: "How does LoRA reduce GPU memory during fine-tuning?"
+Query: "How do low-rank adapters cut GPU memory usage when fine-tuning a model?"
 {{
   "reasoning": "LoRA is well-covered in the corpus (PEFT topic). No need for external sources.",
   "subtasks": [
@@ -64,18 +102,18 @@ Query: "How does LoRA reduce GPU memory during fine-tuning?"
 }}
 
 Example 2 — needs external sources:
-Query: "What are the latest arXiv papers on Mamba state-space models from 2026?"
+Query: "What are the newest arXiv papers on selective state-space sequence models this year?"
 {{
-  "reasoning": "Corpus only covers papers through ~2024. Mamba 2026 papers need arXiv and web.",
+  "reasoning": "Corpus only covers older papers on this topic. This year's papers need arXiv and web.",
   "subtasks": [
     {{
-      "id": "s1", "objective": "Find 2026 Mamba papers on arXiv",
-      "source": "arxiv", "queries": ["Mamba state-space 2026", "Mamba architecture"],
-      "boundaries": "Only 2026 papers", "output_format": "Papers with title, date, abstract"
+      "id": "s1", "objective": "Find this year's selective state-space model papers on arXiv",
+      "source": "arxiv", "queries": ["selective state-space sequence model", "state-space architecture"],
+      "boundaries": "Only this year's papers", "output_format": "Papers with title, date, abstract"
     }},
     {{
-      "id": "s2", "objective": "Find recent Mamba blog posts and announcements",
-      "source": "web", "queries": ["Mamba state-space model 2026"],
+      "id": "s2", "objective": "Find recent blog posts and announcements about selective state-space models",
+      "source": "web", "queries": ["selective state-space model announcement"],
       "boundaries": "Only authoritative sources", "output_format": "Articles with key findings"
     }}
   ]
@@ -138,8 +176,23 @@ Current synthesis confidence: {confidence}
 Identified gaps: {gaps}
 
 Based on the gaps identified, create additional subtasks to fill them.
-Return ONLY valid JSON in the same format as the initial plan, no markdown fences.
+Return ONLY valid JSON, no markdown fences, using EXACTLY this schema \
+(same field names as the initial plan — "source" not "search_source", \
+"queries" not "search_queries", "boundaries" not "task_boundaries"):
+{{
+  "subtasks": [
+    {{
+      "id": "followup_1",
+      "objective": "What this subagent should find",
+      "source": "local_corpus|arxiv|semantic_scholar|web",
+      "queries": ["short query 1", "short query 2"],
+      "boundaries": "What to exclude",
+      "output_format": "List of papers with title, key finding, and relevance"
+    }}
+  ]
+}}\
 """
+
 
 SUBAGENT_SYSTEM_PROMPT = """\
 You are a specialized research subagent. Your job is to search for
@@ -155,6 +208,12 @@ Do NOT:
 - Use overly long, specific queries
 - Continue searching if you already have good results
 - Duplicate searches with slightly different wording
+- On semantic_scholar tasks about a specific paper's citation count, refine \
+the query by appending words like "citations" or "citation count" — that is \
+a keyword search over paper text, so it pulls in unrelated meta-papers about \
+citation practices instead of the target paper. Refine with the paper's own \
+title/keywords instead; the citationCount field is already attached to every \
+result automatically.
 
 Return ONLY valid JSON in all responses. No markdown fences.
 """
@@ -241,6 +300,13 @@ Scoring rubric (apply consistently):
    0.4-0.6: Mostly correct tools but some wasted calls
    0.7-0.8: Right tools used with minor inefficiency
    0.9-1.0: Optimal tool selection with no wasted calls
+
+The user prompt tells you today's actual date. Your own training data has an \
+earlier cutoff — do NOT treat a source or paper dated at or near today's date \
+as impossible, fabricated, or unverifiable just because it postdates what you \
+"know". Judge factual_accuracy and citation_accuracy only against whether the \
+claims match the provided sources, never against your internal sense of what \
+year it is.
 
 Pass threshold: overall >= 0.6
 
