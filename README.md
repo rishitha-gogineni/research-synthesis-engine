@@ -201,8 +201,6 @@ Single-agent vs multi-agent comparison (LLM-as-judge, 5 complex queries):
 
 Multi-agent trades latency for quality: parallel subagents (LocalCorpus, Arxiv, SemanticScholar, Web) cover more ground per query, and the citation + judge passes catch hallucinations the single-agent pipeline misses. Judge dimensions: factual accuracy, citation accuracy, completeness, source quality, tool efficiency.
 
-The repository includes 445 automated tests with external services mocked for deterministic regression testing.
-
 ## Data and retrieval design
 
 - 250 paper records are indexed for metadata and abstract retrieval.
