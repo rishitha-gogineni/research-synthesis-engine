@@ -611,7 +611,7 @@ FastAPI backend is stable enough for the Day 21 Streamlit analyst workspace
 Goal: create a usable research analyst UI over the FastAPI backend.
 
 Implemented:
-- `ui/streamlit_app.py` for the Streamlit workspace
+- `ui/multi_agent_app.py` for the Streamlit workspace
 - `ui/api_client.py` for lightweight API calls and response shaping
 - Suggested-question selector, free-text question box, topic filters, year filters, full-text evidence control, evidence-depth control, and diagnostics toggle
 - Cheap route preview through `POST /route`

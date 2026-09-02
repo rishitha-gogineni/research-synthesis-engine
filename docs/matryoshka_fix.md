@@ -1,5 +1,7 @@
 # Matryoshka Embedding and Router Fix Evaluation
 
+> Historical record: `tests/fixtures/eval_queries_v2.json` has since been superseded and no longer exists. Numbers below are preserved for audit trail, not reproducible as-is.
+
 ## Commands
 
 Baseline command saved from Task 3:

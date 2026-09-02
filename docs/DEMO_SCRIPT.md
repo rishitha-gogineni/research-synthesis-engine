@@ -9,7 +9,7 @@ Start the local services:
 ```bash
 docker compose up -d qdrant
 uvicorn api.main:app --reload
-RSE_API_URL=http://localhost:8000 streamlit run ui/streamlit_app.py
+RSE_API_URL=http://localhost:8000 streamlit run ui/multi_agent_app.py
 ```
 
 Confirm the backend is healthy:
